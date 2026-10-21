@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Export Documentation Management System (EDMS) - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">RG</div>
+        <div class="brand-info">
+          <h1>Reliance Granito</h1>
+          <span>Export EDMS Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a href="index.html" class="nav-link active">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard & Tower</span>
+        </a>
+        <a href="shipments.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span>Shipment Management</span>
+          <span class="nav-badge blue">3 Live</span>
+        </a>
+        <a href="shipment-detail.html?id=SHP-1469" class="nav-link" style="background:rgba(245,158,11,0.08); border-left:2px solid var(--accent-gold);">
+          <i class="bi bi-star-fill" style="color:var(--accent-gold);"></i>
+          <span>Active SHP-1469 Hub</span>
+          <span class="nav-badge gold">Primary</span>
+        </a>
+
+        <div class="nav-category">Export Documents</div>
+        <a href="commercial-invoice.html" class="nav-link">
+          <i class="bi bi-receipt"></i>
+          <span>Commercial Invoice</span>
+          <span class="nav-badge">Original / Edit</span>
+        </a>
+        <a href="shipping-bill.html" class="nav-link">
+          <i class="bi bi-file-earmark-ruled"></i>
+          <span>Shipping Bill (6-Page)</span>
+          <span class="nav-badge">ICEGATE</span>
+        </a>
+        <a href="bill-of-lading.html" class="nav-link">
+          <i class="bi bi-compass"></i>
+          <span>Bill of Lading & HIDE</span>
+          <span class="nav-badge gold">Masking</span>
+        </a>
+
+        <div class="nav-category">Validation & Governance</div>
+        <a href="validation-review.html" class="nav-link">
+          <i class="bi bi-shield-check"></i>
+          <span>Cross-Doc Validation</span>
+          <span class="nav-badge danger">1 Mismatch</span>
+        </a>
+        <a href="masters.html" class="nav-link">
+          <i class="bi bi-database"></i>
+          <span>Master Registers</span>
+        </a>
+        <a href="audit-logs.html" class="nav-link">
+          <i class="bi bi-clock-history"></i>
+          <span>Audit Trail & Versions</span>
+        </a>
+
+        <div class="nav-category">Plant & CRM</div>
+        <a href="buyers-inquiries.html" class="nav-link">
+          <i class="bi bi-globe"></i>
+          <span>Buyers & Inquiries</span>
+        </a>
+        <a href="production-qc.html" class="nav-link">
+          <i class="bi bi-gear-wide-connected"></i>
+          <span>Morbi Plant & QC</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="morbi-facility-status">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="status-dot-pulse"></div>
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.68rem; color:var(--text-dim);">IEC: ABEFR3842G Verified</div>
+            </div>
+          </div>
+          <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Active</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      <!-- Top Navbar -->
+      <header class="top-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="bi bi-list" style="font-size:1.5rem;"></i>
+        </button>
+
+        <div class="top-search-box">
+          <i class="bi bi-search" style="opacity:0.6;"></i>
+          <input type="text" id="globalSearch" placeholder="Search Shipment #, Invoice, SB, BL, Container..." oninput="handleGlobalSearch(this.value)">
+        </div>
+
+        <div class="top-actions">
+          <div class="prototype-tag">
+            <i class="bi bi-cpu"></i>
+            <span>Prototype Mode</span>
+          </div>
+
+          <a href="shipments.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i>
+            <span>+ Create Shipment</span>
+          </a>
+
+          <!-- User Profile Display -->
+          <div class="user-profile-badge" onclick="window.location.href='login.html'">
+            <div class="user-avatar" id="navUserAvatar">RP</div>
+            <div class="user-details d-none d-md-block">
+              <div class="user-name" id="navUserName">Rajesh B. Patel</div>
+              <div class="user-role" id="navUserRole">Head of Export Documentation</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body -->
+      <main class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title-group">
+            <h2>Export Documentation Control Tower</h2>
+            <p>End-to-end management of Commercial Invoices, ICEGATE Shipping Bills, Multimodal BLs, and 3-Way Discrepancy Audits</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="resetDemoData()">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              <span>Reset Demo Store</span>
+            </button>
+            <a href="shipment-detail.html?id=SHP-1469" class="btn btn-primary">
+              <i class="bi bi-box-arrow-up-right"></i>
+              <span>Open Primary Consignment (SHP-1469)</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- System Alert Banner for Active Discrepancy in SHP-1469 -->
+        <div style="background:rgba(244, 63, 94, 0.12); border:1px solid rgba(244, 63, 94, 0.35); border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:rgba(244,63,94,0.2); display:flex; align-items:center; justify-content:center; color:#FB7185; font-size:1.2rem; flex-shrink:0;">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div>
+              <div style="font-size:0.9rem; font-weight:700; color:#FFF;">Action Required: Cross-Document Discrepancy in Consignment SHP-1469</div>
+              <div style="font-size:0.78rem; color:#FDA4AF; margin-top:2px;">
+                Buyer destination amended from Da Nang to Hai Phong between Original Invoice and Bill of Lading. Review and record confirmed manual override before finalization.
+              </div>
+            </div>
+          </div>
+          <a href="validation-review.html?id=SHP-1469" class="btn btn-danger btn-sm">
+            <i class="bi bi-shield-exclamation"></i>
+            <span>Resolve Discrepancy →</span>
+          </a>
+        </div>
+
+        <!-- Shipment Statistics KPIs -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Active Export Shipments</span>
+              <div class="metric-icon-wrap" style="color: #60A5FA;">
+                <i class="bi bi-box-seam" style="font-size:1.2rem;"></i>
+              </div>
+            </div>
+            <div class="metric-value">3 Consignments</div>
+            <div class="metric-footer">
+              <span class="metric-trend trend-up">SHP-1469 Active</span>
+              <span>Granite & Vitrified Tiles</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Pending Invoices & SBs</span>
+              <div class="metric-icon-wrap" style="color: #F59E0B;">
+                <i class="bi bi-receipt-cutoff" style="font-size:1.2rem;"></i>
+              </div>
+            </div>
+            <div class="metric-value">2 Documents</div>
+            <div class="metric-footer">
+              <span class="metric-trend trend-down">1 Awaiting Finalization</span>
+              <span>6-Page SB Mapped</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Discrepancies Flagged</span>
+              <div class="metric-icon-wrap" style="color: #F43F5E;">
+                <i class="bi bi-shield-x" style="font-size:1.2rem;"></i>
+              </div>
+            </div>
+            <div class="metric-value">1 Mismatch</div>
+            <div class="metric-footer">
+              <span class="metric-trend trend-down">SHP-1469 Consignee</span>
+              <span>1 Valuation Warning</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Immutable Versions Archived</span>
+              <div class="metric-icon-wrap" style="color: #10B981;">
+                <i class="bi bi-lock-fill" style="font-size:1.2rem;"></i>
+              </div>
+            </div>
+            <div class="metric-value">4 Versions Locked</div>
+            <div class="metric-footer">
+              <span class="metric-trend trend-up">SHA-256 Checksums</span>
+              <span>Non-Destructive Overrides</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Dashboard Split: Recent Shipments & Quick Widgets -->
+        <div class="row g-4">
+          <!-- Recent Shipments Table -->
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="bi bi-truck"></i>
+                  <span>Recent Export Consignments</span>
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="shipments.html" class="btn btn-secondary btn-sm">View All Shipments →</a>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table" id="dashboardShipmentsTable">
+                  <thead>
+                    <tr>
+                      <th>Shipment ID</th>
+                      <th>Exporter & Buyer</th>
+                      <th>Cargo & Quantity</th>
+                      <th>Container & Seal</th>
+                      <th>Invoice Total</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardShipmentsBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 3-Way Discrepancy & Validation Summary Widget -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="bi bi-arrow-left-right"></i>
+                  <span>Cross-Document Validation Status (Invoice ↔ Shipping Bill ↔ BL)</span>
+                </div>
+                <a href="validation-review.html?id=SHP-1469" class="btn btn-primary btn-sm">Audit Discrepancies →</a>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table" style="font-size:0.82rem;">
+                    <thead>
+                      <tr>
+                        <th>Comparison Parameter</th>
+                        <th>Commercial Invoice</th>
+                        <th>Shipping Bill (ICEGATE)</th>
+                        <th>Bill of Lading (BL)</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboardDiscrepancySummaryBody">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Documents Awaiting Review & Recent Activities -->
+          <div class="col-lg-4">
+            <!-- Documents Awaiting Review / Approval -->
+            <div class="card mb-4">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="bi bi-clock"></i>
+                  <span>Documents In Queue</span>
+                </div>
+                <span class="badge badge-production">2 Pending</span>
+              </div>
+              <div class="card-body p-3" style="display:flex; flex-direction:column; gap:12px;">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); padding:12px; border-radius:8px;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="color:#60A5FA; font-size:0.86rem;">INV-1469 (Edited v1.1)</strong>
+                    <span class="badge badge-production">Review</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Consignee address updated for Hai Phong discharge.</div>
+                  <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary border-opacity-25">
+                    <span style="font-size:0.72rem; color:var(--text-dim);">SHP-1469 • $16,425.27 USD</span>
+                    <a href="commercial-invoice.html?id=INV-1469" class="btn btn-secondary btn-sm py-0 px-2" style="font-size:0.72rem;">Inspect</a>
+                  </div>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); padding:12px; border-radius:8px;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong style="color:#60A5FA; font-size:0.86rem;">SB-9716398 (6-Page)</strong>
+                    <span class="badge badge-confirmed">LEO Passed</span>
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Customs House Chennai. Official signed PDF attached.</div>
+                  <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary border-opacity-25">
+                    <span style="font-size:0.72rem; color:var(--text-dim);">SHP-1469 • 226 Pkgs</span>
+                    <a href="shipping-bill.html?id=SB-9716398" class="btn btn-secondary btn-sm py-0 px-2" style="font-size:0.72rem;">View EDI</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Audit Trail Feed -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="bi bi-journal-text"></i>
+                  <span>Recent Audit History</span>
+                </div>
+                <a href="audit-logs.html" style="font-size:0.78rem; color:var(--primary-light);">Full Trail →</a>
+              </div>
+              <div class="card-body p-3">
+                <div id="dashboardAuditFeed" style="display:flex; flex-direction:column; gap:12px; font-size:0.78rem;">
+                  <!-- Populated via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderDashboard();
+    });
+
+    function renderDashboard() {
+      const data = getExportData();
+      renderShipmentsTable(data);
+      renderDiscrepancySummary(data);
+      renderAuditFeed(data);
+    }
+
+    function renderShipmentsTable(data) {
+      const tbody = document.getElementById("dashboardShipmentsBody");
+      tbody.innerHTML = "";
+
+      data.shipments.forEach(s => {
+        const buyer = data.parties.find(p => p.id === s.buyerPartyId) || { name: "CJ Stone Co. Ltd", country: "Vietnam" };
+        let statusBadge = "badge-draft";
+        if (s.status === "Approved") statusBadge = "badge-approved";
+        if (s.status === "Discrepancy Flagged") statusBadge = "badge-discrepancy";
+        if (s.status === "In-Review") statusBadge = "badge-review";
+        if (s.status === "Finalized") statusBadge = "badge-finalized";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <a href="shipment-detail.html?id=${s.shipmentNumber}" style="font-weight:700; color:#60A5FA;">
+              ${s.shipmentNumber}
+            </a>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${s.createdAt}</div>
+          </td>
+          <td>
+            <div style="font-weight:600; color:#FFF;">${buyer.name}</div>
+            <div style="font-size:0.75rem; color:var(--accent-gold);">${s.podName} (${s.incoterms})</div>
+          </td>
+          <td>
+            <div>${s.totalQuantitySqm.toLocaleString()} SQM</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${s.totalPackages} ${s.packageType} (${(s.grossWeightKg/1000).toFixed(1)} MT)</div>
+          </td>
+          <td>
+            <div style="font-family:monospace; color:#FFF;">${s.containers[0]?.containerNumber || 'TCLU7789571'}</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Seal: ${s.containers[0]?.sealNumber || '14697'}</div>
+          </td>
+          <td>
+            <div style="font-weight:700; color:#34D399;">$${s.totalInvoiceValue.toLocaleString()} USD</div>
+          </td>
+          <td>
+            <span class="badge ${statusBadge}">${s.status}</span>
+          </td>
+          <td>
+            <a href="shipment-detail.html?id=${s.shipmentNumber}" class="btn btn-secondary btn-sm py-1 px-2" style="font-size:0.75rem;">
+              Manage →
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderDiscrepancySummary(data) {
+      const tbody = document.getElementById("dashboardDiscrepancySummaryBody");
+      tbody.innerHTML = "";
+
+      const results = evaluateCrossDocumentValidation("SHP-1469");
+      results.slice(0, 4).forEach(r => {
+        let badge = '<span class="badge badge-confirmed">MATCH</span>';
+        if (r.matchStatus === "MISMATCH") badge = '<span class="badge badge-hold">MISMATCH</span>';
+        if (r.matchStatus === "WARNING") badge = '<span class="badge badge-production">WARNING</span>';
+
+        const tr = document.createElement("tr");
+        tr.className = r.matchStatus === "MISMATCH" ? "discrepancy-row-mismatch" : "";
+        tr.innerHTML = `
+          <td><strong>${r.fieldName}</strong></td>
+          <td style="color:#D1D5DB;">${r.invoiceVal}</td>
+          <td style="color:#D1D5DB;">${r.sbVal}</td>
+          <td style="color:#D1D5DB;">${r.blVal}</td>
+          <td>${badge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAuditFeed(data) {
+      const container = document.getElementById("dashboardAuditFeed");
+      container.innerHTML = "";
+
+      data.auditLogs.slice(0, 4).forEach(log => {
+        const item = document.createElement("div");
+        item.style.borderLeft = "2px solid #3B82F6";
+        item.style.paddingLeft = "10px";
+        item.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <strong style="color:#FFF;">${log.action}</strong>
+            <span style="color:var(--text-dim); font-size:0.7rem;">${log.timestamp.split(' ')[1] || ''}</span>
+          </div>
+          <div style="color:var(--text-muted); margin-top:2px;">${log.newValue}</div>
+          <div style="color:var(--text-dim); font-size:0.7rem; margin-top:2px;">By ${log.user} • ${log.shipmentNumber}</div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function handleGlobalSearch(q) {
+      q = q.toLowerCase();
+      const data = getExportData();
+      const filtered = data.shipments.filter(s => 
+        s.shipmentNumber.toLowerCase().includes(q) ||
+        s.podName.toLowerCase().includes(q) ||
+        s.containers[0]?.containerNumber.toLowerCase().includes(q)
+      );
+      renderShipmentsTable({ shipments: filtered, parties: data.parties });
+    }
+  </script>
+</body>
+</html>

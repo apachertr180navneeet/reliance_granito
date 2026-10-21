@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Indian Customs EDI Shipping Bill (6-Page ICEGATE Form)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">RG</div>
+        <div class="brand-info">
+          <h1>Reliance Granito</h1>
+          <span>Export EDMS Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a href="index.html" class="nav-link">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard & Tower</span>
+        </a>
+        <a href="shipments.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span>Shipment Management</span>
+        </a>
+        <a href="shipment-detail.html?id=SHP-1469" class="nav-link" style="background:rgba(245,158,11,0.08); border-left:3px solid var(--accent-gold);">
+          <i class="bi bi-star-fill" style="color:var(--accent-gold);"></i>
+          <span>Active SHP-1469 Hub</span>
+        </a>
+
+        <div class="nav-category">Export Documents</div>
+        <a href="commercial-invoice.html" class="nav-link">
+          <i class="bi bi-receipt"></i>
+          <span>Commercial Invoice</span>
+        </a>
+        <a href="shipping-bill.html" class="nav-link active">
+          <i class="bi bi-file-earmark-ruled"></i>
+          <span>Shipping Bill (6-Page)</span>
+          <span class="nav-badge">ICEGATE</span>
+        </a>
+        <a href="bill-of-lading.html" class="nav-link">
+          <i class="bi bi-compass"></i>
+          <span>Bill of Lading & HIDE</span>
+        </a>
+
+        <div class="nav-category">Validation & Governance</div>
+        <a href="validation-review.html?id=SHP-1469" class="nav-link">
+          <i class="bi bi-shield-check"></i>
+          <span>Cross-Doc Validation</span>
+        </a>
+        <a href="masters.html" class="nav-link">
+          <i class="bi bi-database"></i>
+          <span>Master Registers</span>
+        </a>
+        <a href="audit-logs.html" class="nav-link">
+          <i class="bi bi-clock-history"></i>
+          <span>Audit Trail & Versions</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="morbi-facility-status">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="status-dot-pulse"></div>
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.68rem; color:var(--text-dim);">Customs EDI Integration</div>
+            </div>
+          </div>
+          <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Active</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="bi bi-list" style="font-size:1.5rem;"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted" style="font-size:0.84rem;">Customs Clearance</span>
+          <span class="text-muted">/</span>
+          <span style="color:#60A5FA; font-weight:700; font-size:0.86rem;">Shipping Bill SB-9716398</span>
+          <span class="badge badge-confirmed">LEO Passed</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openModal('uploadSbModal')">
+            <i class="bi bi-cloud-arrow-up"></i>
+            <span>Upload Official Source PDF</span>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="printDocument('sbContainerToPrint')">
+            <i class="bi bi-printer"></i>
+            <span>Print EDI Docket</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header">
+          <div class="page-title-group">
+            <h2>Indian Customs EDI Shipping Bill (6-Page Mapping)</h2>
+            <p>Official customs clearance docket matching ICEGATE electronic filing standard (Part I to Part VI)</p>
+          </div>
+          <div class="header-actions">
+            <span class="badge badge-confirmed py-2 px-3" style="font-size:0.78rem;">
+              <i class="bi bi-check-circle-fill me-1"></i> Official Signed Customs Source Verified
+            </span>
+          </div>
+        </div>
+
+        <!-- Official Disclaimer Notice (MANDATORY REQUIREMENT) -->
+        <div style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.35); border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:0.8rem; color:#FDE68A; display:flex; align-items:center; gap:10px;">
+          <i class="bi bi-shield-lock-fill" style="font-size:1.2rem; color:#F59E0B; flex-shrink:0;"></i>
+          <div>
+            <strong>Legal Distinction Notice:</strong> The original customs-issued shipping bill (PDF <code>1469 SB ORIGINAL.PDF</code>) is digitally signed by the Central Board of Indirect Taxes and Customs (CBIC) and is preserved immutably. Below is an application-generated structured EDI inspection view and must not be presented as a counterfeit official customs document.
+          </div>
+        </div>
+
+        <!-- 6-Page Navigation Controls -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title"><i class="bi bi-layers"></i> Select Shipping Bill EDI Page (1 of 6)</div>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Port: INMAA1 Chennai &bull; SB Date: 16-FEB-2026</span>
+          </div>
+          <div class="card-body p-3">
+            <div class="d-flex flex-wrap gap-2" id="sbPageSelector">
+              <button type="button" class="btn btn-primary btn-sm" id="btnPage1" onclick="showSbPage(1)">Page 1: Summary & Parties</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnPage2" onclick="showSbPage(2)">Page 2: Cargo & Items</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnPage3" onclick="showSbPage(3)">Page 3: Valuation & Forex</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnPage4" onclick="showSbPage(4)">Page 4: DBK, RoDTEP & Cess</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnPage5" onclick="showSbPage(5)">Page 5: Equipment & Containers</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="btnPage6" onclick="showSbPage(6)">Page 6: LEO & Customs Process</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page View Container -->
+        <div id="sbContainerToPrint">
+          <!-- PAGE 1: SUMMARY & PARTIES -->
+          <div class="sb-page-box" id="sbViewPage1">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - I: SHIPPING BILL SUMMARY & EXPORTER PROFILE</strong>
+              <span class="badge badge-draft">Page 1 of 6</span>
+            </div>
+            <div class="sb-grid">
+              <div class="sb-cell"><div class="sb-cell-label">Customs House</div><div class="sb-cell-val">Customs House, 60 Rajaji Salai, Chennai - 600001</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Port Code (POL)</div><div class="sb-cell-val">INMAA1 (Chennai Sea)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">SB Number & Date</div><div class="sb-cell-val">9716398 / 16-FEB-2026</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Exporter Name</div><div class="sb-cell-val">Reliance Granito</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">IEC & Branch</div><div class="sb-cell-val">ABEFR3842G (Br: 0)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">GSTIN & Type</div><div class="sb-cell-val">08ABEFR3842G1Z5 (GSN)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Customs Broker (CB)</div><div class="sb-cell-val">Blue Water Logistics Limited (AALCB0113DCH001)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">AD Code & Bank A/C</div><div class="sb-cell-val">6390013 / ICICI Bank (ICIC0006827)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Country of Final Destination</div><div class="sb-cell-val">Vietnam, Democratic Rep. Of</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Port of Final Destination</div><div class="sb-cell-val">VNHPH (Haiphong Port)</div></div>
+            </div>
+          </div>
+
+          <!-- PAGE 2: ITEMS -->
+          <div class="sb-page-box" id="sbViewPage2" style="display:none;">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - II: ITEM DECLARATIONS & INVENTORY SPECIFICATIONS</strong>
+              <span class="badge badge-draft">Page 2 of 6</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table" style="font-size:0.82rem;">
+                <thead>
+                  <tr>
+                    <th>Item #</th>
+                    <th>HSN Code</th>
+                    <th>Description</th>
+                    <th>Quantity / UQC</th>
+                    <th>FOB Value (INR)</th>
+                    <th>PMV (INR)</th>
+                    <th>Drawback (INR)</th>
+                    <th>Export Scheme</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td><strong style="color:#60A5FA;">68022310</strong></td>
+                    <td>Indian Polished Granite Slabs</td>
+                    <td>518.69 SQM (226 Pkgs)</td>
+                    <td style="font-weight:700; color:#34D399;">₹13,79,965.00</td>
+                    <td>₹15,50,000.00</td>
+                    <td style="color:var(--accent-gold); font-weight:700;">₹14,697.00</td>
+                    <td>Drawback & RoDTEP (Scheme 19)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- PAGE 3: VALUATION -->
+          <div class="sb-page-box" id="sbViewPage3" style="display:none;">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - III: CUSTOMS VALUATION & FOREX REALIZATION</strong>
+              <span class="badge badge-draft">Page 3 of 6</span>
+            </div>
+            <div class="sb-grid">
+              <div class="sb-cell"><div class="sb-cell-label">Currency of Invoice</div><div class="sb-cell-val">USD ($)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Statutory ICEGATE Exchange Rate</div><div class="sb-cell-val">₹89.475 INR per USD</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Total Invoice Value (USD)</div><div class="sb-cell-val">$16,425.27 USD</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Ocean Freight Deductions</div><div class="sb-cell-val">$900.00 USD</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Insurance Deductions</div><div class="sb-cell-val">$100.00 USD</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Net FOB Value Realized</div><div class="sb-cell-val" style="color:#34D399; font-size:1.1rem;">₹14,69,656.66 INR</div></div>
+            </div>
+          </div>
+
+          <!-- PAGE 4: DBK, RODTEP & CESS -->
+          <div class="sb-page-box" id="sbViewPage4" style="display:none;">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - IV: EXPORT INCENTIVES, DUTY DRAWBACK & IGST SETTLEMENT</strong>
+              <span class="badge badge-draft">Page 4 of 6</span>
+            </div>
+            <div class="sb-grid">
+              <div class="sb-cell"><div class="sb-cell-label">Duty Drawback Claim (DBK)</div><div class="sb-cell-val" style="color:#F59E0B; font-size:1.1rem;">₹14,697.00</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">RoDTEP Government Incentive</div><div class="sb-cell-val" style="color:#34D399; font-size:1.1rem;">₹20,699.00</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">IGST Payable</div><div class="sb-cell-val">₹0.00 (Export under Bond / LUT)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Export Cess & Surcharge</div><div class="sb-cell-val">₹0.00</div></div>
+            </div>
+          </div>
+
+          <!-- PAGE 5: EQUIPMENT & CONTAINERS -->
+          <div class="sb-page-box" id="sbViewPage5" style="display:none;">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - V: EQUIPMENT, CONTAINERS & RFID ELECTRONIC SEALS</strong>
+              <span class="badge badge-draft">Page 5 of 6</span>
+            </div>
+            <div class="sb-grid">
+              <div class="sb-cell"><div class="sb-cell-label">Marine Container ID</div><div class="sb-cell-val" style="font-size:1.1rem; color:#60A5FA;">TCLU7789571</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Customs Bottle Seal ID</div><div class="sb-cell-val" style="font-size:1.1rem; color:#F59E0B;">14697</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Package Count inside Container</div><div class="sb-cell-val">226 Wooden Bundles</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Gross Cargo Weight</div><div class="sb-cell-val">26,500.00 KGS (26.5 MT)</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">CFS Stuffing Location</div><div class="sb-cell-val">Triway CFS, Chennai Sea Port Area</div></div>
+            </div>
+          </div>
+
+          <!-- PAGE 6: LEO & CUSTOMS PROCESS -->
+          <div class="sb-page-box" id="sbViewPage6" style="display:none;">
+            <div class="sb-page-header">
+              <strong style="color:#FFF;">PART - VI: PROCESS DETAILS & LET EXPORT ORDER (LEO) PASS</strong>
+              <span class="badge badge-draft">Page 6 of 6</span>
+            </div>
+            <div class="sb-grid">
+              <div class="sb-cell"><div class="sb-cell-label">EDI Submission Date</div><div class="sb-cell-val">16-FEB-2026 16:02 IST</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Customs Assessment Event</div><div class="sb-cell-val">RMS Facilitated / Self Assessed</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Cargo Examination Event</div><div class="sb-cell-val">Passed 100% X-Ray Scan at Port Gate</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">LEO Granted Order ID</div><div class="sb-cell-val" style="color:#34D399; font-weight:800;">LEO-CH-2026-9716398</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">LEO Passing Timestamp</div><div class="sb-cell-val">17-FEB-2026 17:21:31 IST</div></div>
+              <div class="sb-cell"><div class="sb-cell-label">Customs Officer Digital Seal</div><div class="sb-cell-val">DS CBIC 10 (Chennai Port)</div></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Upload Official Source PDF Placeholder -->
+  <div class="modal fade" id="uploadSbModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-cloud-arrow-up text-primary"></i> Upload Customs-Issued Source PDF</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:0.8rem; color:var(--text-muted);">
+            Upload the authentic signed PDF downloaded from the ICEGATE portal. The original file is stored in a private private document repository and is never overwritten.
+          </p>
+          <div class="border border-secondary border-dashed rounded p-4 text-center my-3" style="background:rgba(255,255,255,0.02);">
+            <i class="bi bi-file-earmark-pdf text-danger" style="font-size:2.5rem;"></i>
+            <div class="mt-2 text-white fw-bold">1469 SB ORIGINAL.PDF</div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">Size: 514 KB &bull; SHA-256 Verified</div>
+          </div>
+          <div class="form-group mb-2">
+            <label>Upload New Revision / Amendment (if any)</label>
+            <input type="file" class="form-control" accept=".pdf">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" onclick="closeModal('uploadSbModal'); showToast('Customs Source PDF verified & mapped.');">Confirm & Index PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function showSbPage(pageNum) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`sbViewPage${i}`).style.display = (i === pageNum) ? "block" : "none";
+        const btn = document.getElementById(`btnPage${i}`);
+        if (i === pageNum) {
+          btn.className = "btn btn-primary btn-sm";
+        } else {
+          btn.className = "btn btn-secondary btn-sm";
+        }
+      }
+      showToast(`Showing Shipping Bill Page ${pageNum} of 6`);
+    }
+  </script>
+</body>
+</html>

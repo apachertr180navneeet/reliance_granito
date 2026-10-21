@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Shipment Management & Dispatch Wizard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">RG</div>
+        <div class="brand-info">
+          <h1>Reliance Granito</h1>
+          <span>Export EDMS Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a href="index.html" class="nav-link">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard & Tower</span>
+        </a>
+        <a href="shipments.html" class="nav-link active">
+          <i class="bi bi-box-seam"></i>
+          <span>Shipment Management</span>
+          <span class="nav-badge blue">3 Live</span>
+        </a>
+        <a href="shipment-detail.html?id=SHP-1469" class="nav-link" style="background:rgba(245,158,11,0.08); border-left:2px solid var(--accent-gold);">
+          <i class="bi bi-star-fill" style="color:var(--accent-gold);"></i>
+          <span>Active SHP-1469 Hub</span>
+          <span class="nav-badge gold">Primary</span>
+        </a>
+
+        <div class="nav-category">Export Documents</div>
+        <a href="commercial-invoice.html" class="nav-link">
+          <i class="bi bi-receipt"></i>
+          <span>Commercial Invoice</span>
+        </a>
+        <a href="shipping-bill.html" class="nav-link">
+          <i class="bi bi-file-earmark-ruled"></i>
+          <span>Shipping Bill (6-Page)</span>
+        </a>
+        <a href="bill-of-lading.html" class="nav-link">
+          <i class="bi bi-compass"></i>
+          <span>Bill of Lading & HIDE</span>
+        </a>
+
+        <div class="nav-category">Validation & Governance</div>
+        <a href="validation-review.html" class="nav-link">
+          <i class="bi bi-shield-check"></i>
+          <span>Cross-Doc Validation</span>
+          <span class="nav-badge danger">1 Mismatch</span>
+        </a>
+        <a href="masters.html" class="nav-link">
+          <i class="bi bi-database"></i>
+          <span>Master Registers</span>
+        </a>
+        <a href="audit-logs.html" class="nav-link">
+          <i class="bi bi-clock-history"></i>
+          <span>Audit Trail & Versions</span>
+        </a>
+
+        <div class="nav-category">Plant & CRM</div>
+        <a href="buyers-inquiries.html" class="nav-link">
+          <i class="bi bi-globe"></i>
+          <span>Buyers & Inquiries</span>
+        </a>
+        <a href="production-qc.html" class="nav-link">
+          <i class="bi bi-gear-wide-connected"></i>
+          <span>Morbi Plant & QC</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="morbi-facility-status">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="status-dot-pulse"></div>
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.68rem; color:var(--text-dim);">IEC: ABEFR3842G Verified</div>
+            </div>
+          </div>
+          <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Active</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="bi bi-list" style="font-size:1.5rem;"></i>
+        </button>
+
+        <div class="top-search-box">
+          <i class="bi bi-search" style="opacity:0.6;"></i>
+          <input type="text" id="shipmentSearchInput" placeholder="Filter Shipments by ID, Buyer, Port..." oninput="filterShipments()">
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-primary btn-sm" onclick="openCreateShipmentWizard()">
+            <i class="bi bi-plus-lg"></i>
+            <span>+ New Shipment Wizard</span>
+          </button>
+
+          <div class="user-profile-badge" onclick="window.location.href='login.html'">
+            <div class="user-avatar" id="navUserAvatar">RP</div>
+            <div class="user-details d-none d-md-block">
+              <div class="user-name" id="navUserName">Rajesh B. Patel</div>
+              <div class="user-role" id="navUserRole">Head of Export Documentation</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header">
+          <div class="page-title-group">
+            <h2>Shipment Management Directory</h2>
+            <p>Master registry linking Commercial Invoices, ICEGATE Shipping Bills, and Bills of Lading under unified shipment records</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" onclick="filterByStatus('all')">All</button>
+            <button class="btn btn-secondary" onclick="filterByStatus('Discrepancy Flagged')">Flagged</button>
+            <button class="btn btn-secondary" onclick="filterByStatus('Approved')">Approved</button>
+            <button class="btn btn-primary" onclick="openCreateShipmentWizard()">
+              <i class="bi bi-magic"></i>
+              <span>Launch Creation Wizard</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Shipments Data Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="bi bi-box-seam"></i>
+              <span>Registered Export Shipments</span>
+            </div>
+            <span style="font-size:0.8rem; color:var(--text-muted);" id="shipmentCountDisplay">Loading...</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Shipment ID</th>
+                  <th>Consignee / Importer</th>
+                  <th>Route & Incoterms</th>
+                  <th>Cargo Specifications</th>
+                  <th>Linked Documents</th>
+                  <th>Gross Weight</th>
+                  <th>Validation & Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="shipmentsTableBody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Shipment Creation Wizard -->
+  <div class="modal fade" id="shipmentWizardModal" tabindex="-1" aria-labelledby="shipmentWizardLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="shipmentWizardLabel">
+            <i class="bi bi-magic" style="color:var(--primary-light);"></i>
+            Export Shipment Creation Wizard
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="createShipmentForm" onsubmit="handleCreateShipment(event)">
+            <!-- Wizard Step Navigation -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:12px; margin-bottom:20px; display:flex; justify-content:space-around; font-size:0.8rem;">
+              <span style="color:#60A5FA; font-weight:700;"><i class="bi bi-1-circle-fill"></i> Parties & Route</span>
+              <span style="color:var(--text-muted);"><i class="bi bi-2-circle"></i> Goods & Containers</span>
+              <span style="color:var(--text-muted);"><i class="bi bi-3-circle"></i> Document Association</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Unique Shipment Number</label>
+                <input type="text" class="form-control" id="wizShipmentNumber" readonly value="SHP-1472">
+              </div>
+              <div class="form-group">
+                <label>Exporter Entity *</label>
+                <input type="text" class="form-control" id="wizExporter" readonly value="Reliance Granito (Jodhpur / Morbi)">
+              </div>
+              <div class="form-group">
+                <label>Select Verified Buyer / Importer *</label>
+                <select class="form-select" id="wizBuyer" required>
+                  <option value="BUY-1469">CJ Stone Company Limited (Vietnam)</option>
+                  <option value="BUY-002">Baumarkt Import GmbH (Germany)</option>
+                  <option value="BUY-003">Al-Futtaim Building Materials (UAE)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Port of Loading (POL) *</label>
+                <select class="form-select" id="wizPol" required>
+                  <option value="INMAA1">Chennai Sea Port (INMAA1)</option>
+                  <option value="INMUN1">Mundra Port (INMUN1)</option>
+                  <option value="INPAV1">Pipavav Sea Port (INPAV1)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Port of Discharge (POD) *</label>
+                <input type="text" class="form-control" id="wizPod" required value="Hai Phong Port (VNHPH), Vietnam">
+              </div>
+              <div class="form-group">
+                <label>Incoterms Agreement</label>
+                <select class="form-select" id="wizIncoterms">
+                  <option value="CIF Hai Phong Port">CIF (Cost, Insurance & Freight)</option>
+                  <option value="FOB Mundra Port">FOB (Free On Board)</option>
+                  <option value="CFR Destination Port">CFR (Cost & Freight)</option>
+                </select>
+              </div>
+            </div>
+
+            <hr style="border-color:var(--border-subtle); margin:18px 0;">
+
+            <h6 style="color:#FFF; font-size:0.9rem; margin-bottom:12px;">Cargo, Container & Commercials</h6>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Product Description *</label>
+                <input type="text" class="form-control" id="wizProduct" required value="Polished Granite Slabs (68022310)">
+              </div>
+              <div class="form-group">
+                <label>Total Quantity (SQM) *</label>
+                <input type="number" class="form-control" id="wizQuantity" required value="518.69" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Total Package Count *</label>
+                <input type="number" class="form-control" id="wizPackages" required value="226">
+              </div>
+              <div class="form-group">
+                <label>Container Number *</label>
+                <input type="text" class="form-control" id="wizContainer" required value="TCLU7789571">
+              </div>
+              <div class="form-group">
+                <label>Customs Seal Number *</label>
+                <input type="text" class="form-control" id="wizSeal" required value="14697">
+              </div>
+              <div class="form-group">
+                <label>Gross Weight (KGS) *</label>
+                <input type="number" class="form-control" id="wizGrossWeight" required value="26500">
+              </div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0 mt-4">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Generate Shipment Record →</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderShipments();
+    });
+
+    function renderShipments(filterStatus = "all") {
+      const data = getExportData();
+      const tbody = document.getElementById("shipmentsTableBody");
+      tbody.innerHTML = "";
+
+      let list = data.shipments;
+      if (filterStatus !== "all") {
+        list = list.filter(s => s.status === filterStatus);
+      }
+
+      document.getElementById("shipmentCountDisplay").textContent = `${list.length} Consignments Found`;
+
+      list.forEach(s => {
+        const buyer = data.parties.find(p => p.id === s.buyerPartyId) || { name: "CJ Stone Company Limited", country: "Vietnam" };
+        let statusBadge = "badge-draft";
+        if (s.status === "Approved") statusBadge = "badge-approved";
+        if (s.status === "Discrepancy Flagged") statusBadge = "badge-discrepancy";
+        if (s.status === "In-Review") statusBadge = "badge-review";
+        if (s.status === "Finalized") statusBadge = "badge-finalized";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <a href="shipment-detail.html?id=${s.shipmentNumber}" style="font-weight:700; color:#60A5FA;">
+              ${s.shipmentNumber}
+            </a>
+            <div style="font-size:0.72rem; color:var(--text-dim);">Created: ${s.createdAt}</div>
+          </td>
+          <td>
+            <div style="font-weight:600; color:#FFF;">${buyer.name}</div>
+            <div style="font-size:0.75rem; color:var(--accent-gold);">${s.podName}</div>
+          </td>
+          <td>
+            <div>${s.polName.split(' ')[0]} → ${s.podName.split(' ')[0]}</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${s.incoterms}</div>
+          </td>
+          <td>
+            <div>${s.totalQuantitySqm.toLocaleString()} SQM</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${s.totalPackages} ${s.packageType}</div>
+          </td>
+          <td>
+            <div style="font-size:0.75rem;">
+              <span class="text-info">INV: ${s.commercialInvoiceId}</span><br>
+              <span class="text-warning">SB: ${s.shippingBillId}</span><br>
+              <span class="text-success">BL: ${s.billOfLadingId}</span>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:700; color:#FFF;">${(s.grossWeightKg/1000).toFixed(1)} MT</div>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${s.containers[0]?.containerNumber || 'Cont'}</div>
+          </td>
+          <td>
+            <span class="badge ${statusBadge}">${s.status}</span>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">${s.reviewStatus}</div>
+          </td>
+          <td>
+            <a href="shipment-detail.html?id=${s.shipmentNumber}" class="btn btn-primary btn-sm py-1 px-2" style="font-size:0.75rem;">
+              Open Hub →
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterShipments() {
+      const q = document.getElementById("shipmentSearchInput").value.toLowerCase();
+      const data = getExportData();
+      const filtered = data.shipments.filter(s => 
+        s.shipmentNumber.toLowerCase().includes(q) ||
+        s.podName.toLowerCase().includes(q) ||
+        s.commercialInvoiceId.toLowerCase().includes(q) ||
+        s.shippingBillId.toLowerCase().includes(q) ||
+        s.billOfLadingId.toLowerCase().includes(q)
+      );
+      const tbody = document.getElementById("shipmentsTableBody");
+      tbody.innerHTML = "";
+      filtered.forEach(s => {
+        // same render
+        renderShipments();
+      });
+    }
+
+    function filterByStatus(status) {
+      renderShipments(status);
+      showToast(`Filtered by ${status}`);
+    }
+
+    function openCreateShipmentWizard() {
+      const data = getExportData();
+      const nextId = "SHP-" + (1470 + data.shipments.length);
+      document.getElementById("wizShipmentNumber").value = nextId;
+      openModal("shipmentWizardModal");
+    }
+
+    function handleCreateShipment(e) {
+      e.preventDefault();
+      const data = getExportData();
+      const shpNum = document.getElementById("wizShipmentNumber").value;
+      const buyerId = document.getElementById("wizBuyer").value;
+      const buyer = data.parties.find(p => p.id === buyerId);
+
+      const newShipment = {
+        shipmentNumber: shpNum,
+        exporterPartyId: "EXP-001",
+        buyerPartyId: buyerId,
+        status: "In-Review",
+        reviewStatus: "Ready for Cross-Document Validation",
+        createdAt: new Date().toISOString().split("T")[0],
+        createdBy: data.currentUser.name,
+        polCode: document.getElementById("wizPol").value,
+        polName: document.getElementById("wizPol").options[document.getElementById("wizPol").selectedIndex].text,
+        podCode: "VNHPH",
+        podName: document.getElementById("wizPod").value,
+        incoterms: document.getElementById("wizIncoterms").value,
+        mode: "SEA",
+        totalQuantitySqm: parseFloat(document.getElementById("wizQuantity").value) || 500,
+        totalPackages: parseInt(document.getElementById("wizPackages").value) || 200,
+        packageType: "Wooden Bundles",
+        grossWeightKg: parseFloat(document.getElementById("wizGrossWeight").value) || 26000,
+        netWeightKg: 25500,
+        currency: "USD",
+        declaredValueFob: 15400,
+        freightCharges: 900,
+        insuranceCharges: 100,
+        totalInvoiceValue: 16400,
+        commercialInvoiceId: "INV-" + shpNum.replace("SHP-", ""),
+        shippingBillId: "SB-" + Math.floor(9700000 + Math.random() * 100000),
+        billOfLadingId: "BL-MSC-" + Math.floor(100000 + Math.random() * 900000),
+        containers: [
+          {
+            containerNumber: document.getElementById("wizContainer").value,
+            sealNumber: document.getElementById("wizSeal").value,
+            packageCount: parseInt(document.getElementById("wizPackages").value) || 200,
+            grossWeightKg: parseFloat(document.getElementById("wizGrossWeight").value) || 26000
+          }
+        ],
+        attachments: []
+      };
+
+      data.shipments.unshift(newShipment);
+      saveExportData(data);
+      logAuditEvent(shpNum, "Shipment", "Created New Shipment Record via Wizard", "N/A", `Shipment ${shpNum} generated`);
+      closeModal("shipmentWizardModal");
+      renderShipments();
+      showToast(`Shipment ${shpNum} created successfully!`, "success");
+    }
+  </script>
+</body>
+</html>

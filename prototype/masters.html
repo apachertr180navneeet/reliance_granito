@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Master Data Registers & CRUD Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">RG</div>
+        <div class="brand-info">
+          <h1>Reliance Granito</h1>
+          <span>Export EDMS Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a href="index.html" class="nav-link">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard & Tower</span>
+        </a>
+        <a href="shipments.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span>Shipment Management</span>
+        </a>
+        <a href="shipment-detail.html?id=SHP-1469" class="nav-link" style="background:rgba(245,158,11,0.08); border-left:3px solid var(--accent-gold);">
+          <i class="bi bi-star-fill" style="color:var(--accent-gold);"></i>
+          <span>Active SHP-1469 Hub</span>
+        </a>
+
+        <div class="nav-category">Export Documents</div>
+        <a href="commercial-invoice.html" class="nav-link">
+          <i class="bi bi-receipt"></i>
+          <span>Commercial Invoice</span>
+        </a>
+        <a href="shipping-bill.html" class="nav-link">
+          <i class="bi bi-file-earmark-ruled"></i>
+          <span>Shipping Bill (6-Page)</span>
+        </a>
+        <a href="bill-of-lading.html" class="nav-link">
+          <i class="bi bi-compass"></i>
+          <span>Bill of Lading & HIDE</span>
+        </a>
+
+        <div class="nav-category">Validation & Governance</div>
+        <a href="validation-review.html?id=SHP-1469" class="nav-link">
+          <i class="bi bi-shield-check"></i>
+          <span>Cross-Doc Validation</span>
+        </a>
+        <a href="masters.html" class="nav-link active">
+          <i class="bi bi-database"></i>
+          <span>Master Registers</span>
+        </a>
+        <a href="audit-logs.html" class="nav-link">
+          <i class="bi bi-clock-history"></i>
+          <span>Audit Trail & Versions</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="morbi-facility-status">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="status-dot-pulse"></div>
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.68rem; color:var(--text-dim);">Masters Configuration</div>
+            </div>
+          </div>
+          <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Synced</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="bi bi-list" style="font-size:1.5rem;"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-muted" style="font-size:0.84rem;">Configuration</span>
+          <span class="text-muted">/</span>
+          <span style="color:#60A5FA; font-weight:700; font-size:0.86rem;">Master Registers (CRUD)</span>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-primary btn-sm" onclick="openAddMasterModal()">
+            <i class="bi bi-plus-lg"></i>
+            <span>+ Add Master Record</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <div class="page-header">
+          <div class="page-title-group">
+            <h2>Master Registers & System Entities</h2>
+            <p>Maintain configurable masters for Parties, Products, ITC-HS Codes, Ports, Container Fleet, Templates, and Users</p>
+          </div>
+        </div>
+
+        <!-- Master Tabs Nav -->
+        <ul class="nav nav-tabs mb-4" id="mastersTab" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#m-parties" onclick="currentMasterTab='parties'"><i class="bi bi-people"></i> Parties & Contacts</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-goods" onclick="currentMasterTab='goods'"><i class="bi bi-box"></i> Goods & Products</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-hsn" onclick="currentMasterTab='hsn'"><i class="bi bi-tag"></i> HSN & UQC Codes</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-ports" onclick="currentMasterTab='ports'"><i class="bi bi-geo-alt"></i> Ports & Routes</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-carriers" onclick="currentMasterTab='carriers'"><i class="bi bi-truck"></i> Carriers & Shipping Lines</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-templates" onclick="currentMasterTab='templates'"><i class="bi bi-file-earmark-code"></i> Templates & HIDE Maps</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#m-roles" onclick="currentMasterTab='roles'"><i class="bi bi-person-check"></i> System Login Profile</button></li>
+        </ul>
+
+        <div class="tab-content" id="mastersTabContent">
+          <!-- PARTIES TAB -->
+          <div class="tab-pane fade show active" id="m-parties">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-people"></i> Parties Directory (Exporters, Buyers, Notify Parties, Brokers)</div>
+                <button class="btn btn-primary btn-sm" onclick="openAddPartyModal()">+ Add Party</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Party ID & Type</th>
+                      <th>Legal Entity Name</th>
+                      <th>Country & Port</th>
+                      <th>IEC / Tax Code</th>
+                      <th>Primary Contact</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterPartiesBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- GOODS TAB -->
+          <div class="tab-pane fade" id="m-goods">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-box"></i> Goods Catalog & Packaging Specifications</div>
+                <button class="btn btn-primary btn-sm" onclick="showToast('Add Product modal available')">+ Add Product</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Product ID</th>
+                      <th>Description</th>
+                      <th>HSN</th>
+                      <th>UQC</th>
+                      <th>Unit Rate (USD)</th>
+                      <th>Standard Gross Wt</th>
+                      <th>Packaging Spec</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterGoodsBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- HSN TAB -->
+          <div class="tab-pane fade" id="m-hsn">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-tag"></i> ITC-HS Customs Tariff & Incentive Rates</div>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>HSN Code</th>
+                      <th>Tariff Description</th>
+                      <th>GST Rate</th>
+                      <th>RoDTEP Incentive</th>
+                      <th>Duty Drawback Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterHsnBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PORTS TAB -->
+          <div class="tab-pane fade" id="m-ports">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-geo-alt"></i> Verified International Sea Ports & Route Codes</div>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Port Code</th>
+                      <th>Port Facility Name</th>
+                      <th>Country</th>
+                      <th>Designation</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterPortsBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARRIERS TAB -->
+          <div class="tab-pane fade" id="m-carriers">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-truck"></i> Shipping Lines & Freight Carriers</div>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Carrier ID</th>
+                      <th>Carrier Name</th>
+                      <th>SCAC Code</th>
+                      <th>Service Mode</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterCarriersBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TEMPLATES TAB -->
+          <div class="tab-pane fade" id="m-templates">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-file-earmark-code"></i> Document Templates & HIDE Field Visibility Maps</div>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Template ID</th>
+                      <th>Template Name</th>
+                      <th>Document Type</th>
+                      <th>Version</th>
+                      <th>HIDE Mode Supported</th>
+                      <th>Masked Regions Configuration</th>
+                    </tr>
+                  </thead>
+                  <tbody id="masterTemplatesBody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SYSTEM LOGIN PROFILE TAB -->
+          <div class="tab-pane fade" id="m-roles">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-person-check"></i> Single Authorized Login Account</div>
+                <span class="badge badge-confirmed">Active Operator</span>
+              </div>
+              <div class="card-body">
+                <div class="row g-4 align-items-center">
+                  <div class="col-md-2 text-center">
+                    <div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #1E40AF, #3B82F6); display:inline-flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:800; color:#FFF; box-shadow:0 6px 16px rgba(37,99,235,0.4);">
+                      RG
+                    </div>
+                  </div>
+                  <div class="col-md-10">
+                    <h5 style="color:#FFF; margin-bottom:4px;">Rajesh B. Patel</h5>
+                    <div style="color:var(--accent-gold); font-weight:600; font-size:0.85rem; margin-bottom:8px;">Export Documentation Manager</div>
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">Login Email</div><div class="sb-cell-val" style="color:#60A5FA;">admin@reliancegranito.com</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Assigned Facility</div><div class="sb-cell-val">Jodhpur Export Office & Morbi Plant</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Access Level</div><div class="sb-cell-val" style="color:#34D399;">Full System Operations (Single Login)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Session Status</div><div class="sb-cell-val">Authenticated & Verified</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Party -->
+  <div class="modal fade" id="addPartyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Register Master Party Entity</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form onsubmit="handleSaveParty(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Party Classification *</label>
+                <select class="form-select" id="mPartyType" required>
+                  <option value="Buyer / Importer">Buyer / Importer</option>
+                  <option value="Notify Party">Notify Party</option>
+                  <option value="Consignee">Consignee</option>
+                  <option value="Customs Broker">Customs Broker</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Company Legal Name *</label>
+                <input type="text" class="form-control" id="mPartyName" required placeholder="e.g. Al-Futtaim Trading">
+              </div>
+              <div class="form-group">
+                <label>Country *</label>
+                <input type="text" class="form-control" id="mPartyCountry" required placeholder="e.g. United Arab Emirates">
+              </div>
+              <div class="form-group">
+                <label>Destination Port *</label>
+                <input type="text" class="form-control" id="mPartyPort" required placeholder="e.g. Jebel Ali (AEJEA)">
+              </div>
+              <div class="form-group">
+                <label>IEC / Tax ID</label>
+                <input type="text" class="form-control" id="mPartyTax" placeholder="Tax registration number">
+              </div>
+              <div class="form-group">
+                <label>Contact Email & Phone *</label>
+                <input type="text" class="form-control" id="mPartyContact" required placeholder="person@client.com / +971 4 000 0000">
+              </div>
+              <div class="form-group col-12">
+                <label>Address Details *</label>
+                <textarea class="form-control" id="mPartyAddress" rows="2" required placeholder="Official registered business address"></textarea>
+              </div>
+            </div>
+            <div class="modal-footer px-0 pb-0 mt-3">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Party Entity</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentMasterTab = "parties";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAllMasters();
+    });
+
+    function renderAllMasters() {
+      const data = getExportData();
+
+      // Parties
+      const pBody = document.getElementById("masterPartiesBody");
+      pBody.innerHTML = "";
+      data.parties.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <strong style="color:#60A5FA;">${p.id}</strong>
+            <div><span class="badge badge-draft">${p.partyType}</span></div>
+          </td>
+          <td>
+            <strong style="color:#FFF;">${p.name}</strong>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${p.address}</div>
+          </td>
+          <td>${p.country} <div style="font-size:0.72rem; color:var(--accent-gold);">${p.port || ''}</div></td>
+          <td>${p.iec || p.taxCode || 'N/A'}</td>
+          <td>${p.contact}</td>
+          <td>
+            <button class="btn btn-secondary btn-sm py-0 px-2" onclick="showToast('Viewing ${p.name}')">View</button>
+            <button class="btn btn-danger btn-sm py-0 px-2" onclick="deleteParty('${p.id}')">Delete</button>
+          </td>
+        `;
+        pBody.appendChild(tr);
+      });
+
+      // Goods
+      const gBody = document.getElementById("masterGoodsBody");
+      gBody.innerHTML = "";
+      data.products.forEach(g => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong style="color:#60A5FA;">${g.id}</strong></td>
+          <td><strong style="color:#FFF;">${g.name}</strong><div style="font-size:0.72rem; color:var(--text-dim);">${g.description}</div></td>
+          <td><span class="badge badge-draft">${g.hsn}</span></td>
+          <td>${g.uqc}</td>
+          <td>$${g.unitPriceUsd}</td>
+          <td>${g.standardGrossWtPerSqm} KG/SQM</td>
+          <td>${g.packaging}</td>
+        `;
+        gBody.appendChild(tr);
+      });
+
+      // HSN
+      const hBody = document.getElementById("masterHsnBody");
+      hBody.innerHTML = "";
+      data.hsnCodes.forEach(h => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong style="color:#F59E0B;">${h.code}</strong></td>
+          <td>${h.description}</td>
+          <td>${h.gstRate}% (LUT Nil)</td>
+          <td style="color:#34D399; font-weight:700;">${h.rodtpRate}</td>
+          <td style="color:#60A5FA; font-weight:700;">${h.dbkRate}</td>
+        `;
+        hBody.appendChild(tr);
+      });
+
+      // Ports
+      const ptBody = document.getElementById("masterPortsBody");
+      ptBody.innerHTML = "";
+      data.ports.forEach(pt => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong style="color:#60A5FA;">${pt.code}</strong></td>
+          <td>${pt.name}</td>
+          <td>${pt.country}</td>
+          <td><span class="badge ${pt.type === 'POL' ? 'badge-confirmed' : 'badge-production'}">${pt.type}</span></td>
+        `;
+        ptBody.appendChild(tr);
+      });
+
+      // Carriers
+      const cBody = document.getElementById("masterCarriersBody");
+      cBody.innerHTML = "";
+      data.carriers.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${c.id}</strong></td>
+          <td><strong style="color:#FFF;">${c.name}</strong></td>
+          <td><span class="badge badge-draft">${c.scac}</span></td>
+          <td>${c.mode}</td>
+        `;
+        cBody.appendChild(tr);
+      });
+
+      // Templates
+      const tBody = document.getElementById("masterTemplatesBody");
+      tBody.innerHTML = "";
+      data.templates.forEach(t => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong style="color:#60A5FA;">${t.id}</strong></td>
+          <td><strong style="color:#FFF;">${t.name}</strong></td>
+          <td>${t.docType}</td>
+          <td>${t.version}</td>
+          <td>${t.hideSupported ? '<span class="badge badge-confirmed">Supported</span>' : '<span class="badge badge-draft">No</span>'}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted);">${(t.hideRegions || ['None']).join(', ')}</td>
+        `;
+        tBody.appendChild(tr);
+      });
+
+    }
+
+    function openAddMasterModal() {
+      openModal("addPartyModal");
+    }
+
+    function openAddPartyModal() {
+      openModal("addPartyModal");
+    }
+
+    function handleSaveParty(e) {
+      e.preventDefault();
+      const data = getExportData();
+      const newP = {
+        id: "PRT-00" + (data.parties.length + 1),
+        partyType: document.getElementById("mPartyType").value,
+        name: document.getElementById("mPartyName").value,
+        address: document.getElementById("mPartyAddress").value,
+        country: document.getElementById("mPartyCountry").value,
+        port: document.getElementById("mPartyPort").value,
+        taxCode: document.getElementById("mPartyTax").value,
+        contact: document.getElementById("mPartyContact").value,
+        status: "Active"
+      };
+
+      data.parties.push(newP);
+      saveExportData(data);
+      logAuditEvent("MASTERS", "Parties", "Created New Master Party", "N/A", newP.name);
+      closeModal("addPartyModal");
+      renderAllMasters();
+      showToast(`Party ${newP.name} added to master register!`, "success");
+    }
+
+    function deleteParty(partyId) {
+      if (confirm(`Are you sure you want to delete party ${partyId}?`)) {
+        const data = getExportData();
+        data.parties = data.parties.filter(p => p.id !== partyId);
+        saveExportData(data);
+        logAuditEvent("MASTERS", "Parties", "Deleted Master Party", partyId, "Deleted");
+        renderAllMasters();
+        showToast(`Party ${partyId} deleted.`);
+      }
+    }
+  </script>
+</body>
+</html>

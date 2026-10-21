@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Consignment SHP-1469 Master Detail Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="brand-section">
+        <div class="brand-logo-icon">RG</div>
+        <div class="brand-info">
+          <h1>Reliance Granito</h1>
+          <span>Export EDMS Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a href="index.html" class="nav-link">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard & Tower</span>
+        </a>
+        <a href="shipments.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span>Shipment Management</span>
+        </a>
+        <a href="shipment-detail.html?id=SHP-1469" class="nav-link active" style="background:rgba(245,158,11,0.08); border-left:3px solid var(--accent-gold);">
+          <i class="bi bi-star-fill" style="color:var(--accent-gold);"></i>
+          <span>Active SHP-1469 Hub</span>
+          <span class="nav-badge gold">Primary</span>
+        </a>
+
+        <div class="nav-category">Export Documents</div>
+        <a href="commercial-invoice.html" class="nav-link">
+          <i class="bi bi-receipt"></i>
+          <span>Commercial Invoice</span>
+        </a>
+        <a href="shipping-bill.html" class="nav-link">
+          <i class="bi bi-file-earmark-ruled"></i>
+          <span>Shipping Bill (6-Page)</span>
+        </a>
+        <a href="bill-of-lading.html" class="nav-link">
+          <i class="bi bi-compass"></i>
+          <span>Bill of Lading & HIDE</span>
+        </a>
+
+        <div class="nav-category">Validation & Governance</div>
+        <a href="validation-review.html?id=SHP-1469" class="nav-link">
+          <i class="bi bi-shield-check"></i>
+          <span>Cross-Doc Validation</span>
+          <span class="nav-badge danger">1 Mismatch</span>
+        </a>
+        <a href="masters.html" class="nav-link">
+          <i class="bi bi-database"></i>
+          <span>Master Registers</span>
+        </a>
+        <a href="audit-logs.html" class="nav-link">
+          <i class="bi bi-clock-history"></i>
+          <span>Audit Trail & Versions</span>
+        </a>
+
+        <div class="nav-category">Plant & CRM</div>
+        <a href="buyers-inquiries.html" class="nav-link">
+          <i class="bi bi-globe"></i>
+          <span>Buyers & Inquiries</span>
+        </a>
+        <a href="production-qc.html" class="nav-link">
+          <i class="bi bi-gear-wide-connected"></i>
+          <span>Morbi Plant & QC</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="morbi-facility-status">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="status-dot-pulse"></div>
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.68rem; color:var(--text-dim);">Consignment SHP-1469</div>
+            </div>
+          </div>
+          <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Loaded</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="bi bi-list" style="font-size:1.5rem;"></i>
+        </button>
+
+        <div class="d-flex align-items-center gap-2">
+          <a href="shipments.html" class="text-muted text-decoration-none" style="font-size:0.84rem;">Shipments</a>
+          <span class="text-muted">/</span>
+          <span style="color:#60A5FA; font-weight:700; font-size:0.86rem;" id="breadcrumbShipmentId">SHP-1469</span>
+          <span class="badge badge-discrepancy" id="headerStatusBadge">Discrepancy Flagged</span>
+        </div>
+
+        <div class="top-actions">
+          <div class="prototype-tag">
+            <i class="bi bi-cpu"></i>
+            <span>Prototype Hub</span>
+          </div>
+
+          <button class="btn btn-warning btn-sm" onclick="finalizeCurrentShipment()">
+            <i class="bi bi-lock-fill"></i>
+            <span>Finalize Immutable Version</span>
+          </button>
+
+          <button class="btn btn-primary btn-sm" onclick="printDocument('printableExportDocket')">
+            <i class="bi bi-printer"></i>
+            <span>Print Export Docket</span>
+          </button>
+
+          <div class="user-profile-badge" onclick="window.location.href='login.html'">
+            <div class="user-avatar" id="navUserAvatar">RP</div>
+            <div class="user-details d-none d-md-block">
+              <div class="user-name" id="navUserName">Rajesh B. Patel</div>
+              <div class="user-role" id="navUserRole">Head of Export Documentation</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- Shipment Master Banner -->
+        <div class="card mb-4" style="background:linear-gradient(135deg, rgba(22,32,50,0.9) 0%, rgba(17,24,39,0.95) 100%) !important;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+              <div>
+                <div class="d-flex align-items-center gap-3">
+                  <h2 style="font-size:1.6rem; color:#FFF; margin:0;" id="displayShipmentNumber">SHP-1469</h2>
+                  <span class="badge badge-discrepancy" id="heroBadgeStatus">Discrepancy Flagged</span>
+                  <span class="text-muted" style="font-size:0.8rem;">Date: 2026-02-14 • Mode: SEA</span>
+                </div>
+                <div style="font-size:0.9rem; color:#FFF; margin-top:6px;">
+                  Exporter: <strong>Reliance Granito (Jodhpur / Morbi)</strong> &rarr; Importer: <strong>CJ Stone Company Limited (Vietnam)</strong>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">
+                  Port of Loading: <strong>Chennai Sea Port (INMAA1)</strong> &bull; Port of Discharge: <strong>Hai Phong Port (VNHPH)</strong> &bull; Incoterms: <strong>CIF Hai Phong</strong>
+                </div>
+              </div>
+
+              <!-- Quick Cargo Summary -->
+              <div class="d-flex gap-4 text-end">
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">INVOICE TOTAL</div>
+                  <div style="font-size:1.3rem; font-weight:800; color:#34D399;">$16,425.27 USD</div>
+                  <div style="font-size:0.72rem; color:var(--accent-gold);">FOB: $15,425.27</div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">TOTAL VOLUME</div>
+                  <div style="font-size:1.3rem; font-weight:800; color:#60A5FA;">518.69 SQM</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">226 Wooden Bundles</div>
+                </div>
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">GROSS WEIGHT</div>
+                  <div style="font-size:1.3rem; font-weight:800; color:#F59E0B;">26.50 MT</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">Cont: TCLU7789571</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Workflow Progress Timeline -->
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+              <div class="d-flex justify-content-between align-items-center" style="font-size:0.75rem; overflow-x:auto; gap:12px;">
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> 1. Shipment Created</span>
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> 2. Invoice Generated</span>
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> 3. 6-Page SB LEO Granted</span>
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> 4. BL Released</span>
+                <span class="text-danger fw-bold"><i class="bi bi-exclamation-circle-fill"></i> 5. Validation (Mismatch Action)</span>
+                <span class="text-muted"><i class="bi bi-circle"></i> 6. Finalized & Immutable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10 Master Shipment Tabs -->
+        <ul class="nav nav-tabs mb-4" id="shipmentDetailTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-overview" data-bs-toggle="tab" data-bs-target="#pane-overview" type="button" role="tab"><i class="bi bi-info-circle"></i> Overview</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-parties" data-bs-toggle="tab" data-bs-target="#pane-parties" type="button" role="tab"><i class="bi bi-people"></i> Parties</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-goods" data-bs-toggle="tab" data-bs-target="#pane-goods" type="button" role="tab"><i class="bi bi-box"></i> Goods & HSN</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-containers" data-bs-toggle="tab" data-bs-target="#pane-containers" type="button" role="tab"><i class="bi bi-grid-3x3-gap"></i> Containers</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-invoice" data-bs-toggle="tab" data-bs-target="#pane-invoice" type="button" role="tab"><i class="bi bi-receipt"></i> Invoice</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-sb" data-bs-toggle="tab" data-bs-target="#pane-sb" type="button" role="tab"><i class="bi bi-file-earmark-text"></i> Shipping Bill (6P)</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-bl" data-bs-toggle="tab" data-bs-target="#pane-bl" type="button" role="tab"><i class="bi bi-compass"></i> Bill of Lading</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-validation" data-bs-toggle="tab" data-bs-target="#pane-validation" type="button" role="tab" style="color:#FB7185;"><i class="bi bi-shield-exclamation"></i> Validation Matrix</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-documents" data-bs-toggle="tab" data-bs-target="#pane-documents" type="button" role="tab"><i class="bi bi-eye"></i> Output & HIDE</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-audit" data-bs-toggle="tab" data-bs-target="#pane-audit" type="button" role="tab"><i class="bi bi-clock-history"></i> Audit & Versions</button>
+          </li>
+        </ul>
+
+        <!-- Tab Panes Content -->
+        <div class="tab-content" id="shipmentDetailTabContent">
+          <!-- PANE 1: OVERVIEW -->
+          <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+            <div class="row g-4">
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header">
+                    <div class="card-title"><i class="bi bi-file-earmark-check"></i> Linked Document Identifiers</div>
+                  </div>
+                  <div class="card-body">
+                    <table class="table" style="font-size:0.84rem;">
+                      <tbody>
+                        <tr>
+                          <td style="color:var(--text-muted); width:40%;">Commercial Invoice:</td>
+                          <td><strong style="color:#60A5FA;">1469/25-26</strong> <span class="badge badge-production ms-2">v1.1 (Edited)</span></td>
+                        </tr>
+                        <tr>
+                          <td style="color:var(--text-muted);">Customs Shipping Bill:</td>
+                          <td><strong style="color:#F59E0B;">SB-9716398</strong> (Port: INMAA1 Chennai) <span class="badge badge-confirmed ms-2">LEO Granted</span></td>
+                        </tr>
+                        <tr>
+                          <td style="color:var(--text-muted);">Ocean Bill of Lading:</td>
+                          <td><strong style="color:#34D399;">MEDU-146908</strong> (MSC Ravel V.1469W)</td>
+                        </tr>
+                        <tr>
+                          <td style="color:var(--text-muted);">Letter of Undertaking (LUT):</td>
+                          <td>LUT-AD080426009028 (Under Bond without IGST)</td>
+                        </tr>
+                        <tr>
+                          <td style="color:var(--text-muted);">Customs House Agent / CB:</td>
+                          <td>Blue Water Logistics Limited (AALCB0113DCH001)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header">
+                    <div class="card-title"><i class="bi bi-paperclip"></i> Verified Source Attachments</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-flex flex-column gap-2" id="overviewAttachmentsList">
+                      <!-- Rendered via JS -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 2: PARTIES -->
+          <div class="tab-pane fade" id="pane-parties" role="tabpanel">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title"><i class="bi bi-building"></i> Exporter Details</div>
+                    <span class="badge badge-confirmed">Indian Exporter</span>
+                  </div>
+                  <div class="card-body" style="font-size:0.84rem;">
+                    <h5 style="color:#FFF;">Reliance Granito</h5>
+                    <p style="color:var(--text-muted); margin-bottom:8px;">
+                      Sector 23, 23-A-6, Chopasni Housing Board, Opposite Ashok Udhyan Gate No. 2, Jodhpur, Rajasthan - 342008, India
+                    </p>
+                    <div>Morbi Plant: National Highway 8-A, Old Ghuntu Road, Morbi, Gujarat</div>
+                    <hr style="border-color:var(--border-subtle); margin:12px 0;">
+                    <div>IEC: <strong>ABEFR3842G</strong> (Branch: 0) &bull; GSTIN: <strong>08ABEFR3842G1Z5</strong></div>
+                    <div>AD Code: <strong>6390013</strong> &bull; Forex Account: <strong>ICIC0006827</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title"><i class="bi bi-person-badge"></i> Buyer / Importer Details</div>
+                    <span class="badge badge-production">Edited Address</span>
+                  </div>
+                  <div class="card-body" style="font-size:0.84rem;">
+                    <h5 style="color:#FFF;">CJ Stone Company Limited</h5>
+                    <div style="background:rgba(244,63,94,0.08); border-left:3px solid #F43F5E; padding:8px 12px; margin:8px 0; border-radius:4px;">
+                      <div style="font-size:0.75rem; color:#FDA4AF; text-transform:uppercase;">Original Address (Invoice v1.0):</div>
+                      <div style="color:#FFF;">No 10, Nghe Tinh, Da Nang, Vietnam</div>
+                    </div>
+                    <div style="background:rgba(16,185,129,0.08); border-left:3px solid #10B981; padding:8px 12px; margin:8px 0; border-radius:4px;">
+                      <div style="font-size:0.75rem; color:#6EE7B7; text-transform:uppercase;">Amended Address (Invoice v1.1 & BL):</div>
+                      <div style="color:#FFF;">Dong Hai Ward, Hai Phong City, Vietnam</div>
+                    </div>
+                    <div>Tax Code: <strong>040124712551</strong> &bull; Contact: <strong>imp.cjstone@gmail.com</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notify Parties 1, 2, 3 -->
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title"><i class="bi bi-bell"></i> Manifested Notify Parties</div>
+                  </div>
+                  <div class="card-body" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; font-size:0.82rem;">
+                    <div class="sb-cell">
+                      <div class="sb-cell-label">Notify Party 1</div>
+                      <div class="sb-cell-val">Hung Thuc Trading Investment & Import Export Co. Ltd</div>
+                      <div style="color:var(--text-muted); font-size:0.75rem;">Hai Phong City, Vietnam</div>
+                    </div>
+                    <div class="sb-cell">
+                      <div class="sb-cell-label">Notify Party 2</div>
+                      <div class="sb-cell-val">Tran Gia Logistics Limited Company</div>
+                      <div style="color:var(--text-muted); font-size:0.75rem;">Le Hong Phong Street, Ngo Quyen, Hai Phong</div>
+                    </div>
+                    <div class="sb-cell">
+                      <div class="sb-cell-label">Notify Party 3</div>
+                      <div class="sb-cell-val">SSG International PTE Ltd</div>
+                      <div style="color:var(--text-muted); font-size:0.75rem;">10 Anson Road, International Plaza, Singapore</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 3: GOODS & HSN -->
+          <div class="tab-pane fade" id="pane-goods" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-box"></i> Consignment Cargo Line Items</div>
+                <span class="badge badge-confirmed">ITC-HS Class 68022310</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Line #</th>
+                      <th>Product Description</th>
+                      <th>HSN Code</th>
+                      <th>Quantity (SQM)</th>
+                      <th>Unit Rate ($)</th>
+                      <th>FOB Total ($)</th>
+                      <th>Packages</th>
+                      <th>Gross Wt (KG)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>
+                        <strong style="color:#FFF;">Indian Polished Granite Slabs</strong>
+                        <div style="font-size:0.72rem; color:var(--text-dim);">Mirror Polished, Black Galaxy & Tan Brown, 20mm</div>
+                      </td>
+                      <td><span class="badge badge-draft">68022310</span></td>
+                      <td>518.69 SQM</td>
+                      <td>$29.738</td>
+                      <td style="font-weight:700; color:#34D399;">$15,425.27</td>
+                      <td>226 Bundles</td>
+                      <td>26,500 KG</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 4: CONTAINERS -->
+          <div class="tab-pane fade" id="pane-containers" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-grid-3x3-gap"></i> Equipment & Container Tally</div>
+              </div>
+              <div class="card-body">
+                <div class="sb-grid">
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Container Prefix & Number</div>
+                    <div class="sb-cell-val" style="font-size:1.1rem; color:#60A5FA;">TCLU7789571</div>
+                  </div>
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Customs Bottle Seal Number</div>
+                    <div class="sb-cell-val" style="font-size:1.1rem; color:#F59E0B;">14697</div>
+                  </div>
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Container Equipment Type</div>
+                    <div class="sb-cell-val">20ft Heavy Duty Marine Dry Box</div>
+                  </div>
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Total Cargo Packages</div>
+                    <div class="sb-cell-val">226 Wooden Bundles</div>
+                  </div>
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Certified Cargo Gross Weight</div>
+                    <div class="sb-cell-val">26,500.00 KGS (26.5 MT)</div>
+                  </div>
+                  <div class="sb-cell">
+                    <div class="sb-cell-label">Tare / Net Weight</div>
+                    <div class="sb-cell-val">Tare: 2,250 KGS | Net: 26,000 KGS</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 5: COMMERCIAL INVOICE -->
+          <div class="tab-pane fade" id="pane-invoice" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-receipt"></i> Commercial Invoice 1469/25-26 Overview</div>
+                <div class="d-flex gap-2">
+                  <a href="commercial-invoice.html?id=INV-1469" class="btn btn-primary btn-sm">Open Full Invoice Editor &rarr;</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row g-4">
+                  <div class="col-md-7">
+                    <div class="sb-grid">
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Invoice Number</div>
+                        <div class="sb-cell-val">1469/25-26</div>
+                      </div>
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Invoice Date</div>
+                        <div class="sb-cell-val">2026-02-14</div>
+                      </div>
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Subtotal FOB Mundra/Chennai</div>
+                        <div class="sb-cell-val">$15,425.27 USD</div>
+                      </div>
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Ocean Freight Charges</div>
+                        <div class="sb-cell-val">$900.00 USD</div>
+                      </div>
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Marine Insurance (ICC-A)</div>
+                        <div class="sb-cell-val">$100.00 USD</div>
+                      </div>
+                      <div class="sb-cell">
+                        <div class="sb-cell-label">Total CIF Invoice Value</div>
+                        <div class="sb-cell-val" style="color:#34D399; font-size:1.15rem;">$16,425.27 USD</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-5">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:8px; padding:14px;">
+                      <h6 style="color:#FFF; font-size:0.86rem; margin-bottom:8px;">Confirmed Manual Overrides</h6>
+                      <div style="font-size:0.75rem; color:var(--text-muted);">
+                        Consignee address revised from Da Nang to Hai Phong on 2026-02-15 by Rajesh B. Patel.
+                        Original version (v1.0) preserved in immutable archive.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 6: SHIPPING BILL (6-PAGE EDI EXPLORER) -->
+          <div class="tab-pane fade" id="pane-sb" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-file-earmark-ruled"></i> Indian Customs EDI Shipping Bill SB-9716398 (6-Page Mapping)</div>
+                <div class="d-flex gap-2">
+                  <span class="badge badge-draft" style="font-size:0.7rem;">Official Customs Document (Immutable)</span>
+                  <a href="shipping-bill.html?id=SB-9716398" class="btn btn-primary btn-sm">Full 6-Page View &rarr;</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <!-- 6 Page Nav Pills -->
+                <ul class="nav nav-pills mb-3" id="sbPagesTab" role="tablist">
+                  <li class="nav-item"><button class="nav-link active py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page1">Page 1: Summary</button></li>
+                  <li class="nav-item"><button class="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page2">Page 2: Items</button></li>
+                  <li class="nav-item"><button class="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page3">Page 3: Valuation</button></li>
+                  <li class="nav-item"><button class="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page4">Page 4: DBK / RoDTEP</button></li>
+                  <li class="nav-item"><button class="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page5">Page 5: Equipment</button></li>
+                  <li class="nav-item"><button class="nav-link py-1 px-3" data-bs-toggle="pill" data-bs-target="#sb-page6">Page 6: LEO Customs</button></li>
+                </ul>
+
+                <div class="tab-content border border-secondary border-opacity-25 rounded p-3" style="background:rgba(0,0,0,0.15);">
+                  <div class="tab-pane fade show active" id="sb-page1">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">Customs Port Code</div><div class="sb-cell-val">INMAA1 (Chennai Sea)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Shipping Bill Number</div><div class="sb-cell-val">9716398</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">SB Date</div><div class="sb-cell-val">16-FEB-2026</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">IEC / Branch</div><div class="sb-cell-val">ABEFR3842G / 0</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Customs Broker</div><div class="sb-cell-val">Blue Water Logistics (AALCB0113DCH001)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">FOB Value (INR)</div><div class="sb-cell-val">₹14,69,656.66</div></div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="sb-page2">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">Item 1 HSN</div><div class="sb-cell-val">68022310</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Description</div><div class="sb-cell-val">Polished Granite Slabs</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Quantity / UQC</div><div class="sb-cell-val">518.69 SQM</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">FOB Realized (INR)</div><div class="sb-cell-val">₹13,79,965.00</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">PMV (Present Market Value)</div><div class="sb-cell-val">₹15,50,000.00</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Duty Drawback Claim</div><div class="sb-cell-val">₹14,697.00</div></div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="sb-page3">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">Currency</div><div class="sb-cell-val">USD ($)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">ICEGATE Exchange Rate</div><div class="sb-cell-val">₹89.475 INR / USD</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Invoice Total (USD)</div><div class="sb-cell-val">$16,425.27 USD</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Freight Deductions</div><div class="sb-cell-val">$900.00 USD</div></div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="sb-page4">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">DBK Scheme Claim</div><div class="sb-cell-val">₹14,697.00 (Credited to ICIC0006827)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">RoDTEP Export Benefit</div><div class="sb-cell-val">₹20,699.00</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">IGST Payment Status</div><div class="sb-cell-val">Export Under LUT Without Tax (₹0.00)</div></div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="sb-page5">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">Container Number</div><div class="sb-cell-val">TCLU7789571</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Customs Seal Number</div><div class="sb-cell-val">14697</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Seal Verification</div><div class="sb-cell-val" style="color:#34D399;">Tamper-proof RFID Matched</div></div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="sb-page6">
+                    <div class="sb-grid">
+                      <div class="sb-cell"><div class="sb-cell-label">LEO Status</div><div class="sb-cell-val" style="color:#34D399;">LEO Granted (Let Export Order)</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">LEO Timestamp</div><div class="sb-cell-val">17-FEB-2026 17:21:31 IST</div></div>
+                      <div class="sb-cell"><div class="sb-cell-label">Digitally Signed By</div><div class="sb-cell-val">DS CBIC 10 (Customs Chennai)</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 7: BILL OF LADING (BL) -->
+          <div class="tab-pane fade" id="pane-bl" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-compass"></i> Bill of Lading BL-MEDU-146908</div>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="blHideModeToggle" onchange="toggleDocumentHideMode('blPreviewBox', this.checked)">
+                    <label class="form-check-label text-warning fw-bold" for="blHideModeToggle" style="font-size:0.78rem;">Activate HIDE Mode</label>
+                  </div>
+                  <a href="bill-of-lading.html?id=BL-MEDU-146908" class="btn btn-primary btn-sm">Full BL Editor &rarr;</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="blPreviewBox" class="p-3 border border-secondary border-opacity-25 rounded" style="background:#FFF; color:#000;">
+                  <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                    <div>
+                      <h4 style="color:#1E3A8A; margin:0;">MEDITERRANEAN SHIPPING COMPANY</h4>
+                      <small style="color:#6B7280;">Combined Transport Bill of Lading</small>
+                    </div>
+                    <div class="text-end">
+                      <strong style="font-size:1.1rem; color:#1E3A8A;">B/L No. MEDU-146908</strong><br>
+                      <small style="color:#6B7280;">Booking: MSC-CHE-910488</small>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mb-3" style="font-size:0.82rem;">
+                    <div class="col-6">
+                      <strong>Shipper:</strong><br>
+                      Reliance Granito<br>
+                      Sector 23, Jodhpur, Rajasthan, India
+                    </div>
+                    <div class="col-6">
+                      <strong>Consignee:</strong><br>
+                      <div class="hide-maskable p-1">
+                        CJ Stone Company Limited<br>
+                        Dong Hai Ward, Hai Phong City, Vietnam
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <strong>Vessel / Voyage:</strong><br>
+                      MSC Ravel V.1469W
+                    </div>
+                    <div class="col-6">
+                      <strong>Freight Terms:</strong><br>
+                      <div class="hide-maskable p-1">
+                        Freight Prepaid (CIF HAI PHONG PORT)
+                      </div>
+                    </div>
+                  </div>
+
+                  <table class="table table-bordered" style="font-size:0.8rem; color:#000;">
+                    <thead style="background:#F3F4F6;">
+                      <tr>
+                        <th>Container / Seal</th>
+                        <th>Packages</th>
+                        <th>Description of Goods</th>
+                        <th>Gross Weight</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>TCLU7789571</strong><br>Seal: 14697</td>
+                        <td>226 Bundles</td>
+                        <td>Indian Polished Granite Slabs (68022310)</td>
+                        <td><strong>26,500.00 KGS</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 8: VALIDATION MATRIX -->
+          <div class="tab-pane fade" id="pane-validation" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <i class="bi bi-shield-check"></i>
+                  <span>3-Way Cross-Document Validation (Invoice vs Shipping Bill vs BL)</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="renderValidationMatrix()">
+                  <i class="bi bi-arrow-clockwise"></i> Re-scan Discrepancies
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Commercial Invoice</th>
+                        <th>Customs Shipping Bill</th>
+                        <th>Bill of Lading</th>
+                        <th>Status</th>
+                        <th>Review Notes</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="validationMatrixBody">
+                      <!-- Rendered dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 9: DOCUMENT OUTPUT & HIDE -->
+          <div class="tab-pane fade" id="pane-documents" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-file-earmark-pdf"></i> Document Output & Presentation Modes</div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-secondary btn-sm" onclick="setDocMode('Original')">Original</button>
+                  <button class="btn btn-secondary btn-sm" onclick="setDocMode('Edited')">Edited</button>
+                  <button class="btn btn-warning btn-sm" onclick="setDocMode('HIDE')">HIDE Mode</button>
+                  <button class="btn btn-primary btn-sm" onclick="printDocument('printableExportDocket')">Print / Export</button>
+                </div>
+              </div>
+              <div class="card-body" style="background:#0F172A; padding:20px;">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
+                  <span class="badge badge-confirmed" id="currentDocModeBadge">Mode: Edited Presentation</span>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Template ID: TPL-INV-01 &bull; Checksum: 7d793037a0760186...</span>
+                </div>
+
+                <!-- Printable Document Preview -->
+                <div id="printableExportDocket" class="printable-document">
+                  <div class="doc-header">
+                    <div>
+                      <div class="doc-company-name">RELIANCE GRANITO</div>
+                      <div class="doc-company-sub">
+                        Export & International Trade Division<br>
+                        Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India<br>
+                        Morbi Factory: National Highway 8-A, Old Ghuntu Road, Morbi, Gujarat<br>
+                        IEC: <strong>ABEFR3842G</strong> | GSTIN: <strong>08ABEFR3842G1Z5</strong>
+                      </div>
+                    </div>
+                    <div class="doc-badge-title">
+                      <h3>COMMERCIAL INVOICE</h3>
+                      <div style="font-size:0.86rem; font-weight:700; color:#1E3A8A;">Invoice No: 1469/25-26</div>
+                      <div style="font-size:0.75rem; color:#6B7280;">Date: 14-FEB-2026</div>
+                    </div>
+                  </div>
+
+                  <div class="doc-info-grid">
+                    <div class="doc-info-block">
+                      <h4>Buyer / Consignee:</h4>
+                      <strong>CJ Stone Company Limited</strong><br>
+                      <span id="docBuyerAddressPreview" class="hide-maskable">
+                        Dong Hai Ward, Hai Phong City, Vietnam
+                      </span><br>
+                      Tax Code: <span class="hide-maskable">040124712551</span>
+                    </div>
+                    <div class="doc-info-block">
+                      <h4>Shipping Details:</h4>
+                      POL: <strong>Chennai Sea Port (INMAA1)</strong><br>
+                      POD: <strong>Hai Phong Port, Vietnam (VNHPH)</strong><br>
+                      Container: <strong>TCLU7789571 / Seal: 14697</strong><br>
+                      Incoterms: <strong>CIF Hai Phong Port</strong>
+                    </div>
+                  </div>
+
+                  <table class="doc-table">
+                    <thead>
+                      <tr>
+                        <th>Sr.</th>
+                        <th>Description of Goods</th>
+                        <th>HSN Code</th>
+                        <th>Quantity</th>
+                        <th>Rate ($)</th>
+                        <th>Total Amount ($)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>Indian Polished Granite Slabs (Black Galaxy & Tan Brown)</td>
+                        <td>68022310</td>
+                        <td>518.69 SQM (226 Pkgs)</td>
+                        <td>$29.738</td>
+                        <td style="font-weight:700;">$15,425.27</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="doc-totals">
+                    <div class="doc-totals-box">
+                      <div class="doc-total-row">
+                        <span>FOB Cargo Value:</span>
+                        <span>$15,425.27</span>
+                      </div>
+                      <div class="doc-total-row">
+                        <span>Ocean Freight:</span>
+                        <span class="hide-maskable">$900.00</span>
+                      </div>
+                      <div class="doc-total-row">
+                        <span>Marine Insurance:</span>
+                        <span>$100.00</span>
+                      </div>
+                      <div class="doc-total-row grand">
+                        <span>TOTAL CIF VALUE:</span>
+                        <span>$16,425.27 USD</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="doc-signatures">
+                    <div class="stamp-box">Customs Inspection Stamp</div>
+                    <div class="stamp-box" style="border:2px solid #1E3A8A; color:#1E3A8A; font-weight:bold;">
+                      RELIANCE GRANITO<br>Authorized Signatory
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 10: AUDIT HISTORY & IMMUTABLE VERSIONS -->
+          <div class="tab-pane fade" id="pane-audit" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title"><i class="bi bi-clock-history"></i> Immutable Document Versions & Audit Trail</div>
+              </div>
+              <div class="card-body">
+                <h6 style="color:#FFF; font-size:0.9rem; margin-bottom:12px;">Archived Document Snapshots</h6>
+                <div class="table-responsive mb-4">
+                  <table class="table" style="font-size:0.82rem;">
+                    <thead>
+                      <tr>
+                        <th>Version ID</th>
+                        <th>Document Type</th>
+                        <th>Variant</th>
+                        <th>Status</th>
+                        <th>SHA-256 Checksum</th>
+                        <th>Generated By</th>
+                        <th>Timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detailVersionsTableBody">
+                      <!-- Rendered via JS -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <h6 style="color:#FFF; font-size:0.9rem; margin-bottom:12px;">Detailed Action Audit Logs</h6>
+                <div class="table-responsive">
+                  <table class="table" style="font-size:0.82rem;">
+                    <thead>
+                      <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Entity</th>
+                        <th>Action</th>
+                        <th>Old Value</th>
+                        <th>New Value</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detailAuditTableBody">
+                      <!-- Rendered via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderShipmentHub();
+      renderValidationMatrix();
+      renderVersionsAndAudit();
+    });
+
+    function renderShipmentHub() {
+      const data = getExportData();
+      const s = data.shipments.find(item => item.shipmentNumber === "SHP-1469") || data.shipments[0];
+
+      // Attachments render
+      const attList = document.getElementById("overviewAttachmentsList");
+      attList.innerHTML = "";
+      s.attachments.forEach(att => {
+        const div = document.createElement("div");
+        div.style.background = "rgba(255,255,255,0.03)";
+        div.style.border = "1px solid var(--border-subtle)";
+        div.style.padding = "10px 14px";
+        div.style.borderRadius = "6px";
+        div.className = "d-flex justify-content-between align-items-center";
+        div.innerHTML = `
+          <div>
+            <strong style="color:#FFF; font-size:0.84rem;">${att.name}</strong>
+            <div style="font-size:0.72rem; color:var(--text-dim);">${att.type} • ${att.size}</div>
+          </div>
+          <span class="badge badge-confirmed" style="font-size:0.68rem;">Verified Source</span>
+        `;
+        attList.appendChild(div);
+      });
+    }
+
+    function renderValidationMatrix() {
+      const tbody = document.getElementById("validationMatrixBody");
+      tbody.innerHTML = "";
+
+      const checks = evaluateCrossDocumentValidation("SHP-1469");
+      checks.forEach(c => {
+        let badge = '<span class="badge badge-confirmed">MATCH</span>';
+        if (c.matchStatus === "MISMATCH") badge = '<span class="badge badge-hold">MISMATCH</span>';
+        if (c.matchStatus === "WARNING") badge = '<span class="badge badge-production">WARNING</span>';
+
+        const tr = document.createElement("tr");
+        if (c.matchStatus === "MISMATCH") tr.className = "discrepancy-row-mismatch";
+        if (c.matchStatus === "WARNING") tr.className = "discrepancy-row-warning";
+
+        tr.innerHTML = `
+          <td><strong>${c.fieldName}</strong></td>
+          <td style="color:#D1D5DB;">${c.invoiceVal}</td>
+          <td style="color:#D1D5DB;">${c.sbVal}</td>
+          <td style="color:#D1D5DB;">${c.blVal}</td>
+          <td>${badge}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted); max-width:240px;">${c.notes}</td>
+          <td>
+            ${c.matchStatus === "MISMATCH" 
+              ? `<button class="btn btn-warning btn-sm py-1 px-2" style="font-size:0.72rem;" onclick="promptResolveDiscrepancy('${c.fieldKey}')">Confirm Override</button>` 
+              : `<span class="text-success" style="font-size:0.75rem;">Verified</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function promptResolveDiscrepancy(fieldKey) {
+      const note = prompt("Enter official resolution justification for audit logging:", "Buyer requested discharge at Hai Phong for direct project delivery. Original invoice address Da Nang updated.");
+      if (note) {
+        resolveDiscrepancy("SHP-1469", fieldKey, note);
+        renderValidationMatrix();
+        renderVersionsAndAudit();
+      }
+    }
+
+    function setDocMode(mode) {
+      const container = document.getElementById("printableExportDocket");
+      const badge = document.getElementById("currentDocModeBadge");
+      badge.textContent = `Mode: ${mode} Presentation`;
+
+      if (mode === "HIDE") {
+        container.classList.add("hide-active");
+        showToast("HIDE Presentation Active: Unmarked fields remain intact; highlighted sensitive fields masked.", "warning");
+      } else if (mode === "Original") {
+        container.classList.remove("hide-active");
+        document.getElementById("docBuyerAddressPreview").textContent = "No 10, Nghe Tinh, Da Nang, Vietnam";
+        showToast("Original Source Document Presentation Active.");
+      } else {
+        container.classList.remove("hide-active");
+        document.getElementById("docBuyerAddressPreview").textContent = "Dong Hai Ward, Hai Phong City, Vietnam";
+        showToast("Edited Presentation Active with recorded overrides.");
+      }
+    }
+
+    function renderVersionsAndAudit() {
+      const data = getExportData();
+      const verTbody = document.getElementById("detailVersionsTableBody");
+      const logTbody = document.getElementById("detailAuditTableBody");
+
+      verTbody.innerHTML = "";
+      data.documentVersions.filter(v => v.shipmentNumber === "SHP-1469").forEach(v => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong style="color:#60A5FA;">${v.id}</strong></td>
+          <td>${v.docType}</td>
+          <td><span class="badge badge-draft">${v.variant}</span></td>
+          <td>${v.isImmutable ? '<span class="badge badge-confirmed">Immutable</span>' : '<span class="badge badge-production">Editable</span>'}</td>
+          <td style="font-family:monospace; font-size:0.72rem; color:var(--text-dim);">${v.checksumSha256.substring(0, 20)}...</td>
+          <td>${v.generatedBy}</td>
+          <td>${v.createdAt}</td>
+        `;
+        verTbody.appendChild(tr);
+      });
+
+      logTbody.innerHTML = "";
+      data.auditLogs.filter(l => l.shipmentNumber === "SHP-1469").forEach(l => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="white-space:nowrap; color:var(--text-dim);">${l.timestamp}</td>
+          <td><strong style="color:#FFF;">${l.user}</strong></td>
+          <td>${l.entity}</td>
+          <td style="color:#60A5FA;">${l.action}</td>
+          <td style="color:var(--text-dim); font-size:0.75rem;">${l.oldValue}</td>
+          <td style="color:var(--text-main); font-size:0.75rem;">${l.newValue}</td>
+        `;
+        logTbody.appendChild(tr);
+      });
+    }
+
+    function finalizeCurrentShipment() {
+      finalizeDocument("SHP-1469", "Shipment Docket");
+      renderVersionsAndAudit();
+    }
+  </script>
+</body>
+</html>

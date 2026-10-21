@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliance Granito | Export Documentation Management System - Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="display:flex; align-items:center; justify-content:center; min-height:100vh; background: radial-gradient(circle at top right, #1E293B 0%, #0B0F19 70%); padding:20px;">
+
+  <div style="width:100%; max-width:440px;">
+    <!-- Brand Header -->
+    <div style="text-align:center; margin-bottom:26px;">
+      <div style="width:60px; height:60px; border-radius:14px; background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); display:inline-flex; align-items:center; justify-content:center; font-size:1.7rem; font-weight:800; color:#FFF; box-shadow:0 8px 24px rgba(37,99,235,0.45); margin-bottom:12px;">
+        RG
+      </div>
+      <h2 style="font-size:1.5rem; font-weight:800; color:#FFF; margin-bottom:4px;">Reliance Granito</h2>
+      <div style="font-size:0.82rem; color:var(--accent-gold); font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
+        Export Documentation Management System (EDMS)
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+        Jodhpur Export Head Office & Morbi Ceramic Facility
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card" style="box-shadow:0 20px 45px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1) !important;">
+      <div class="card-body" style="padding:30px;">
+        <h4 style="font-size:1.15rem; color:#FFF; margin-bottom:6px;">Sign In to Your Account</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:22px;">Enter your export credentials to access consignments and shipping dockets</p>
+
+        <form onsubmit="handleSingleLogin(event)">
+          <div class="mb-3">
+            <label class="form-label text-muted" style="font-size:0.8rem; font-weight:600;">Email / Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-envelope"></i></span>
+              <input type="text" class="form-control" id="loginUsername" value="admin@reliancegranito.com" required placeholder="name@reliancegranito.com">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label text-muted mb-0" style="font-size:0.8rem; font-weight:600;">Password</label>
+              <a href="javascript:void(0)" onclick="showToast('Password reset link sent to registered phone/email.', 'warning')" style="font-size:0.75rem; color:var(--primary-light);">Forgot password?</a>
+            </div>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-lock"></i></span>
+              <input type="password" class="form-control" id="loginPassword" value="Reliance@2026" required>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4" style="font-size:0.8rem;">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+              <label class="form-check-label text-muted" for="rememberMe">Remember me</label>
+            </div>
+            <span class="badge badge-confirmed" style="font-size:0.68rem;">Verified System</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2" style="font-size:0.9rem;">
+            <span>Sign In to Export System</span>
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </form>
+
+        <div style="text-align:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="resetDemoData()">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span>Restore Demo Default Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:20px; font-size:0.75rem; color:var(--text-dim);">
+      Reliance Granito LLP &bull; Export & International Trade Division &copy; 2026
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function handleSingleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginUsername").value;
+      const data = getExportData();
+      
+      data.currentUser = {
+        id: "USR-001",
+        name: "Rajesh B. Patel",
+        email: email,
+        roleTitle: "Export Documentation Manager",
+        avatar: "RG"
+      };
+      saveExportData(data);
+      showToast("Signed in successfully as Rajesh B. Patel", "success");
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 400);
+    }
+  </script>
+</body>
+</html>
