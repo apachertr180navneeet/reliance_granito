@@ -208,6 +208,19 @@ include_once __DIR__ . '/includes/header.php';
           <canvas id="pdfRenderCanvas" style="display:block;"></canvas>
           <!-- Interactive Drawing & Transform Overlay Canvas -->
           <canvas id="annotationOverlayCanvas" class="position-absolute top-0 start-0" style="touch-action:none;"></canvas>
+
+          <!-- Direct Inline Text Editor (type directly onto document in-place) -->
+          <textarea id="inlineTextEditor" class="position-absolute shadow border border-primary rounded-1" style="display:none; z-index:50; resize:both; outline:2px solid #2563EB; padding:4px 6px; background:#FFFFFF; overflow:hidden; font-family:Helvetica; line-height:1.25;"></textarea>
+
+          <!-- Floating Quick Action Bar for selected item -->
+          <div id="floatingItemToolbar" class="position-absolute bg-white shadow border rounded-pill px-2 py-1 d-flex align-items-center gap-1" style="display:none; z-index:60; transform: translateY(-130%); font-size:0.75rem;">
+            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" id="floatBtnEdit" onclick="startInlineEditing(PDFEditorState.selectedId)" title="Edit Text Directly"><i class="bi bi-pencil-fill me-1"></i>Edit Text</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill" onclick="quickStepFontSize(-1)" title="Decrease Font Size"><i class="bi bi-dash fs-6"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill" onclick="quickStepFontSize(1)" title="Increase Font Size"><i class="bi bi-plus fs-6"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill" onclick="autoFitSelectedBox()" title="Fit Box to Text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit</button>
+            <div class="vr my-1"></div>
+            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill" onclick="deleteAnnotationById(PDFEditorState.selectedId)" title="Delete This Correction"><i class="bi bi-trash-fill"></i></button>
+          </div>
         </div>
 
       </div>

@@ -83,7 +83,10 @@ function cacheElements() {
     textFontFamily: document.getElementById("textFontFamily"),
     textFontSize: document.getElementById("textFontSize"),
     textBoldBtn: document.getElementById("textBoldBtn"),
-    textColorPicker: document.getElementById("textColorPicker")
+    textColorPicker: document.getElementById("textColorPicker"),
+    inlineTextEditor: document.getElementById("inlineTextEditor"),
+    floatingItemToolbar: document.getElementById("floatingItemToolbar"),
+    floatBtnEdit: document.getElementById("floatBtnEdit")
   };
 }
 
@@ -235,6 +238,24 @@ function initCanvasListeners() {
   window.addEventListener("mousemove", handleCanvasMouseMove);
   window.addEventListener("mouseup", handleCanvasMouseUp);
   overlay.addEventListener("dblclick", handleCanvasDoubleClick);
+
+  // Setup inline text editor events
+  const inline = document.getElementById("inlineTextEditor");
+  if (inline) {
+    inline.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        commitInlineTextEditing();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        cancelInlineTextEditing();
+      }
+    });
+    inline.addEventListener("blur", () => {
+      // Small timeout to allow button clicks on floating toolbar
+      setTimeout(commitInlineTextEditing, 120);
+    });
+  }
 }
 
 // Convert screen mouse coordinates into normalized (0.0 to 1.0) page coordinates
@@ -250,6 +271,12 @@ function getNormalizedCoords(e) {
 
 function handleCanvasMouseDown(e) {
   if (!PDFEditorState.pdfDoc) return;
+  
+  // If editing text inline, commit before doing anything else
+  if (PDFEditorState.editingInlineId) {
+    commitInlineTextEditing();
+  }
+
   const { normX, normY, rawX, rawY, rectWidth, rectHeight } = getNormalizedCoords(e);
   const items = getCurrentPageAnnotations();
 
@@ -269,36 +296,42 @@ function handleCanvasMouseDown(e) {
     }
   }
 
-  // 2. Select tool behavior
-  if (PDFEditorState.activeTool === "select") {
-    // Hit test from topmost (reverse order)
-    let hitItem = null;
-    for (let i = items.length - 1; i >= 0; i--) {
-      const it = items[i];
-      if (normX >= it.x && normX <= it.x + it.width &&
-          normY >= it.y && normY <= it.y + it.height) {
-        hitItem = it;
-        break;
-      }
+  // 2. UNIVERSAL HIT TEST: Clicking ANY existing item selects and moves it (in ANY tool mode!)
+  let hitItem = null;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i];
+    if (normX >= it.x && normX <= it.x + it.width &&
+        normY >= it.y && normY <= it.y + it.height) {
+      hitItem = it;
+      break;
     }
+  }
 
-    if (hitItem) {
-      PDFEditorState.selectedId = hitItem.id;
-      PDFEditorState.isDragging = true;
-      PDFEditorState.dragStartX = normX;
-      PDFEditorState.dragStartY = normY;
-      PDFEditorState.itemStartCoords = { ...hitItem };
-      syncTextControlsWithItem(hitItem);
-    } else {
-      PDFEditorState.selectedId = null;
-    }
+  if (hitItem) {
+    PDFEditorState.selectedId = hitItem.id;
+    PDFEditorState.isDragging = true;
+    PDFEditorState.dragStartX = normX;
+    PDFEditorState.dragStartY = normY;
+    PDFEditorState.itemStartCoords = { ...hitItem };
+    syncTextControlsWithItem(hitItem);
+    redrawAnnotations();
+    updateUIControls();
+    updateFloatingToolbarPosition();
+    return;
+  }
+
+  // 3. Clicked on EMPTY SPACE:
+  if (PDFEditorState.activeTool === "select") {
+    PDFEditorState.selectedId = null;
+    hideFloatingToolbar();
     redrawAnnotations();
     updateUIControls();
     return;
   }
 
-  // 3. Drawing a new correction item (whiteout, text, redact)
+  // 4. Drawing a new item (whiteout, text, redact)
   PDFEditorState.selectedId = null;
+  hideFloatingToolbar();
   PDFEditorState.isDrawing = true;
   PDFEditorState.dragStartX = normX;
   PDFEditorState.dragStartY = normY;
@@ -310,7 +343,7 @@ function handleCanvasMouseDown(e) {
     y: normY,
     width: 0.001,
     height: 0.001,
-    text: PDFEditorState.activeTool === "text" ? "Amended Value" : "",
+    text: PDFEditorState.activeTool === "text" ? "" : "",
     fontFamily: PDFEditorState.textDefaults.fontFamily,
     fontSize: PDFEditorState.textDefaults.fontSize,
     isBold: PDFEditorState.textDefaults.isBold,
@@ -328,13 +361,32 @@ function handleCanvasMouseMove(e) {
   const { normX, normY, rawX, rawY, rectWidth, rectHeight } = getNormalizedCoords(e);
   const items = getCurrentPageAnnotations();
 
-  // Resize cursor indication
-  if (PDFEditorState.activeTool === "select" && PDFEditorState.selectedId && !PDFEditorState.isDrawing && !PDFEditorState.isDragging && !PDFEditorState.isResizing) {
-    const selected = items.find(i => i.id === PDFEditorState.selectedId);
-    if (selected) {
-      const handle = getHitResizeHandle(selected, rawX, rawY, rectWidth, rectHeight);
-      el.annotationOverlayCanvas.style.cursor = handle ? `${handle}-resize` : "move";
+  // Dynamic Cursor Feedback (shows move, resize, or crosshair)
+  if (!PDFEditorState.isDrawing && !PDFEditorState.isDragging && !PDFEditorState.isResizing) {
+    let cursor = (PDFEditorState.activeTool === "select") ? "default" : "crosshair";
+    
+    // Check if hovering over handles of selected item
+    if (PDFEditorState.selectedId) {
+      const selected = items.find(i => i.id === PDFEditorState.selectedId);
+      if (selected) {
+        const handle = getHitResizeHandle(selected, rawX, rawY, rectWidth, rectHeight);
+        if (handle) cursor = `${handle}-resize`;
+      }
     }
+
+    // Check if hovering over any existing item body
+    if (cursor === "default" || cursor === "crosshair") {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        if (normX >= it.x && normX <= it.x + it.width &&
+            normY >= it.y && normY <= it.y + it.height) {
+          cursor = (it.type === "text") ? "text" : "move";
+          break;
+        }
+      }
+    }
+
+    if (el.annotationOverlayCanvas) el.annotationOverlayCanvas.style.cursor = cursor;
   }
 
   // A. Handling Drawing Box
@@ -351,7 +403,7 @@ function handleCanvasMouseMove(e) {
     return;
   }
 
-  // B. Handling Dragging Existing Box
+  // B. Handling Dragging Existing Box (Smooth movement)
   if (PDFEditorState.isDragging && PDFEditorState.selectedId) {
     const item = items.find(i => i.id === PDFEditorState.selectedId);
     if (!item || !PDFEditorState.itemStartCoords) return;
@@ -362,6 +414,7 @@ function handleCanvasMouseMove(e) {
     item.x = Math.max(0, Math.min(1 - item.width, PDFEditorState.itemStartCoords.x + deltaX));
     item.y = Math.max(0, Math.min(1 - item.height, PDFEditorState.itemStartCoords.y + deltaY));
     redrawAnnotations();
+    updateFloatingToolbarPosition();
     return;
   }
 
@@ -395,6 +448,7 @@ function handleCanvasMouseMove(e) {
       item.height = newHeight;
     }
     redrawAnnotations();
+    updateFloatingToolbarPosition();
     return;
   }
 }
@@ -407,25 +461,41 @@ function handleCanvasMouseUp(e) {
 
     // Minimum size filter to prevent accidental dot clicks
     if (item.width < 0.015 && item.height < 0.015) {
+      // If it was a single click on text tool, create a standard comfortable text box
+      if (item.type === "text") {
+        item.width = 0.22;
+        item.height = 0.045;
+        PDFEditorState.selectedId = item.id;
+        saveStateSnapshot();
+        redrawAnnotations();
+        updateUIControls();
+        startInlineEditing(item.id);
+        return;
+      }
       const items = getCurrentPageAnnotations();
       const idx = items.indexOf(item);
       if (idx !== -1) items.splice(idx, 1);
     } else {
-      // Ensure text boxes have a comfortable minimum size so text fits easily
+      // Ensure text boxes have a comfortable size
       if (item.type === "text") {
-        item.width = Math.max(item.width, 0.14);
+        item.width = Math.max(item.width, 0.16);
         item.height = Math.max(item.height, 0.04);
       }
       PDFEditorState.selectedId = item.id;
-      // If it was a text replacement, prompt edit modal immediately for great UX
-      if (item.type === "text") {
-        openTextModalForItem(item);
-      }
       saveStateSnapshot();
+
+      // IF TEXT: start inline editing directly on the document without a blocking modal!
+      if (item.type === "text") {
+        redrawAnnotations();
+        updateUIControls();
+        startInlineEditing(item.id);
+        return;
+      }
     }
-    setEditorTool("select");
+
     redrawAnnotations();
     updateUIControls();
+    updateFloatingToolbarPosition();
     return;
   }
 
@@ -436,6 +506,7 @@ function handleCanvasMouseUp(e) {
     PDFEditorState.itemStartCoords = null;
     saveStateSnapshot();
     updateUIControls();
+    updateFloatingToolbarPosition();
   }
 }
 
@@ -447,8 +518,11 @@ function handleCanvasDoubleClick(e) {
     if (normX >= it.x && normX <= it.x + it.width &&
         normY >= it.y && normY <= it.y + it.height) {
       PDFEditorState.selectedId = it.id;
-      redrawAnnotations();
-      openTextModalForItem(it);
+      if (it.type === "text") {
+        startInlineEditing(it.id);
+      } else {
+        openTextModalForItem(it);
+      }
       break;
     }
   }
@@ -467,6 +541,172 @@ function getHitResizeHandle(item, rawX, rawY, rectW, rectH) {
   if (Math.abs(rawX - (x + w)) <= handleSize && Math.abs(rawY - (y + h)) <= handleSize) return "se";
   if (Math.abs(rawX - x) <= handleSize && Math.abs(rawY - (y + h)) <= handleSize) return "sw";
   return null;
+}
+
+// =========================================================================
+// DIRECT INLINE TEXT EDITING (Natural, in-place typing on document)
+// =========================================================================
+
+function startInlineEditing(id) {
+  if (!id) return;
+  const items = getCurrentPageAnnotations();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+
+  PDFEditorState.editingInlineId = id;
+  hideFloatingToolbar();
+
+  const overlay = el.annotationOverlayCanvas || document.getElementById("annotationOverlayCanvas");
+  const inline = el.inlineTextEditor || document.getElementById("inlineTextEditor");
+  if (!overlay || !inline) return;
+
+  const rect = overlay.getBoundingClientRect();
+  const fontScale = rect.width / 800;
+  const fontSizePx = Math.max(10, (item.fontSize || 10) * fontScale);
+
+  const left = item.x * rect.width;
+  const top = item.y * rect.height;
+  const width = Math.max(120, item.width * rect.width);
+  const height = Math.max(38, item.height * rect.height);
+
+  inline.style.left = `${left}px`;
+  inline.style.top = `${top}px`;
+  inline.style.width = `${width}px`;
+  inline.style.height = `${height}px`;
+  inline.style.fontSize = `${fontSizePx}px`;
+  inline.style.fontFamily = item.fontFamily || "Helvetica";
+  inline.style.fontWeight = item.isBold ? "bold" : "normal";
+  inline.style.color = item.color || "#000000";
+  inline.style.backgroundColor = item.backgroundColor || "#FFFFFF";
+  inline.value = item.text || "";
+  inline.placeholder = "Type correction here...";
+  inline.style.display = "block";
+
+  inline.focus();
+  inline.select();
+  redrawAnnotations();
+}
+
+function commitInlineTextEditing() {
+  if (!PDFEditorState.editingInlineId) return;
+  const inline = el.inlineTextEditor || document.getElementById("inlineTextEditor");
+  const items = getCurrentPageAnnotations();
+  const item = items.find(i => i.id === PDFEditorState.editingInlineId);
+
+  if (item && inline) {
+    const newText = inline.value.trim();
+    if (newText) {
+      item.text = newText;
+      // Auto-fit box if text became longer
+      autoFitItemToText(item);
+    }
+  }
+
+  if (inline) inline.style.display = "none";
+  PDFEditorState.editingInlineId = null;
+  saveStateSnapshot();
+  redrawAnnotations();
+  updateUIControls();
+  updateFloatingToolbarPosition();
+}
+
+function cancelInlineTextEditing() {
+  const inline = el.inlineTextEditor || document.getElementById("inlineTextEditor");
+  if (inline) inline.style.display = "none";
+  PDFEditorState.editingInlineId = null;
+  redrawAnnotations();
+  updateFloatingToolbarPosition();
+}
+
+// Floating Action Bar positioning right above selected annotation
+function updateFloatingToolbarPosition() {
+  const toolbar = el.floatingItemToolbar || document.getElementById("floatingItemToolbar");
+  if (!toolbar) return;
+
+  if (!PDFEditorState.selectedId || PDFEditorState.isPreviewMode || PDFEditorState.editingInlineId) {
+    toolbar.style.display = "none";
+    return;
+  }
+
+  const items = getCurrentPageAnnotations();
+  const item = items.find(i => i.id === PDFEditorState.selectedId);
+  const overlay = el.annotationOverlayCanvas || document.getElementById("annotationOverlayCanvas");
+  if (!item || !overlay) {
+    toolbar.style.display = "none";
+    return;
+  }
+
+  const rect = overlay.getBoundingClientRect();
+  const left = Math.max(8, Math.min(rect.width - 240, item.x * rect.width));
+  const top = Math.max(34, item.y * rect.height);
+
+  toolbar.style.left = `${left}px`;
+  toolbar.style.top = `${top}px`;
+  toolbar.style.display = "flex";
+
+  const editBtn = el.floatBtnEdit || document.getElementById("floatBtnEdit");
+  if (editBtn) {
+    editBtn.style.display = (item.type === "text") ? "inline-block" : "none";
+  }
+}
+
+function hideFloatingToolbar() {
+  const toolbar = el.floatingItemToolbar || document.getElementById("floatingItemToolbar");
+  if (toolbar) toolbar.style.display = "none";
+}
+
+function quickStepFontSize(delta) {
+  if (!PDFEditorState.selectedId) return;
+  const items = getCurrentPageAnnotations();
+  const item = items.find(i => i.id === PDFEditorState.selectedId);
+  if (!item) return;
+
+  item.fontSize = Math.max(7, Math.min(32, (item.fontSize || 10) + delta));
+  autoFitItemToText(item);
+  saveStateSnapshot();
+  redrawAnnotations();
+  syncTextControlsWithItem(item);
+  updateFloatingToolbarPosition();
+}
+
+function autoFitSelectedBox() {
+  if (!PDFEditorState.selectedId) return;
+  const items = getCurrentPageAnnotations();
+  const item = items.find(i => i.id === PDFEditorState.selectedId);
+  if (!item) return;
+  autoFitItemToText(item);
+  saveStateSnapshot();
+  redrawAnnotations();
+  updateFloatingToolbarPosition();
+  showToast("Box sized to fit text perfectly.", "success");
+}
+
+function autoFitItemToText(item) {
+  if (!item || !item.text) return;
+  const overlay = el.annotationOverlayCanvas || document.getElementById("annotationOverlayCanvas");
+  if (!overlay) return;
+  const ctx = overlay.getContext("2d");
+  const width = overlay.width;
+  const height = overlay.height;
+
+  const fontScale = width / 800;
+  const fontSizePx = Math.max(8, (item.fontSize || 10) * fontScale);
+  ctx.font = `${item.isBold ? "bold" : "normal"} ${fontSizePx}px ${item.fontFamily || "Helvetica"}, sans-serif`;
+
+  const lines = item.text.split("\n");
+  let maxLineWidth = 0;
+  lines.forEach(l => {
+    const w = ctx.measureText(l).width;
+    if (w > maxLineWidth) maxLineWidth = w;
+  });
+
+  const padX = 10 * fontScale;
+  const padY = 8 * fontScale;
+  const neededWidthPx = maxLineWidth + (padX * 2);
+  const neededHeightPx = (lines.length * fontSizePx * 1.35) + (padY * 2);
+
+  item.width = Math.min(1 - item.x, Math.max(0.06, neededWidthPx / width));
+  item.height = Math.min(1 - item.y, Math.max(0.025, neededHeightPx / height));
 }
 
 // Helper: Word-wrapping for Canvas 2D with word/character breaks to guarantee text stays inside maxWidth
@@ -584,10 +824,10 @@ function redrawAnnotations() {
         lines = getWrappedCanvasLines(ctx, it.text, maxWidth);
       }
 
-      // Render lines strictly within box height
+      // Render lines (clipped to box boundaries by ctx.clip())
       lines.forEach((line, lineIdx) => {
         const lineY = y + padY + (lineIdx * lineHeight);
-        if (lineY + (fontSizePx * 0.75) <= y + h) {
+        if (lineY <= y + h) {
           ctx.fillText(line, x + padX, lineY);
         }
       });
@@ -630,16 +870,17 @@ function redrawAnnotations() {
       });
       ctx.restore();
     } else if (!isPreview && it.type === "whiteout") {
-      // Subtle dashed border so user knows where whiteout is placed in edit mode
+      // Clear visual dashed border so user easily sees where whiteout is placed in edit mode
       ctx.save();
-      ctx.strokeStyle = "#CBD5E1";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
+      ctx.strokeStyle = "#60A5FA";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
       ctx.strokeRect(x, y, w, h);
       ctx.restore();
     }
   });
 
+  updateFloatingToolbarPosition();
   renderSidebarEditsList();
 }
 
@@ -1135,7 +1376,16 @@ function updateUIControls() {
 
 // Helper: Word-wrapping for pdf-lib vector PDF export
 function getWrappedPdfLines(text, font, fontSize, maxWidth) {
-  const paragraphs = String(text || "").split("\n");
+  // Sanitize text for standard PDF WinAnsi font compatibility
+  const sanitized = String(text || "")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u2022]/g, "*")
+    .replace(/[\u00A0]/g, " ")
+    .replace(/[^\x00-\x7F]/g, "");
+
+  const paragraphs = sanitized.split("\n");
   const lines = [];
 
   paragraphs.forEach(para => {
@@ -1209,8 +1459,8 @@ async function downloadUpdatedPdf() {
   try {
     showLoading(true, "Compiling native PDF with vector corrections...");
     
-    // Load original PDF bytes
-    const pdfDoc = await PDFLib.PDFDocument.load(PDFEditorState.originalBytes);
+    // Load fresh copy of PDF bytes
+    const pdfDoc = await PDFLib.PDFDocument.load(PDFEditorState.originalBytes.slice(0));
     
     // Standard embed fonts
     const fontHelvetica = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
@@ -1296,15 +1546,18 @@ async function downloadUpdatedPdf() {
           let currentY = pdfY + pdfH - fontSize - padY;
 
           for (const line of lines) {
-            // Draw only if completely inside the vertical box range
-            if (line.trim().length > 0 && (currentY >= pdfY + 1) && (currentY + fontSize <= pdfY + pdfH + 3)) {
-              page.drawText(line, {
-                x: pdfX + padX,
-                y: currentY,
-                size: fontSize,
-                font: chosenFont,
-                color: textColor
-              });
+            if (line.trim().length > 0 && currentY >= pdfY - 2) {
+              try {
+                page.drawText(line, {
+                  x: pdfX + padX,
+                  y: currentY,
+                  size: fontSize,
+                  font: chosenFont,
+                  color: textColor
+                });
+              } catch (drawErr) {
+                console.warn("Could not draw line in PDF:", line, drawErr);
+              }
             }
             currentY -= lineStep;
           }
@@ -1325,8 +1578,12 @@ async function downloadUpdatedPdf() {
     link.download = outputName;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(downloadUrl);
+    
+    // Revoke object URL safely after 60s so Chrome/Edge downloads never fail
+    setTimeout(() => {
+      if (link.parentNode) link.parentNode.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+    }, 60000);
 
     showToast(`Updated PDF downloaded successfully: ${outputName}`, "success");
   } catch (err) {
