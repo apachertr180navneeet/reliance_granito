@@ -45,6 +45,16 @@ const PDFEditorState = {
 // DOM Elements cache
 let el = {};
 
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
   initCanvasListeners();
@@ -943,6 +953,7 @@ function selectAnnotationById(id) {
   PDFEditorState.selectedId = id;
   const item = getCurrentPageAnnotations().find(i => i.id === id);
   if (item) syncTextControlsWithItem(item);
+  updateTextFormattingVisibility();
   redrawAnnotations();
   updateUIControls();
 }
@@ -989,6 +1000,23 @@ function setEditorTool(tool) {
   if (canvas) {
     if (tool === "select") canvas.style.cursor = "default";
     else canvas.style.cursor = "crosshair";
+  }
+
+  updateTextFormattingVisibility();
+}
+
+function updateTextFormattingVisibility() {
+  const fmt = document.getElementById("textFormattingControls");
+  if (!fmt) return;
+  const isTextTool = PDFEditorState.activeTool === "text";
+  const items = getCurrentPageAnnotations();
+  const selectedItem = items.find(i => i.id === PDFEditorState.selectedId);
+  const isTextSelected = selectedItem && (selectedItem.type === "text");
+
+  if (isTextTool || isTextSelected) {
+    fmt.style.setProperty("display", "flex", "important");
+  } else {
+    fmt.style.setProperty("display", "none", "important");
   }
 }
 
@@ -1714,6 +1742,76 @@ function initConsignersDropdown() {
       </a>
     </li>
   `;
+
+  populateSidebarConsigners();
+}
+
+function populateSidebarConsigners() {
+  const listEl = document.getElementById("sidebarConsignersList");
+  if (!listEl) return;
+  const consigners = getRegisteredConsigners();
+  const activeConsigners = consigners.filter(c => c.status !== "Inactive");
+
+  listEl.innerHTML = activeConsigners.map(c => `
+    <div class="card border p-2 shadow-xs mb-1 bg-white hover-shadow" style="border-radius:8px; cursor:pointer;" onclick="applyConsignerStamp('${escapeHtml(c.id)}')">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.68rem;">${escapeHtml(c.region || 'Morbi')}</span>
+        <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.7rem;"><i class="bi bi-patch-plus me-1"></i>Stamp</button>
+      </div>
+      <div class="fw-bold small text-dark text-truncate" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div>
+      <div class="text-muted small" style="font-size:0.7rem;">IEC: ${escapeHtml(c.iec)} &bull; GSTIN: ${escapeHtml(c.gstin)}</div>
+    </div>
+  `).join("");
+}
+
+function switchInspectorTab(tabName) {
+  const btnCorrections = document.getElementById("tabCorrectionsBtn");
+  const btnPresets = document.getElementById("tabPresetsBtn");
+  const btnConsigners = document.getElementById("tabConsignersBtn");
+
+  const paneCorrections = document.getElementById("tabPaneCorrections");
+  const panePresets = document.getElementById("tabPanePresets");
+  const paneConsigners = document.getElementById("tabPaneConsigners");
+
+  [btnCorrections, btnPresets, btnConsigners].forEach(b => b && b.classList.remove("active"));
+  [paneCorrections, panePresets, paneConsigners].forEach(p => p && p.classList.add("d-none"));
+
+  if (tabName === "corrections") {
+    if (btnCorrections) btnCorrections.classList.add("active");
+    if (paneCorrections) paneCorrections.classList.remove("d-none");
+  } else if (tabName === "presets") {
+    if (btnPresets) btnPresets.classList.add("active");
+    if (panePresets) panePresets.classList.remove("d-none");
+  } else if (tabName === "consigners") {
+    if (btnConsigners) btnConsigners.classList.add("active");
+    if (paneConsigners) paneConsigners.classList.remove("d-none");
+    populateSidebarConsigners();
+  }
+}
+
+function setCanvasDeskTheme(theme) {
+  const wrapper = document.getElementById("pdfViewportWrapper");
+  if (!wrapper) return;
+
+  wrapper.classList.remove("theme-light", "theme-blueprint");
+
+  const btnStudio = document.getElementById("themeStudioBtn");
+  const btnLight = document.getElementById("themeLightBtn");
+  const btnBlueprint = document.getElementById("themeBlueprintBtn");
+  [btnStudio, btnLight, btnBlueprint].forEach(b => b && b.classList.remove("active"));
+
+  if (theme === "light") {
+    wrapper.classList.add("theme-light");
+    if (btnLight) btnLight.classList.add("active");
+    showToast("Switched to Light Drafting Desk", "info");
+  } else if (theme === "blueprint") {
+    wrapper.classList.add("theme-blueprint");
+    if (btnBlueprint) btnBlueprint.classList.add("active");
+    showToast("Switched to Customs Blueprint Desk", "info");
+  } else {
+    if (btnStudio) btnStudio.classList.add("active");
+    showToast("Switched to Slate Studio Desk", "info");
+  }
 }
 
 function applyConsignerStamp(consignerId) {

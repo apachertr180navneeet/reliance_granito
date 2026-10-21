@@ -1326,43 +1326,211 @@ a {
 }
 
 /* ==========================================================================
-   PDF VISUAL CORRECTION & CANVAS EDITOR STYLES
+   PDF VISUAL CORRECTION & CANVAS STUDIO DESIGN SYSTEM
+   Professional CAD / Acrobat / Figma Grade Studio Workspace
    ========================================================================== */
-.pdf-viewport-wrapper {
-  background: #E2E8F0 !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
+
+/* Studio Workspace Shell */
+#studioWorkspaceWrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  height: calc(100vh - 225px);
+  min-height: 680px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Main Viewport Container */
+.pdf-viewport-wrapper {
+  background-color: #0F172A !important; /* Premium Slate Studio Desk */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.2px, transparent 1.2px) !important;
+  background-size: 24px 24px !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 24px 140px 24px !important;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  border: 1px solid #1E293B !important;
+  transition: background-color 0.3s ease, background-image 0.3s ease;
+}
+
+/* Studio Desk Themes */
+.pdf-viewport-wrapper.theme-light {
+  background-color: #F1F5F9 !important;
+  background-image: radial-gradient(#CBD5E1 1.5px, transparent 1.5px) !important;
+  border-color: #E2E8F0 !important;
+}
+
+.pdf-viewport-wrapper.theme-blueprint {
+  background-color: #0A192F !important;
+  background-image: linear-gradient(rgba(37, 99, 235, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(37, 99, 235, 0.15) 1px, transparent 1px) !important;
+  background-size: 28px 28px !important;
+  border-color: #1E3A8A !important;
+}
+
+/* Paper Document Canvas Container */
 #canvasContainer {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-  background-color: #FFFFFF;
-  transition: width 0.15s ease, height 0.15s ease;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 
+              0 25px 60px -15px rgba(0, 0, 0, 0.65), 
+              0 12px 24px -8px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 3px !important;
+  overflow: visible !important;
+  margin: 0 auto !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.theme-light #canvasContainer {
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08), 
+              0 20px 45px -10px rgba(15, 23, 42, 0.2), 
+              0 8px 16px -4px rgba(15, 23, 42, 0.12) !important;
 }
 
 #pdfRenderCanvas {
   display: block;
+  border-radius: 2px;
 }
 
 #annotationOverlayCanvas {
   display: block;
   z-index: 10;
   cursor: crosshair;
+  border-radius: 2px;
+}
+
+/* Floating Studio Dock (Page Navigator & Zoom Toolbar) */
+.studio-floating-dock {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 6px 14px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.2);
+  color: #F8FAFC;
+  transition: all 0.2s ease;
+}
+
+.studio-floating-dock:hover {
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 20px 42px -4px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.studio-dock-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.studio-dock-btn:hover:not(:disabled) {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.studio-dock-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.studio-dock-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: 0 4px;
+}
+
+.studio-dock-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  padding: 0 8px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* Tool Buttons & Active State */
+.studio-tool-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
 }
 
 .btn-group .btn.active {
-  background-color: #2563EB !important;
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
   color: #FFFFFF !important;
   border-color: #2563EB !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
 }
 
 .btn-group .btn.active i {
   color: #FFFFFF !important;
   -webkit-text-stroke: 0 !important;
 }
+
+/* Modern Tabbed Inspector in Right Sidebar */
+.inspector-tab-nav {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #F8FAFC;
+  border-radius: 10px 10px 0 0;
+  padding: 4px 6px 0 6px;
+  gap: 4px;
+}
+
+.inspector-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.inspector-tab-btn:hover {
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.inspector-tab-btn.active {
+  color: var(--primary);
+  background: #FFFFFF;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.03);
+}
+
+.inspector-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+}
+
 
