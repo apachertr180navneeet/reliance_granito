@@ -114,7 +114,11 @@ include_once __DIR__ . '/includes/header.php';
             <i class="bi bi-truck text-primary"></i>
             <span>Recent Export Consignments</span>
           </div>
-          <div class="d-flex gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="input-group input-group-sm" style="width:220px;">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" placeholder="Filter shipments..." oninput="handleGlobalSearch(this.value)">
+            </div>
             <button type="button" class="btn btn-primary btn-sm" onclick="openCreateShipmentModal()">
               <i class="bi bi-plus-lg"></i>
               <span>New Consignment</span>

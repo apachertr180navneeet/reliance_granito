@@ -1,5 +1,5 @@
 <?php
-// Reliance Granito EDMS - Common Header Component with Sidebar & Top Bar
+// Reliance Granito EDMS - Common Header Component
 if (!isset($pageTitle)) {
     $pageTitle = "Reliance Granito | Export Documentation Management System (EDMS)";
 }
@@ -24,39 +24,20 @@ if (!isset($pageTitle)) {
 
     <!-- Main Workspace Area -->
     <div class="main-wrapper">
-      <!-- Top Navigation Bar -->
+      <!-- Top Navigation Bar (Clean & Uncluttered) -->
       <header class="top-navbar">
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-          <i class="bi bi-list" style="font-size:1.5rem;"></i>
-        </button>
-
-        <!-- Search Box -->
-        <div class="top-search-box">
-          <i class="bi bi-search" style="opacity:0.6;"></i>
-          <input type="text" id="globalSearch" placeholder="Search Shipment #, Buyer, Container, Seal..." oninput="handleGlobalSearch(this.value)">
+        <div class="d-flex align-items-center gap-3">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="bi bi-list" style="font-size:1.5rem;"></i>
+          </button>
+          <div class="d-none d-md-flex align-items-center gap-2" style="font-size:0.84rem; color:#64748B;">
+            <i class="bi bi-building-gear text-primary"></i>
+            <span style="font-weight:600; color:#0F172A;">Jodhpur Export Office & Morbi Ceramic Facility</span>
+          </div>
         </div>
 
-        <!-- Right Side Quick Actions & User Profile -->
-        <div class="top-actions">
-          <div class="currency-badge d-none d-lg-flex">
-            <i class="bi bi-currency-dollar"></i>
-            <span>USD / INR 86.85</span>
-          </div>
-
-          <div class="morbi-facility-status d-none d-xl-flex py-1 px-2" style="font-size:0.75rem;">
-            <div class="status-dot-pulse me-2"></div>
-            <div>
-              <div style="font-size:0.72rem; font-weight:700; color:#0F172A;">Morbi Facility</div>
-              <div style="font-size:0.62rem; color:#64748B;">IEC Verified</div>
-            </div>
-          </div>
-
-          <button type="button" class="btn btn-primary btn-sm" onclick="openCreateShipmentModal()">
-            <i class="bi bi-plus-lg"></i>
-            <span>+ Create Shipment</span>
-          </button>
-
-          <!-- User Profile Display & Sign Out -->
+        <!-- Right Side: User Profile & Sign Out -->
+        <div class="top-actions ms-auto">
           <div class="user-profile-badge" onclick="window.location.href='login.php'" title="Click to Switch User / Sign Out">
             <div class="user-avatar" id="navUserAvatar">RP</div>
             <div class="user-details d-none d-sm-block">
