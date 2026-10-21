@@ -774,20 +774,25 @@ a {
   margin-bottom: 12px;
 }
 
-.form-group label, .form-label {
-  font-size: 0.78rem;
+.form-group label, .form-label, label, .form-check-label {
+  font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 2px;
+  color: #E2E8F0 !important;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.text-muted {
+  color: #94A3B8 !important;
 }
 
 .form-control, .form-select {
-  background-color: var(--bg-surface) !important;
-  border: 1px solid var(--border-subtle) !important;
-  color: #FFF !important;
-  padding: 8px 12px;
+  background-color: #0F172A !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #FFFFFF !important;
+  padding: 9px 13px;
   border-radius: 8px;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   outline: none;
   font-family: inherit;
   transition: var(--transition);
@@ -795,9 +800,25 @@ a {
 
 .form-control:focus, .form-select:focus {
   border-color: var(--border-focus) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
-  background-color: var(--bg-surface) !important;
-  color: #FFF !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+}
+
+.form-control::placeholder {
+  color: #64748B !important;
+}
+
+.input-group-text {
+  background-color: #1E293B !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #60A5FA !important;
+  padding: 9px 13px;
+}
+
+.input-group-text svg, .input-group-text i {
+  color: #60A5FA !important;
+  font-size: 1rem;
 }
 
 /* Tabs */
@@ -1196,3 +1217,133 @@ a {
   cursor: pointer;
   padding: 6px;
 }
+
+/* ==========================================================================
+   HIGH-CONTRAST DARK THEME & BOOTSTRAP OVERRIDES
+   Ensures crystal clear text visibility across all inputs, labels, and cards
+   ========================================================================== */
+
+:root, [data-bs-theme="dark"], body {
+  --bs-body-color: #F1F5F9;
+  --bs-body-bg: #0B0F19;
+  --bs-secondary-color: #94A3B8;
+  --bs-tertiary-color: #64748B;
+  --bs-border-color: rgba(255, 255, 255, 0.12);
+  --bs-card-bg: #162032;
+  --bs-card-color: #F1F5F9;
+}
+
+/* Form Labels & Typography Contrast */
+label,
+.form-label,
+.form-check-label,
+.form-group label {
+  color: #E2E8F0 !important;
+  font-weight: 600 !important;
+}
+
+.text-muted,
+.form-text,
+small.text-muted {
+  color: #94A3B8 !important;
+}
+
+.text-secondary {
+  color: #CBD5E1 !important;
+}
+
+/* Form Controls & Inputs */
+.form-control,
+.form-select {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 6px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+}
+
+.form-control::placeholder {
+  color: #64748B !important;
+  opacity: 1;
+}
+
+/* Input Group Addons & Icons */
+.input-group-text {
+  background-color: #1E293B !important;
+  color: #38BDF8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.input-group-text i,
+.input-group-text svg {
+  color: #38BDF8 !important;
+}
+
+/* Form Check & Radios */
+.form-check-input {
+  background-color: #0F172A;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.form-check-input:checked {
+  background-color: #2563EB;
+  border-color: #2563EB;
+}
+
+/* Cards & Modals */
+.card {
+  background-color: #162032 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #F1F5F9 !important;
+}
+
+.card-header {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
+}
+
+.card-body {
+  color: #F1F5F9 !important;
+}
+
+.modal-content {
+  background-color: #162032 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #F1F5F9 !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Tables */
+.table {
+  --bs-table-color: #F1F5F9 !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #F1F5F9 !important;
+}
+
+.table th {
+  color: #94A3B8 !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.table td {
+  color: #E2E8F0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
