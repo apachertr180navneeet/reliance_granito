@@ -21,34 +21,28 @@ $activeNav = $activeNav ?? 'dashboard';
     <a href="index.php#shipmentsSection" class="nav-link">
       <i class="bi bi-box-seam"></i>
       <span>Export Consignments</span>
-      <span class="nav-badge blue">3 Live</span>
     </a>
     <a href="javascript:void(0)" onclick="openShipmentDetailModal('SHP-1469')" class="nav-link" style="background:#EFF6FF; border-left:3px solid #2563EB;">
       <i class="bi bi-star-fill" style="color:#D97706;"></i>
       <span style="font-weight:700; color:#1D4ED8;">Active SHP-1469 Hub</span>
-      <span class="nav-badge gold">Primary</span>
     </a>
 
     <div class="nav-category">Validation & Documents</div>
     <a href="javascript:void(0)" onclick="openDiscrepancyModal('SHP-1469')" class="nav-link">
       <i class="bi bi-shield-check"></i>
       <span>3-Way Validation</span>
-      <span class="nav-badge danger" id="sidebarMismatchBadge">1 Mismatch</span>
     </a>
     <a href="javascript:void(0)" onclick="openDocViewer('invoice')" class="nav-link">
       <i class="bi bi-receipt"></i>
       <span>Commercial Invoice</span>
-      <span class="nav-badge">Original / Edit</span>
     </a>
     <a href="javascript:void(0)" onclick="openDocViewer('shipping-bill')" class="nav-link">
       <i class="bi bi-file-earmark-ruled"></i>
       <span>Shipping Bill (6-Page)</span>
-      <span class="nav-badge">ICEGATE</span>
     </a>
     <a href="javascript:void(0)" onclick="openDocViewer('bill-of-lading')" class="nav-link">
       <i class="bi bi-compass"></i>
       <span>Bill of Lading & HIDE</span>
-      <span class="nav-badge gold">Masking</span>
     </a>
 
     <div class="nav-category">System Session</div>
