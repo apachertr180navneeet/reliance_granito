@@ -31,14 +31,14 @@ include_once __DIR__ . '/includes/header.php';
 
   <!-- Operational Action Cards -->
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
       <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="text-muted small fw-semibold">PRIMARY WORKFLOW</span>
             <span class="badge bg-primary-subtle text-primary">PDF Tool</span>
           </div>
-          <h5 class="fw-bold mb-1">PDF Masking & Corrections</h5>
+          <h5 class="fw-bold mb-1">PDF Corrections</h5>
           <p class="text-muted small mb-3">Upload export PDFs, draw whiteout masks to hide sensitive prices, replace text values, and download updated copies.</p>
           <a href="pdf-editor.php" class="btn btn-outline-primary btn-sm w-100">
             Open PDF Editor &rarr;
@@ -47,7 +47,23 @@ include_once __DIR__ . '/includes/header.php';
       </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted small fw-semibold">PARTY DIRECTORY</span>
+            <span class="badge bg-primary-subtle text-primary">CRUD Master</span>
+          </div>
+          <h5 class="fw-bold mb-1">Consigners Master</h5>
+          <p class="text-muted small mb-3">Manage export consignors, IEC licenses, GSTIN, factory works addresses in Morbi & Jodhpur, and authorized banks.</p>
+          <a href="consigners.php" class="btn btn-primary btn-sm w-100">
+            Manage Consigners &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
       <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
@@ -63,7 +79,7 @@ include_once __DIR__ . '/includes/header.php';
       </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-6 col-lg-3">
       <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">

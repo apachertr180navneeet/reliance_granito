@@ -104,6 +104,19 @@ include_once __DIR__ . '/includes/header.php';
                 <li><a class="dropdown-item fw-bold text-warning" href="#" onclick="applyStamp('CONFIDENTIAL'); return false;">[ CONFIDENTIAL ]</a></li>
               </ul>
             </div>
+
+            <!-- Consigner Details Stamp Dropdown -->
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" id="consignerDropdownBtn" onclick="initConsignersDropdown()" title="Stamp Verified Consigner Particulars (IEC, GSTIN, Address)">
+                <i class="bi bi-building-up text-primary"></i> Consigner
+              </button>
+              <ul class="dropdown-menu shadow-sm" id="consignerDropdownMenu" style="font-size:0.85rem; min-width:270px;">
+                <li><h6 class="dropdown-header">Stamp Registered Consigner</h6></li>
+                <li id="consignerListItems"><span class="dropdown-item small text-muted">Loading Consigners...</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold" href="consigners.php"><i class="bi bi-gear"></i> Manage Consigners (CRUD) &rarr;</a></li>
+              </ul>
+            </div>
           </div>
 
           <!-- Text Formatting Controls (Visible when Text tool or text item selected) -->

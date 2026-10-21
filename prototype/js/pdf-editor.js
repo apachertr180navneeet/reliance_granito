@@ -49,11 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
   cacheElements();
   initCanvasListeners();
   initKeyboardShortcuts();
+  initConsignersDropdown();
   
   // Auto-load sample Shipping Bill on first open
   setTimeout(() => {
     loadSampleDoc("1469 SB ORIGINAL.PDF", "Shipping Bill #1469 (Original Customs EDI)");
-  }, 300);
+    checkPendingConsignerStamp();
+  }, 350);
 });
 
 function cacheElements() {
@@ -1603,4 +1605,175 @@ function hexToPdfRgb(hex) {
   const g = parseInt(cleanHex.substring(2, 4), 16) / 255;
   const b = parseInt(cleanHex.substring(4, 6), 16) / 255;
   return PDFLib.rgb(r || 0, g || 0, b || 0);
+}
+
+// =========================================================================
+// 10. CONSIGNERS (CONSIGNOR) INTEGRATION FOR PDF STAMPING & AMENDMENTS
+// =========================================================================
+
+function getRegisteredConsigners() {
+  const DEFAULT_CONSIGNERS = [
+    {
+      id: "EXP-001",
+      name: "Reliance Granito Private Limited",
+      iec: "ABEFR3842G",
+      iecBranch: "0",
+      gstin: "08ABEFR3842G1Z5",
+      adCode: "6390013",
+      forexBank: "ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)",
+      registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
+      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
+      region: "Morbi"
+    },
+    {
+      id: "EXP-002",
+      name: "Reliance Granito (Morbi Plant II)",
+      iec: "ABEFR3842G",
+      iecBranch: "1",
+      gstin: "24ABEFR3842G1Z2",
+      adCode: "6390013",
+      forexBank: "State Bank of India, Morbi Main Branch (A/C: 30894102941)",
+      registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
+      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Morbi - 363642, Gujarat, India",
+      region: "Morbi"
+    },
+    {
+      id: "EXP-003",
+      name: "Reliance Ceramic Industries LLP",
+      iec: "AABFR9182K",
+      iecBranch: "0",
+      gstin: "24AABFR9182K1Z9",
+      adCode: "6391104",
+      forexBank: "HDFC Bank Limited, Morbi Branch",
+      registeredAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
+      factoryAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
+      region: "Morbi"
+    },
+    {
+      id: "EXP-004",
+      name: "Marwar Granite & Quartz Export LLP",
+      iec: "AARFM7721H",
+      iecBranch: "0",
+      gstin: "08AARFM7721H1Z1",
+      adCode: "6389920",
+      forexBank: "Axis Bank Limited, Mandore Road, Jodhpur",
+      registeredAddress: "Plot 45-B, Mandore Industrial Area, Jodhpur - 342007, Rajasthan",
+      factoryAddress: "RIICO Industrial Area, Phase II, Boranada, Jodhpur - 342012, Rajasthan",
+      region: "Jodhpur"
+    }
+  ];
+
+  try {
+    const raw = localStorage.getItem("reliance_edms_consigners");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.warn("Could not read consigners from localStorage:", e);
+  }
+  return DEFAULT_CONSIGNERS;
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function initConsignersDropdown() {
+  const menu = document.getElementById("consignerDropdownMenu");
+  if (!menu) return;
+
+  const consigners = getRegisteredConsigners();
+  const activeConsigners = consigners.filter(c => c.status !== "Inactive");
+
+  const itemsHtml = activeConsigners.map(c => `
+    <li>
+      <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="#" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
+        <div class="overflow-hidden pe-2">
+          <div class="fw-bold text-dark text-truncate" style="max-width:200px;">${escapeHtml(c.name)}</div>
+          <div class="text-muted small" style="font-size:0.7rem;">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Morbi')}</div>
+        </div>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.65rem;">Apply</span>
+      </a>
+    </li>
+  `).join("");
+
+  menu.innerHTML = `
+    <li><h6 class="dropdown-header">Stamp Verified Consigner</h6></li>
+    ${itemsHtml}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold" href="consigners.php">
+        <i class="bi bi-gear"></i> Manage Consigners (CRUD) &rarr;
+      </a>
+    </li>
+  `;
+}
+
+function applyConsignerStamp(consignerId) {
+  const consigners = getRegisteredConsigners();
+  const c = consigners.find(item => item.id === consignerId);
+  if (!c) {
+    showToast("Consigner record not found", "warning");
+    return;
+  }
+
+  const stampLines = [
+    c.name.toUpperCase(),
+    c.factoryAddress || c.registeredAddress,
+    `IEC: ${c.iec} (BRANCH: ${c.iecBranch || '0'}) | GSTIN: ${c.gstin} | AD CODE: ${c.adCode || '6390013'}`,
+    `BANK: ${c.forexBank || 'ICICI BANK LIMITED, JODHPUR / MORBI BRANCH'}`
+  ];
+
+  const text = stampLines.join("\n");
+
+  if (!PDFEditorState.annotations[PDFEditorState.currentPage]) {
+    PDFEditorState.annotations[PDFEditorState.currentPage] = [];
+  }
+
+  // Create clean Consigner overlay box at the standard Exporter location (top left of customs document)
+  const newAnnotation = {
+    id: "ann_consigner_" + Date.now(),
+    type: "text",
+    x: 0.05,
+    y: 0.08,
+    width: 0.88,
+    height: 0.09,
+    text: text,
+    fontFamily: "Courier",
+    fontSize: 8.5,
+    isBold: true,
+    color: "#0F172A",
+    backgroundColor: "#FFFFFF"
+  };
+
+  PDFEditorState.annotations[PDFEditorState.currentPage].push(newAnnotation);
+  saveStateSnapshot();
+  redrawAnnotations();
+  updateUIControls();
+
+  showToast(`Stamped Consigner "${c.name}" on Page ${PDFEditorState.currentPage}`, "success");
+}
+
+function checkPendingConsignerStamp() {
+  try {
+    const raw = sessionStorage.getItem("reliance_stamp_consigner");
+    if (!raw) return;
+
+    const consigner = JSON.parse(raw);
+    sessionStorage.removeItem("reliance_stamp_consigner");
+
+    setTimeout(() => {
+      applyConsignerStamp(consigner.id);
+      showToast(`Automatically loaded and stamped ${consigner.name}!`, "success");
+    }, 800);
+  } catch (e) {
+    console.warn("Could not check pending consigner stamp:", e);
+  }
 }
