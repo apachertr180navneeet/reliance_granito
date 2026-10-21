@@ -18,38 +18,6 @@ $activeNav = $activeNav ?? 'dashboard';
       <i class="bi bi-speedometer2"></i>
       <span>Dashboard & Tower</span>
     </a>
-    <a href="index.php#shipmentsSection" class="nav-link">
-      <i class="bi bi-box-seam"></i>
-      <span>Export Consignments</span>
-    </a>
-    <a href="javascript:void(0)" onclick="openShipmentDetailModal('SHP-1469')" class="nav-link" style="background:#EFF6FF; border-left:3px solid #2563EB;">
-      <i class="bi bi-star-fill" style="color:#D97706;"></i>
-      <span style="font-weight:700; color:#1D4ED8;">Active SHP-1469 Hub</span>
-    </a>
-
-    <div class="nav-category">Validation & Documents</div>
-    <a href="javascript:void(0)" onclick="openDiscrepancyModal('SHP-1469')" class="nav-link">
-      <i class="bi bi-shield-check"></i>
-      <span>3-Way Validation</span>
-    </a>
-    <a href="javascript:void(0)" onclick="openDocViewer('invoice')" class="nav-link">
-      <i class="bi bi-receipt"></i>
-      <span>Commercial Invoice</span>
-    </a>
-    <a href="javascript:void(0)" onclick="openDocViewer('shipping-bill')" class="nav-link">
-      <i class="bi bi-file-earmark-ruled"></i>
-      <span>Shipping Bill (6-Page)</span>
-    </a>
-    <a href="javascript:void(0)" onclick="openDocViewer('bill-of-lading')" class="nav-link">
-      <i class="bi bi-compass"></i>
-      <span>Bill of Lading & HIDE</span>
-    </a>
-
-    <div class="nav-category">System Session</div>
-    <a href="index.php#auditSection" class="nav-link">
-      <i class="bi bi-clock-history"></i>
-      <span>Audit Trail & Logs</span>
-    </a>
     <a href="login.php" class="nav-link text-danger" style="margin-top:12px;">
       <i class="bi bi-box-arrow-right text-danger"></i>
       <span>Sign Out / Lock</span>
