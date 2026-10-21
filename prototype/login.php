@@ -1,9 +1,14 @@
+<?php
+// Reliance Granito Export Documentation Management System (EDMS)
+// Single Sign-In Authentication Page
+$pageTitle = "Reliance Granito | Export Documentation Management System - Sign In";
+?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reliance Granito | Export Documentation Management System - Sign In</title>
+  <title><?= htmlspecialchars($pageTitle) ?></title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -131,7 +136,7 @@
       saveExportData(data);
       showToast("Signed in successfully as Rajesh B. Patel", "success");
       setTimeout(() => {
-        window.location.href = "index.html";
+        window.location.href = "index.php";
       }, 350);
     }
   </script>

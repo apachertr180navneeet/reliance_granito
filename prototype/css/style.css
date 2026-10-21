@@ -246,17 +246,41 @@ a {
   100% { transform: scale(0.95); opacity: 0.9; }
 }
 
-/* Main Workspace Content (Full Width - No Sidebar) */
+/* Main Workspace & Sidebar Layout System */
+.app-sidebar {
+  width: 275px;
+  background-color: #FFFFFF;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
+}
+
+.app-sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
 .main-wrapper {
-  margin-left: 0 !important;
+  margin-left: 275px;
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  width: 100%;
+  transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.app-sidebar {
+.main-wrapper.full-width,
+.app-container.no-sidebar .main-wrapper {
+  margin-left: 0 !important;
+}
+
+.app-container.no-sidebar .app-sidebar {
   display: none !important;
 }
 
