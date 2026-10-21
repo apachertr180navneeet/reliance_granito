@@ -1,0 +1,9 @@
+DirectoryIndex index.php index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^index\.html$ index.php [L,R=301]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^login\.html$ login.php [L,R=301]
+</IfModule>

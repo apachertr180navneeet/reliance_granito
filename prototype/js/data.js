@@ -741,9 +741,12 @@ function getExportData() {
   const stored = localStorage.getItem("reliance_granito_edms_data");
   if (stored) {
     try {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (parsed && Array.isArray(parsed.shipments) && parsed.shipments.length > 0 && Array.isArray(parsed.commercialInvoices) && Array.isArray(parsed.parties)) {
+        return parsed;
+      }
     } catch (e) {
-      console.warn("Could not parse stored EDMS data, falling back to seed.");
+      console.warn("Could not parse stored EDMS data, falling back to seed:", e);
     }
   }
   saveExportData(RelianceEDMSSeed);

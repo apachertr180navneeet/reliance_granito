@@ -117,19 +117,23 @@ function closeModal(id) {
 // =========================================================================
 function evaluateCrossDocumentValidation(shipmentId = "SHP-1469") {
   const data = getExportData();
-  const shipment = data.shipments.find(s => s.shipmentNumber === shipmentId) || data.shipments[0];
-  const invoice = data.commercialInvoices.find(i => i.shipmentNumber === shipmentId) || data.commercialInvoices[0];
-  const sb = data.shippingBills.find(s => s.shipmentNumber === shipmentId) || data.shippingBills[0];
-  const bl = data.billsOfLading.find(b => b.shipmentNumber === shipmentId) || data.billsOfLading[0];
+  const shipment = (data.shipments || []).find(s => s.shipmentNumber === shipmentId) || (data.shipments && data.shipments[0]) || {};
+  const invoice = (data.commercialInvoices || []).find(i => i.shipmentNumber === shipmentId) || (data.commercialInvoices && data.commercialInvoices[0]) || {};
+  const sb = (data.shippingBills || []).find(s => s.shipmentNumber === shipmentId) || (data.shippingBills && data.shippingBills[0]) || {};
+  const bl = (data.billsOfLading || []).find(b => b.shipmentNumber === shipmentId) || (data.billsOfLading && data.billsOfLading[0]) || {};
+
+  const invAddress = invoice.buyerAddressEdited || invoice.buyerAddressOriginal || "";
+  const blConsignee = bl.consignee || "";
+  const isAddressMismatch = invAddress.includes("Hai Phong") && blConsignee.includes("Hai Phong");
 
   const checks = [
     {
       fieldKey: "consignee",
       fieldName: "Consignee / Importer Destination",
-      invoiceVal: invoice.buyerAddressEdited || invoice.buyerAddressOriginal,
-      sbVal: sb.countryOfDestination,
-      blVal: bl.consignee,
-      matchStatus: (invoice.buyerAddressEdited.includes("Hai Phong") && bl.consignee.includes("Hai Phong")) ? "MISMATCH" : "MATCH",
+      invoiceVal: invAddress,
+      sbVal: sb.countryOfDestination || "Vietnam",
+      blVal: blConsignee,
+      matchStatus: isAddressMismatch ? "MISMATCH" : "MATCH",
       notes: "Original Invoice had Da Nang; amended to Hai Phong. BL reflects Hai Phong. SB destination listed at country level.",
       resolution: "Override Confirmed"
     },

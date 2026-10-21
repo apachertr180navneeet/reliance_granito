@@ -640,10 +640,21 @@ include_once __DIR__ . '/includes/header.php';
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    renderDashboard();
+    try {
+      renderDashboard();
+    } catch (e) {
+      console.error("Dashboard initialization error:", e);
+      if (typeof resetDemoData === "function") {
+        resetDemoData();
+      }
+    }
   });
 
   function renderDashboard() {
+    if (typeof getExportData !== "function") {
+      console.warn("getExportData is not yet loaded.");
+      return;
+    }
     const data = getExportData();
     renderShipmentsTable(data);
     renderDiscrepancySummary(data);
@@ -652,10 +663,12 @@ include_once __DIR__ . '/includes/header.php';
 
   function renderShipmentsTable(data) {
     const tbody = document.getElementById("dashboardShipmentsBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
+    if (!data || !Array.isArray(data.shipments)) return;
 
     data.shipments.forEach(s => {
-      const buyer = data.parties.find(p => p.id === s.buyerPartyId) || { name: "CJ Stone Co. Ltd", country: "Vietnam" };
+      const buyer = (data.parties || []).find(p => p.id === s.buyerPartyId) || { name: "CJ Stone Co. Ltd", country: "Vietnam" };
       let statusBadge = "badge-draft";
       if (s.status === "Approved") statusBadge = "badge-approved";
       if (s.status === "Discrepancy Flagged") statusBadge = "badge-discrepancy";
@@ -675,15 +688,15 @@ include_once __DIR__ . '/includes/header.php';
           <div style="font-size:0.75rem; color:#D97706;">${s.podName} (${s.incoterms})</div>
         </td>
         <td>
-          <div>${s.totalQuantitySqm.toLocaleString()} SQM</div>
-          <div style="font-size:0.72rem; color:var(--text-dim);">${s.totalPackages} ${s.packageType} (${(s.grossWeightKg/1000).toFixed(1)} MT)</div>
+          <div>${(s.totalQuantitySqm || 0).toLocaleString()} SQM</div>
+          <div style="font-size:0.72rem; color:var(--text-dim);">${s.totalPackages || ''} ${s.packageType || ''} (${((s.grossWeightKg || 0)/1000).toFixed(1)} MT)</div>
         </td>
         <td>
-          <div style="font-family:monospace; color:#0F172A;">${s.containers[0]?.containerNumber || 'TCLU7789571'}</div>
-          <div style="font-size:0.72rem; color:var(--text-dim);">Seal: ${s.containers[0]?.sealNumber || '14697'}</div>
+          <div style="font-family:monospace; color:#0F172A;">${s.containers?.[0]?.containerNumber || 'TCLU7789571'}</div>
+          <div style="font-size:0.72rem; color:var(--text-dim);">Seal: ${s.containers?.[0]?.sealNumber || '14697'}</div>
         </td>
         <td>
-          <div style="font-weight:700; color:#059669;">$${s.totalInvoiceValue.toLocaleString()} USD</div>
+          <div style="font-weight:700; color:#059669;">$${(s.totalInvoiceValue || 0).toLocaleString()} USD</div>
         </td>
         <td>
           <span class="badge ${statusBadge}">${s.status}</span>
@@ -704,9 +717,11 @@ include_once __DIR__ . '/includes/header.php';
 
   function renderDiscrepancySummary(data) {
     const tbody = document.getElementById("dashboardDiscrepancySummaryBody");
+    if (!tbody) return;
     tbody.innerHTML = "";
 
-    const results = evaluateCrossDocumentValidation("SHP-1469");
+    if (typeof evaluateCrossDocumentValidation !== "function") return;
+    const results = evaluateCrossDocumentValidation("SHP-1469") || [];
     results.slice(0, 4).forEach(r => {
       let badge = '<span class="badge badge-confirmed">MATCH</span>';
       if (r.matchStatus === "MISMATCH") badge = '<span class="badge badge-hold">MISMATCH</span>';
@@ -727,7 +742,9 @@ include_once __DIR__ . '/includes/header.php';
 
   function renderAuditFeed(data) {
     const container = document.getElementById("dashboardAuditFeed");
+    if (!container) return;
     container.innerHTML = "";
+    if (!data || !Array.isArray(data.auditLogs)) return;
 
     data.auditLogs.slice(0, 4).forEach(log => {
       const item = document.createElement("div");
@@ -739,10 +756,10 @@ include_once __DIR__ . '/includes/header.php';
       item.innerHTML = `
         <div class="d-flex justify-content-between">
           <strong style="color:#0F172A;">${log.action}</strong>
-          <span style="color:#94A3B8; font-size:0.7rem;">${log.timestamp.split(' ')[1] || ''}</span>
+          <span style="color:#94A3B8; font-size:0.7rem;">${(log.timestamp || '').split(' ')[1] || ''}</span>
         </div>
-        <div style="color:#64748B; margin-top:2px;">${log.newValue}</div>
-        <div style="color:#94A3B8; font-size:0.7rem; margin-top:2px;">By ${log.user} • ${log.shipmentNumber}</div>
+        <div style="color:#64748B; margin-top:2px;">${log.newValue || ''}</div>
+        <div style="color:#94A3B8; font-size:0.7rem; margin-top:2px;">By ${log.user || ''} • ${log.shipmentNumber || ''}</div>
       `;
       container.appendChild(item);
     });
