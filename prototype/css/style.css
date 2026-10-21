@@ -1298,3 +1298,29 @@ a {
   cursor: pointer;
   padding: 6px;
 }
+
+/* App Footer Styling */
+.app-footer {
+  background-color: #FFFFFF;
+  border-top: 1px solid var(--border-subtle);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: #64748B;
+  margin-top: auto;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.app-footer a {
+  color: #64748B;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.app-footer a:hover {
+  color: #2563EB;
+}
