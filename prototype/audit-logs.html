@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,7 +71,7 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="status-dot-pulse"></div>
             <div>
-              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.75rem; font-weight:700; color:#0F172A;">Jodhpur / Morbi Facility</div>
               <div style="font-size:0.68rem; color:var(--text-dim);">Immutable Audit Vault</div>
             </div>
           </div>
@@ -200,7 +200,7 @@
         tr.innerHTML = `
           <td><strong style="color:#60A5FA;">${v.id}</strong></td>
           <td><a href="shipment-detail.html?id=${v.shipmentNumber}" style="color:var(--accent-gold); font-weight:700;">${v.shipmentNumber}</a></td>
-          <td><strong style="color:#FFF;">${v.docType}</strong></td>
+          <td><strong style="color:#0F172A;">${v.docType}</strong></td>
           <td><span class="badge badge-draft">${v.variant}</span></td>
           <td>${v.isImmutable ? '<span class="badge badge-confirmed"><i class="bi bi-lock-fill"></i> Locked</span>' : '<span class="badge badge-production">Editable</span>'}</td>
           <td style="font-family:monospace; font-size:0.75rem; color:#A5B4FC;">${v.checksumSha256}</td>
@@ -222,7 +222,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td style="white-space:nowrap; font-size:0.78rem; color:var(--text-dim);">${l.timestamp}</td>
-          <td><strong style="color:#FFF;">${l.user}</strong></td>
+          <td><strong style="color:#0F172A;">${l.user}</strong></td>
           <td><span class="badge badge-draft">${l.shipmentNumber}</span></td>
           <td>${l.entity}</td>
           <td><strong style="color:#60A5FA;">${l.action}</strong></td>

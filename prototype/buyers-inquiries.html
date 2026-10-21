@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,7 +83,7 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="status-dot-pulse"></div>
             <div>
-              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.75rem; font-weight:700; color:#0F172A;">Jodhpur / Morbi Facility</div>
               <div style="font-size:0.68rem; color:var(--text-dim);">CRM & Inquiry Vault</div>
             </div>
           </div>
@@ -181,7 +181,7 @@
                 <span class="badge badge-inquiry">INQ-2026-112</span>
                 <span style="font-size:0.75rem; color:var(--text-dim);">Received 4 hrs ago</span>
               </div>
-              <h5 style="color:#FFF; margin-bottom:4px;">Baumarkt Import GmbH (Germany)</h5>
+              <h5 style="color:#0F172A; margin-bottom:4px;">Baumarkt Import GmbH (Germany)</h5>
               <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">Requirement: 12 Containers 600x1200mm Carving Finish tiles for Berlin Commercial Project. Need FOB Mundra & CIF Hamburg quotation.</p>
               <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
                 <span style="font-size:0.78rem; color:var(--accent-gold); font-weight:600;">Est. 17,280 SQM</span>
@@ -194,7 +194,7 @@
                 <span class="badge badge-inquiry">INQ-2026-114</span>
                 <span style="font-size:0.75rem; color:var(--text-dim);">Received yesterday</span>
               </div>
-              <h5 style="color:#FFF; margin-bottom:4px;">CJ Stone Company Limited (Vietnam)</h5>
+              <h5 style="color:#0F172A; margin-bottom:4px;">CJ Stone Company Limited (Vietnam)</h5>
               <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">Requirement: 1 Container 20mm Polished Granite Slabs (Black Galaxy / Tan Brown). Need Hai Phong port CIF delivery confirmation.</p>
               <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25">
                 <span style="font-size:0.78rem; color:var(--accent-gold); font-weight:600;">Est. 518.69 SQM</span>
@@ -289,14 +289,14 @@
           <div class="p-3 rounded border border-secondary border-opacity-25" style="background:rgba(255,255,255,0.02);">
             <div class="d-flex justify-content-between mb-1">
               <span class="text-muted">Estimated Area:</span>
-              <strong style="color:#FFF;" id="qResArea">518.69 SQM</strong>
+              <strong style="color:#0F172A;" id="qResArea">518.69 SQM</strong>
             </div>
             <div class="d-flex justify-content-between mb-1">
               <span class="text-muted">Cargo Gross Weight:</span>
               <strong style="color:#F59E0B;" id="qResWeight">26.50 MT</strong>
             </div>
             <div class="d-flex justify-content-between pt-2 border-top border-secondary">
-              <span style="font-weight:700; color:#FFF;">Estimated FOB Value:</span>
+              <span style="font-weight:700; color:#0F172A;">Estimated FOB Value:</span>
               <span style="font-size:1.2rem; font-weight:800; color:#34D399;" id="qResTotal">$15,425.27 USD</span>
             </div>
           </div>
@@ -330,7 +330,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>
-            <strong style="color:#FFF;">${b.name}</strong>
+            <strong style="color:#0F172A;">${b.name}</strong>
             <div style="font-size:0.75rem; color:var(--text-muted);">${b.address}</div>
           </td>
           <td>
@@ -341,7 +341,7 @@
             <div>${b.contact}</div>
           </td>
           <td><span class="badge badge-draft">${b.incoterms || 'CIF'}</span></td>
-          <td><div style="font-size:0.8rem; color:#FFF;">${b.paymentTerms || '100% CAD'}</div></td>
+          <td><div style="font-size:0.8rem; color:#0F172A;">${b.paymentTerms || '100% CAD'}</div></td>
           <td>
             <a href="shipments.html" class="btn btn-primary btn-sm py-1 px-2" style="font-size:0.75rem;">+ New Consignment</a>
           </td>
@@ -364,7 +364,7 @@
       filtered.forEach(b => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><strong style="color:#FFF;">${b.name}</strong></td>
+          <td><strong style="color:#0F172A;">${b.name}</strong></td>
           <td>${b.country}</td>
           <td>${b.contact}</td>
           <td>${b.incoterms}</td>

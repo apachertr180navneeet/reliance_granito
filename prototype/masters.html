@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,7 +71,7 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="status-dot-pulse"></div>
             <div>
-              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.75rem; font-weight:700; color:#0F172A;">Jodhpur / Morbi Facility</div>
               <div style="font-size:0.68rem; color:var(--text-dim);">Masters Configuration</div>
             </div>
           </div>
@@ -289,7 +289,7 @@
                     </div>
                   </div>
                   <div class="col-md-10">
-                    <h5 style="color:#FFF; margin-bottom:4px;">Rajesh B. Patel</h5>
+                    <h5 style="color:#0F172A; margin-bottom:4px;">Rajesh B. Patel</h5>
                     <div style="color:var(--accent-gold); font-weight:600; font-size:0.85rem; margin-bottom:8px;">Export Documentation Manager</div>
                     <div class="sb-grid">
                       <div class="sb-cell"><div class="sb-cell-label">Login Email</div><div class="sb-cell-val" style="color:#60A5FA;">admin@reliancegranito.com</div></div>
@@ -386,7 +386,7 @@
             <div><span class="badge badge-draft">${p.partyType}</span></div>
           </td>
           <td>
-            <strong style="color:#FFF;">${p.name}</strong>
+            <strong style="color:#0F172A;">${p.name}</strong>
             <div style="font-size:0.75rem; color:var(--text-muted);">${p.address}</div>
           </td>
           <td>${p.country} <div style="font-size:0.72rem; color:var(--accent-gold);">${p.port || ''}</div></td>
@@ -407,7 +407,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><strong style="color:#60A5FA;">${g.id}</strong></td>
-          <td><strong style="color:#FFF;">${g.name}</strong><div style="font-size:0.72rem; color:var(--text-dim);">${g.description}</div></td>
+          <td><strong style="color:#0F172A;">${g.name}</strong><div style="font-size:0.72rem; color:var(--text-dim);">${g.description}</div></td>
           <td><span class="badge badge-draft">${g.hsn}</span></td>
           <td>${g.uqc}</td>
           <td>$${g.unitPriceUsd}</td>
@@ -453,7 +453,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><strong>${c.id}</strong></td>
-          <td><strong style="color:#FFF;">${c.name}</strong></td>
+          <td><strong style="color:#0F172A;">${c.name}</strong></td>
           <td><span class="badge badge-draft">${c.scac}</span></td>
           <td>${c.mode}</td>
         `;
@@ -467,7 +467,7 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td><strong style="color:#60A5FA;">${t.id}</strong></td>
-          <td><strong style="color:#FFF;">${t.name}</strong></td>
+          <td><strong style="color:#0F172A;">${t.name}</strong></td>
           <td>${t.docType}</td>
           <td>${t.version}</td>
           <td>${t.hideSupported ? '<span class="badge badge-confirmed">Supported</span>' : '<span class="badge badge-draft">No</span>'}</td>

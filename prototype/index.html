@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,7 +88,7 @@
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="status-dot-pulse"></div>
             <div>
-              <div style="font-size:0.75rem; font-weight:700; color:#FFF;">Jodhpur / Morbi Facility</div>
+              <div style="font-size:0.75rem; font-weight:700; color:#0F172A;">Jodhpur / Morbi Facility</div>
               <div style="font-size:0.68rem; color:var(--text-dim);">IEC: ABEFR3842G Verified</div>
             </div>
           </div>
@@ -153,14 +153,14 @@
         </div>
 
         <!-- System Alert Banner for Active Discrepancy in SHP-1469 -->
-        <div style="background:rgba(244, 63, 94, 0.12); border:1px solid rgba(244, 63, 94, 0.35); border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
           <div style="display:flex; align-items:center; gap:12px;">
-            <div style="width:36px; height:36px; border-radius:50%; background:rgba(244,63,94,0.2); display:flex; align-items:center; justify-content:center; color:#FB7185; font-size:1.2rem; flex-shrink:0;">
+            <div style="width:36px; height:36px; border-radius:50%; background:#FEE2E2; display:flex; align-items:center; justify-content:center; color:#DC2626; font-size:1.2rem; flex-shrink:0;">
               <i class="bi bi-exclamation-triangle-fill"></i>
             </div>
             <div>
-              <div style="font-size:0.9rem; font-weight:700; color:#FFF;">Action Required: Cross-Document Discrepancy in Consignment SHP-1469</div>
-              <div style="font-size:0.78rem; color:#FDA4AF; margin-top:2px;">
+              <div style="font-size:0.9rem; font-weight:700; color:#991B1B;">Action Required: Cross-Document Discrepancy in Consignment SHP-1469</div>
+              <div style="font-size:0.78rem; color:#B91C1C; margin-top:2px;">
                 Buyer destination amended from Da Nang to Hai Phong between Original Invoice and Bill of Lading. Review and record confirmed manual override before finalization.
               </div>
             </div>
@@ -390,7 +390,7 @@
             <div style="font-size:0.72rem; color:var(--text-dim);">${s.createdAt}</div>
           </td>
           <td>
-            <div style="font-weight:600; color:#FFF;">${buyer.name}</div>
+            <div style="font-weight:600; color:#0F172A;">${buyer.name}</div>
             <div style="font-size:0.75rem; color:var(--accent-gold);">${s.podName} (${s.incoterms})</div>
           </td>
           <td>
@@ -398,7 +398,7 @@
             <div style="font-size:0.72rem; color:var(--text-dim);">${s.totalPackages} ${s.packageType} (${(s.grossWeightKg/1000).toFixed(1)} MT)</div>
           </td>
           <td>
-            <div style="font-family:monospace; color:#FFF;">${s.containers[0]?.containerNumber || 'TCLU7789571'}</div>
+            <div style="font-family:monospace; color:#0F172A;">${s.containers[0]?.containerNumber || 'TCLU7789571'}</div>
             <div style="font-size:0.72rem; color:var(--text-dim);">Seal: ${s.containers[0]?.sealNumber || '14697'}</div>
           </td>
           <td>
@@ -450,7 +450,7 @@
         item.style.paddingLeft = "10px";
         item.innerHTML = `
           <div class="d-flex justify-content-between">
-            <strong style="color:#FFF;">${log.action}</strong>
+            <strong style="color:#0F172A;">${log.action}</strong>
             <span style="color:var(--text-dim); font-size:0.7rem;">${log.timestamp.split(' ')[1] || ''}</span>
           </div>
           <div style="color:var(--text-muted); margin-top:2px;">${log.newValue}</div>
