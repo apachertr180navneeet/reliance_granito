@@ -411,6 +411,11 @@ function handleCanvasMouseUp(e) {
       const idx = items.indexOf(item);
       if (idx !== -1) items.splice(idx, 1);
     } else {
+      // Ensure text boxes have a comfortable minimum size so text fits easily
+      if (item.type === "text") {
+        item.width = Math.max(item.width, 0.14);
+        item.height = Math.max(item.height, 0.04);
+      }
       PDFEditorState.selectedId = item.id;
       // If it was a text replacement, prompt edit modal immediately for great UX
       if (item.type === "text") {
@@ -464,6 +469,53 @@ function getHitResizeHandle(item, rawX, rawY, rectW, rectH) {
   return null;
 }
 
+// Helper: Word-wrapping for Canvas 2D with word/character breaks to guarantee text stays inside maxWidth
+function getWrappedCanvasLines(ctx, text, maxWidth) {
+  const paragraphs = String(text || "").split("\n");
+  const lines = [];
+
+  paragraphs.forEach(para => {
+    if (para.trim().length === 0) {
+      lines.push("");
+      return;
+    }
+    const words = para.split(" ");
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = ctx.measureText(testLine).width;
+
+      if (testWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          // If a single word is longer than maxWidth, break character by character
+          let chunk = "";
+          for (const char of word) {
+            if (ctx.measureText(chunk + char).width <= maxWidth) {
+              chunk += char;
+            } else {
+              if (chunk) lines.push(chunk);
+              chunk = char;
+            }
+          }
+          currentLine = chunk;
+        }
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  });
+
+  return lines;
+}
+
 // =========================================================================
 // 3. RENDERING OVERLAY ANNOTATIONS (CANVAS 2D)
 // =========================================================================
@@ -496,23 +548,48 @@ function redrawAnnotations() {
       ctx.fillRect(x, y, w, h);
     }
 
-    // 2. Draw Text if present
+    // 2. Draw Text if present (STRICTLY CONSTRAINED INSIDE BOX)
     if (it.text && it.text.trim().length > 0) {
       ctx.save();
+      // Clip to box boundaries so NO text can ever bleed outside
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip();
+
       ctx.fillStyle = it.color || "#000000";
       
-      // Calculate scaled font size based on canvas width
       const fontScale = width / 800; // Base reference scale
-      const fontSizePx = Math.max(9, (it.fontSize || 10) * fontScale);
+      let fontSizePx = Math.max(7, (it.fontSize || 10) * fontScale);
       const fontWeight = it.isBold ? "bold" : "normal";
       ctx.font = `${fontWeight} ${fontSizePx}px ${it.fontFamily || "Helvetica"}, sans-serif`;
       ctx.textBaseline = "top";
 
-      // Split lines for multiline text
-      const lines = it.text.split("\n");
-      const lineHeight = fontSizePx * 1.25;
+      // Padding inside the box
+      const padX = Math.max(2, 4 * fontScale);
+      const padY = Math.max(2, 3 * fontScale);
+      const maxWidth = Math.max(10, w - (padX * 2));
+      const maxHeight = Math.max(10, h - (padY * 2));
+
+      // Calculate wrapped lines
+      let lines = getWrappedCanvasLines(ctx, it.text, maxWidth);
+      let lineHeight = fontSizePx * 1.25;
+
+      // Auto-scale font size if text exceeds box height
+      let neededHeight = lines.length * lineHeight;
+      if (neededHeight > maxHeight && fontSizePx > 7) {
+        const scaleFactor = Math.max(0.65, maxHeight / neededHeight);
+        fontSizePx = Math.max(6, Math.floor(fontSizePx * scaleFactor));
+        ctx.font = `${fontWeight} ${fontSizePx}px ${it.fontFamily || "Helvetica"}, sans-serif`;
+        lineHeight = fontSizePx * 1.25;
+        lines = getWrappedCanvasLines(ctx, it.text, maxWidth);
+      }
+
+      // Render lines strictly within box height
       lines.forEach((line, lineIdx) => {
-        ctx.fillText(line, x + (4 * fontScale), y + (3 * fontScale) + (lineIdx * lineHeight));
+        const lineY = y + padY + (lineIdx * lineHeight);
+        if (lineY + (fontSizePx * 0.75) <= y + h) {
+          ctx.fillText(line, x + padX, lineY);
+        }
       });
       ctx.restore();
     }
@@ -783,6 +860,50 @@ function saveModalTextChanges() {
   showToast("Correction text updated.", "success");
 }
 
+function autoFitBoxToText() {
+  if (!activeModalItem) return;
+  const modalInput = document.getElementById("modalTextInput");
+  const modalSize = document.getElementById("modalTextFontSize");
+  const modalWeight = document.getElementById("modalTextFontWeight");
+
+  const text = (modalInput && modalInput.value) ? modalInput.value : (activeModalItem.text || "Text");
+  const fontSize = modalSize ? parseInt(modalSize.value, 10) : (activeModalItem.fontSize || 10);
+  const isBold = modalWeight ? (modalWeight.value === "bold") : activeModalItem.isBold;
+
+  // Use overlay canvas context to measure text
+  const overlay = el.annotationOverlayCanvas || document.getElementById("annotationOverlayCanvas");
+  if (!overlay) return;
+  const ctx = overlay.getContext("2d");
+  const width = overlay.width;
+  const height = overlay.height;
+
+  const fontScale = width / 800;
+  const fontSizePx = Math.max(7, fontSize * fontScale);
+  ctx.font = `${isBold ? "bold" : "normal"} ${fontSizePx}px ${activeModalItem.fontFamily || "Helvetica"}, sans-serif`;
+
+  const lines = text.split("\n");
+  let maxLineWidth = 0;
+  lines.forEach(l => {
+    const w = ctx.measureText(l).width;
+    if (w > maxLineWidth) maxLineWidth = w;
+  });
+
+  const padX = 10 * fontScale;
+  const padY = 8 * fontScale;
+  const neededWidthPx = maxLineWidth + (padX * 2);
+  const neededHeightPx = (lines.length * fontSizePx * 1.35) + (padY * 2);
+
+  activeModalItem.width = Math.min(1 - activeModalItem.x, Math.max(0.06, neededWidthPx / width));
+  activeModalItem.height = Math.min(1 - activeModalItem.y, Math.max(0.025, neededHeightPx / height));
+  activeModalItem.text = text;
+  activeModalItem.fontSize = fontSize;
+  activeModalItem.isBold = isBold;
+
+  redrawAnnotations();
+  updateUIControls();
+  showToast("Box resized to fit text cleanly.", "success");
+}
+
 function deleteCurrentModalItem() {
   if (activeModalItem) {
     deleteAnnotationById(activeModalItem.id);
@@ -1012,6 +1133,64 @@ function updateUIControls() {
   }
 }
 
+// Helper: Word-wrapping for pdf-lib vector PDF export
+function getWrappedPdfLines(text, font, fontSize, maxWidth) {
+  const paragraphs = String(text || "").split("\n");
+  const lines = [];
+
+  paragraphs.forEach(para => {
+    if (para.trim().length === 0) {
+      lines.push("");
+      return;
+    }
+    const words = para.split(" ");
+    let currentLine = "";
+
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      let testWidth = 0;
+      try {
+        testWidth = font.widthOfTextAtSize(testLine, fontSize);
+      } catch (e) {
+        testWidth = testLine.length * (fontSize * 0.55);
+      }
+
+      if (testWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          // Word longer than maxWidth: break character by character
+          let chunk = "";
+          for (const char of word) {
+            let chunkWidth = 0;
+            try {
+              chunkWidth = font.widthOfTextAtSize(chunk + char, fontSize);
+            } catch (e) {
+              chunkWidth = (chunk.length + 1) * (fontSize * 0.55);
+            }
+            if (chunkWidth <= maxWidth) {
+              chunk += char;
+            } else {
+              if (chunk) lines.push(chunk);
+              chunk = char;
+            }
+          }
+          currentLine = chunk;
+        }
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+  });
+
+  return lines;
+}
+
 // =========================================================================
 // 8. PDF-LIB EXPORT ENGINE: BURNING CORRECTIONS INTO NATIVE VECTOR PDF
 // =========================================================================
@@ -1082,7 +1261,7 @@ async function downloadUpdatedPdf() {
           });
         }
 
-        // B. Draw Text if present
+        // B. Draw Text if present (STRICTLY CONSTRAINED INSIDE BOX)
         if (ann.text && ann.text.trim().length > 0) {
           let chosenFont = fontHelvetica;
           if (ann.fontFamily === "Courier") {
@@ -1094,17 +1273,33 @@ async function downloadUpdatedPdf() {
           }
 
           const textColor = hexToPdfRgb(ann.color || "#000000");
-          const fontSize = Math.max(7, ann.fontSize || 10);
-          const lines = ann.text.split("\n");
-          const lineStep = fontSize * 1.25;
+          let fontSize = Math.max(6, ann.fontSize || 10);
+          const padX = 3;
+          const padY = 3;
+          const maxWidth = Math.max(8, pdfW - (padX * 2));
+          const maxHeight = Math.max(8, pdfH - (padY * 2));
+
+          // Word-wrap lines for PDF font
+          let lines = getWrappedPdfLines(ann.text, chosenFont, fontSize, maxWidth);
+          let lineStep = fontSize * 1.25;
+
+          // Auto-scale font down if text height exceeds box height
+          let neededHeight = lines.length * lineStep;
+          if (neededHeight > maxHeight && fontSize > 6) {
+            const scaleFactor = Math.max(0.65, maxHeight / neededHeight);
+            fontSize = Math.max(5.5, Math.floor(fontSize * scaleFactor * 10) / 10);
+            lineStep = fontSize * 1.25;
+            lines = getWrappedPdfLines(ann.text, chosenFont, fontSize, maxWidth);
+          }
 
           // Starting from top of the box downwards
-          let currentY = pdfY + pdfH - fontSize - 2;
+          let currentY = pdfY + pdfH - fontSize - padY;
 
           for (const line of lines) {
-            if (line.trim().length > 0 && currentY >= pdfY) {
+            // Draw only if completely inside the vertical box range
+            if (line.trim().length > 0 && (currentY >= pdfY + 1) && (currentY + fontSize <= pdfY + pdfH + 3)) {
               page.drawText(line, {
-                x: pdfX + 3,
+                x: pdfX + padX,
                 y: currentY,
                 size: fontSize,
                 font: chosenFont,

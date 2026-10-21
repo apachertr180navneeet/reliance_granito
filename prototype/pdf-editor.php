@@ -304,7 +304,12 @@ include_once __DIR__ . '/includes/header.php';
         <div class="mb-3">
           <label class="form-label small fw-semibold">Replacement Text / Values</label>
           <textarea class="form-control" id="modalTextInput" rows="3" placeholder="Enter corrected text..."></textarea>
-          <div class="form-text small text-muted">Supports multiple lines and numbers (e.g. corrected invoice number, revised rate, or address).</div>
+          <div class="d-flex align-items-center justify-content-between mt-1">
+            <span class="small text-muted" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success me-1"></i>Text wraps & strictly stays inside box</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="autoFitBoxToText()" title="Automatically resize the box to fit this text">
+              <i class="bi bi-arrows-angle-expand me-1 text-primary"></i>Auto-fit Box
+            </button>
+          </div>
         </div>
         <div class="row g-2">
           <div class="col-6">
@@ -330,7 +335,10 @@ include_once __DIR__ . '/includes/header.php';
         </div>
       </div>
       <div class="modal-footer py-2 border-top">
-        <button type="button" class="btn btn-sm btn-outline-danger me-auto" onclick="deleteCurrentModalItem()">Delete Correction</button>
+        <button type="button" class="btn btn-sm btn-outline-danger me-auto" onclick="deleteCurrentModalItem()">Delete</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="autoFitBoxToText()">
+          <i class="bi bi-arrows-angle-expand me-1"></i>Fit Box to Text
+        </button>
         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-sm btn-primary" onclick="saveModalTextChanges()">Apply Changes</button>
       </div>
