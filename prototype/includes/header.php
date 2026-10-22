@@ -21,6 +21,7 @@ if (!isset($pageTitle)) {
   <div class="app-container">
     <!-- Common Sidebar Component -->
     <?php include_once __DIR__ . '/sidebar.php'; ?>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <!-- Main Workspace Area -->
     <div class="main-wrapper">
@@ -30,9 +31,9 @@ if (!isset($pageTitle)) {
           <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle Navigation">
             <i class="bi bi-list fs-4"></i>
           </button>
-          <div class="d-none d-md-flex align-items-center gap-2" style="font-size:0.84rem; color:#64748B;">
+          <div class="d-none d-md-flex align-items-center gap-2 top-facility-meta">
             <i class="bi bi-building-gear text-primary"></i>
-            <span style="font-weight:600; color:#0F172A;">Jodhpur Export Office & Morbi Ceramic Facility</span>
+            <span class="top-facility-title">Jodhpur Export Office & Morbi Ceramic Facility</span>
           </div>
         </div>
 
@@ -44,7 +45,7 @@ if (!isset($pageTitle)) {
               <div class="user-name" id="navUserName">Rajesh B. Patel</div>
               <div class="user-role" id="navUserRole">Export Documentation Manager</div>
             </div>
-            <i class="bi bi-box-arrow-right text-danger ms-1" style="font-size:0.9rem;" title="Sign Out"></i>
+            <i class="bi bi-box-arrow-right text-danger ms-1 top-signout-icon" title="Sign Out"></i>
           </div>
         </div>
       </header>

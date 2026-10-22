@@ -10,6 +10,7 @@ $activeNav = $activeNav ?? 'dashboard';
       <h1>Reliance Granito</h1>
       <span>Export EDMS Enterprise</span>
     </div>
+    <button type="button" class="btn-close ms-auto d-lg-none sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close Sidebar"></button>
   </div>
 
   <nav class="sidebar-nav">
@@ -26,7 +27,7 @@ $activeNav = $activeNav ?? 'dashboard';
       <i class="bi bi-building-up text-primary"></i>
       <span>Consigners (Consignor)</span>
     </a>
-    <a href="login.php" class="nav-link text-danger" style="margin-top:12px;">
+    <a href="login.php" class="nav-link text-danger nav-link-signout">
       <i class="bi bi-box-arrow-right text-danger"></i>
       <span>Sign Out / Lock</span>
     </a>
@@ -34,14 +35,14 @@ $activeNav = $activeNav ?? 'dashboard';
 
   <div class="sidebar-footer">
     <div class="morbi-facility-status">
-      <div style="display:flex; align-items:center; gap:8px;">
+      <div class="d-flex align-items-center gap-2">
         <div class="status-dot-pulse"></div>
         <div>
-          <div style="font-size:0.75rem; font-weight:700; color:#0F172A;">Jodhpur / Morbi Facility</div>
-          <div style="font-size:0.68rem; color:var(--text-dim);">IEC: ABEFR3842G Verified</div>
+          <div class="facility-status-title">Jodhpur / Morbi Facility</div>
+          <div class="facility-status-sub">IEC: ABEFR3842G Verified</div>
         </div>
       </div>
-      <span style="font-size:0.7rem; font-weight:600; color:var(--accent-emerald);">Active</span>
+      <span class="facility-status-badge">Active</span>
     </div>
   </div>
 </aside>

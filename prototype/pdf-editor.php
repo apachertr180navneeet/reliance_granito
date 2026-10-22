@@ -1,444 +1,168 @@
 <?php
 // Reliance Granito Export Documentation Management System (EDMS)
-// Interactive Visual PDF Editor & Redactor - Executive Studio Edition
-$pageTitle = "Reliance Granito | PDF Visual Correction & Masking Editor";
+// Clean & Intuitive Visual PDF Editor (Pure CSS Classes - Zero Inline Styles)
+$pageTitle = "Reliance Granito | Visual PDF Editor & Masker";
 $activeNav = "pdf-editor";
 include_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Activate Studio Mode on Body -->
-<script>document.body.classList.add('pdf-studio-mode');</script>
+<script>document.body.classList.add('pdf-editor-active');</script>
 
-<!-- Full-Bleed Studio Workspace App Container -->
-<main class="pdf-studio-container" id="pdfStudioApp">
-
-  <!-- =========================================================================
-       TIER 1: DOCUMENT METADATA & PRIMARY ACTIONS TOPBAR (52px)
-       ========================================================================= -->
-  <header class="pdf-studio-topbar" id="pdfStudioTopBar">
-    <!-- Left: Document Status & Info -->
-    <div class="d-flex align-items-center gap-2">
-      <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-2" style="width:34px; height:34px;">
-        <i class="bi bi-file-earmark-pdf-fill fs-5"></i>
+<div class="editor-app">
+  <!-- Top Navigation & Controls Header -->
+  <header class="editor-header">
+    <!-- Left: Document Identity -->
+    <div class="doc-info">
+      <div class="doc-icon-badge">
+        <i class="bi bi-file-earmark-pdf fs-5"></i>
       </div>
-      
-      <div class="d-flex align-items-center gap-2">
-        <span class="fw-bold text-dark text-truncate" id="docTitle" style="max-width: 280px; font-size: 0.92rem;">No PDF Loaded</span>
-        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle" id="docStatusBadge" style="font-size:0.75rem;">Waiting for file</span>
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="editsCountBadge" style="display:none; font-size:0.75rem;">0 Corrections</span>
+      <div class="doc-meta-block">
+        <div class="d-flex align-items-center gap-2">
+          <span class="doc-pill" id="docNameLabel">No File Loaded</span>
+          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge" id="saveBadge">No File</span>
+        </div>
+        <div class="doc-status-text" id="docStatusLabel">Upload a PDF to start editing</div>
       </div>
+    </div>
 
-      <div class="vr mx-2 text-secondary opacity-25" style="height:22px;"></div>
-
-      <!-- Quick Sample Document Switcher -->
-      <div class="dropdown">
-        <button class="btn btn-outline-secondary btn-sm dropdown-toggle py-1 px-2 d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" id="samplePickerBtn" style="font-size:0.8rem; border-color:#CBD5E1;">
-          <i class="bi bi-folder2-open text-primary"></i>
-          <span>Sample Documents</span>
+    <!-- Center: Segmented Tool Palette & Consigner Stamping Dropdown -->
+    <div class="editor-header-center">
+      <div class="tool-palette">
+        <button type="button" class="tool-btn active" id="btnToolSelect" onclick="setTool('select')" title="Select / Move / Resize (V)">
+          <i class="bi bi-cursor-fill"></i> <span>Select</span>
         </button>
-        <ul class="dropdown-menu shadow-sm" id="sampleDropdownMenu" style="font-size:0.83rem; min-width:280px;">
-          <li><h6 class="dropdown-header">Export Consignment 1469 Files</h6></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="loadSampleDoc('1469 SB ORIGINAL.PDF', 'Shipping Bill #1469 (Original Customs EDI)'); return false;"><i class="bi bi-file-earmark-text text-danger"></i> 1469 SB ORIGINAL.pdf <span class="badge bg-light text-dark ms-auto">Customs EDI</span></a></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="loadSampleDoc('1469 INVOICE ORIGINAL.pdf', 'Commercial Invoice #1469 (Original)'); return false;"><i class="bi bi-receipt text-danger"></i> 1469 INVOICE ORIGINAL.pdf <span class="badge bg-light text-dark ms-auto">Commercial</span></a></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="loadSampleDoc('1469 BL.pdf', 'Bill of Lading #1469 (Original)'); return false;"><i class="bi bi-box-seam text-danger"></i> 1469 BL.pdf <span class="badge bg-light text-dark ms-auto">B/L Carrier</span></a></li>
+        <button type="button" class="tool-btn" id="btnToolWhiteout" onclick="setTool('whiteout')" title="Draw Solid Whiteout Mask (W)">
+          <i class="bi bi-square-fill text-warning"></i> <span>Whiteout</span>
+        </button>
+        <button type="button" class="tool-btn" id="btnToolText" onclick="setTool('text')" title="White Mask + Replacement Text (T)">
+          <i class="bi bi-fonts text-primary"></i> <span>Replace Text</span>
+        </button>
+        <button type="button" class="tool-btn" id="btnToolRedact" onclick="setTool('redact')" title="Solid Black Redaction (R)">
+          <i class="bi bi-square-fill text-dark"></i> <span>Redact</span>
+        </button>
+      </div>
+
+      <!-- Consigner Stamping Menu -->
+      <div class="dropdown">
+        <button class="btn btn-consigner-picker dropdown-toggle" data-bs-toggle="dropdown" id="btnConsignerDropdown" title="Stamp Registered Consigner Particulars (IEC, GSTIN, Address, Bank)">
+          <i class="bi bi-building-up text-primary"></i>
+          <span>Consigner</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end consigner-menu-popover shadow-lg" id="consignerDropdownMenu">
+          <li><h6 class="dropdown-header text-uppercase">Stamp Registered Consigner</h6></li>
+          <li id="consignerListItems"><span class="dropdown-item small text-muted">Loading Consigners...</span></li>
           <li><hr class="dropdown-divider"></li>
-          <li><h6 class="dropdown-header">Reference Masked Copies</h6></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="loadSampleDoc('1469 SB HIDE.pdf', 'Shipping Bill (Masked / HIDE Reference)'); return false;"><i class="bi bi-eye-slash text-warning"></i> 1469 SB HIDE.pdf</a></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2" href="#" onclick="loadSampleDoc('BL HIDE.pdf', 'Bill of Lading (Masked Reference)'); return false;"><i class="bi bi-eye-slash text-warning"></i> BL HIDE.pdf</a></li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="consigners.php">
+              <i class="bi bi-gear"></i> Manage Consigners Directory &rarr;
+            </a>
+          </li>
         </ul>
       </div>
+
+      <!-- Contextual Formatting Bar -->
+      <div class="format-bar" id="formatBar">
+        <span class="badge bg-white text-success border border-success-subtle px-2 py-1 format-badge-solid">
+          <i class="bi bi-shield-fill-check me-1"></i>Solid White Mask
+        </span>
+        <span class="fw-bold text-primary ms-1 format-label-size">SIZE:</span>
+        <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(-1)" title="Decrease Size">-</button>
+        <span id="fontSizeDisplay" class="fw-semibold text-dark px-1 format-font-val">10pt</span>
+        <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(1)" title="Increase Size">+</button>
+        <button class="btn btn-sm btn-light border py-0 px-2" id="btnBoldToggle" onclick="toggleBold()" title="Toggle Bold"><b>B</b></button>
+        <button class="btn btn-sm btn-light border py-0 px-2" onclick="fitSelected()" title="Auto-fit white mask box to text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit Box</button>
+        <button class="btn btn-sm btn-success py-0 px-2 fw-semibold ms-1" onclick="deselectAll()" title="Done with this edit"><i class="bi bi-check2 me-1"></i>Done</button>
+        <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteSelected()" title="Delete Selected"><i class="bi bi-trash"></i></button>
+      </div>
     </div>
 
-    <!-- Center: Enterprise Statutory Notice -->
-    <div class="d-none d-xl-flex align-items-center gap-2 text-muted" style="font-size:0.78rem;">
-      <i class="bi bi-shield-check text-success fs-6"></i>
-      <span>DGFT & Customs Compliant Masking Engine</span>
-      <span class="text-secondary opacity-50">&bull;</span>
-      <span>Morbi Facility & Jodhpur Unit</span>
-    </div>
-
-    <!-- Right: Upload, Download & Secondary Actions -->
-    <div class="d-flex align-items-center gap-2">
-      <!-- Hidden file input -->
-      <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;" onchange="handleFileUpload(event)">
+    <!-- Right Actions: Upload, Save & Export -->
+    <div class="editor-header-right">
+      <input type="file" id="fileInput" accept="application/pdf" class="file-input-hidden" onchange="handleFile(event)">
       
-      <!-- Upload Button -->
-      <button class="btn btn-outline-secondary btn-sm py-1 px-3 d-flex align-items-center gap-2" onclick="document.getElementById('pdfFileInput').click();" style="font-size:0.82rem; border-color:#CBD5E1;">
-        <i class="bi bi-cloud-arrow-up text-primary"></i>
-        <span>Upload PDF</span>
+      <button class="btn btn-header-upload" onclick="document.getElementById('fileInput').click()" title="Upload a local PDF file">
+        <i class="bi bi-upload text-primary"></i> <span>Upload PDF</span>
       </button>
 
-      <!-- Download Clean Vector PDF Button -->
-      <button class="btn btn-primary btn-sm py-1 px-3 d-flex align-items-center gap-2 fw-semibold shadow-sm" id="btnDownloadPdf" onclick="downloadUpdatedPdf()" disabled title="Make corrections to enable download" style="font-size:0.82rem;">
-        <i class="bi bi-download"></i>
-        <span>Export Clean PDF</span>
+      <!-- Prominent Save & Export Clean PDF Button -->
+      <button class="btn btn-header-export" id="btnDownload" onclick="downloadPdf()" disabled title="Save edits and download updated PDF">
+        <i class="bi bi-floppy2-fill"></i>
+        <span>Save / Export PDF</span>
       </button>
     </div>
   </header>
 
-  <!-- =========================================================================
-       TIER 2: STUDIO TOOLS RIBBON (48px)
-       ========================================================================= -->
-  <div class="pdf-studio-toolribbon" id="pdfStudioToolRibbon">
-    <!-- Left: Primary Annotation & Modification Tools -->
-    <div class="d-flex align-items-center gap-1">
-      <button type="button" class="studio-tool-btn active" id="toolSelect" onclick="setEditorTool('select')" title="Select, Move & Resize Corrections (V)">
-        <i class="bi bi-cursor-fill text-primary"></i> Select
-      </button>
-      
-      <button type="button" class="studio-tool-btn" id="toolWhiteout" onclick="setEditorTool('whiteout')" title="Draw Whiteout / Clean Mask Box (W)">
-        <i class="bi bi-square-fill text-warning"></i> Whiteout
-      </button>
-
-      <button type="button" class="studio-tool-btn" id="toolText" onclick="setEditorTool('text')" title="Whiteout + Replacement Text on PDF (T)">
-        <i class="bi bi-fonts text-primary"></i> Replace Text
-      </button>
-
-      <button type="button" class="studio-tool-btn" id="toolRedact" onclick="setEditorTool('redact')" title="Draw Solid Blackout Redaction Bar (R)">
-        <i class="bi bi-square-fill text-dark"></i> Redact
-      </button>
-
-      <div class="vr mx-1 text-secondary opacity-25" style="height:20px;"></div>
-
-      <!-- Quick Stamp Dropdown -->
-      <div class="dropdown">
-        <button type="button" class="studio-tool-btn dropdown-toggle" data-bs-toggle="dropdown" id="stampDropdownBtn" title="Apply Official Export Stamp">
-          <i class="bi bi-patch-check-fill text-danger"></i> Stamp
-        </button>
-        <ul class="dropdown-menu shadow-sm" style="font-size:0.82rem;">
-          <li><a class="dropdown-item fw-bold text-danger" href="#" onclick="applyStamp('AMENDED'); return false;">[ AMENDED ]</a></li>
-          <li><a class="dropdown-item fw-bold text-success" href="#" onclick="applyStamp('VERIFIED'); return false;">[ VERIFIED & MATCHED ]</a></li>
-          <li><a class="dropdown-item fw-bold text-primary" href="#" onclick="applyStamp('CUSTOMS CLEARED'); return false;">[ CUSTOMS CLEARED ]</a></li>
-          <li><a class="dropdown-item fw-bold text-warning" href="#" onclick="applyStamp('CONFIDENTIAL'); return false;">[ CONFIDENTIAL ]</a></li>
-        </ul>
-      </div>
-
-      <!-- Consigner Particulars Dropdown -->
-      <div class="dropdown">
-        <button type="button" class="studio-tool-btn dropdown-toggle" data-bs-toggle="dropdown" id="consignerDropdownBtn" onclick="initConsignersDropdown()" title="Stamp Registered Consigner Particulars (IEC, GSTIN, Address)">
-          <i class="bi bi-building-up text-primary"></i> Consigner
-        </button>
-        <ul class="dropdown-menu shadow-sm" id="consignerDropdownMenu" style="font-size:0.83rem; min-width:280px;">
-          <li><h6 class="dropdown-header">Stamp Registered Consigner</h6></li>
-          <li id="consignerListItems"><span class="dropdown-item small text-muted">Loading Consigners...</span></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold" href="consigners.php"><i class="bi bi-gear"></i> Manage Consigners (CRUD) &rarr;</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Center: Dynamic Inline Text Formatting Controls (Visible when Text tool is active) -->
-    <div class="studio-text-subbar" id="textFormattingControls" style="display:none !important;">
-      <span class="badge bg-primary text-white px-2 py-1" style="font-size:0.68rem; letter-spacing: 0.04em;">
-        TEXT
-      </span>
-
-      <select class="form-select form-select-sm py-0 border-0 bg-white" id="textFontFamily" onchange="updateSelectedTextProperties()" title="Font Family" style="width:130px; font-size:0.78rem; height:26px;">
-        <option value="Helvetica">Helvetica</option>
-        <option value="Courier">Courier (EDI)</option>
-        <option value="Times">Times</option>
-      </select>
-
-      <select class="form-select form-select-sm py-0 border-0 bg-white" id="textFontSize" onchange="updateSelectedTextProperties()" title="Font Size" style="width:85px; font-size:0.78rem; height:26px;">
-        <option value="8">8 pt</option>
-        <option value="9">9 pt</option>
-        <option value="10" selected>10 pt</option>
-        <option value="11">11 pt</option>
-        <option value="12">12 pt</option>
-        <option value="14">14 pt</option>
-        <option value="16">16 pt</option>
-        <option value="20">20 pt</option>
-      </select>
-
-      <button type="button" class="btn btn-sm btn-white bg-white border py-0 px-2" id="textBoldBtn" onclick="toggleBoldText()" title="Toggle Bold" style="height:26px;">
-        <i class="bi bi-type-bold"></i>
-      </button>
-
-      <div class="d-flex align-items-center gap-1">
-        <input type="color" class="form-control form-control-color form-control-sm p-0 rounded border-0" id="textColorPicker" value="#000000" title="Text Color" onchange="updateSelectedTextProperties()" style="width:24px; height:24px; cursor:pointer;">
-      </div>
-
-      <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2 fw-semibold" style="font-size:0.75rem; height:26px;" onclick="autoFitSelectedBox()" title="Fit Box to Text">
-        <i class="bi bi-arrows-angle-expand me-1"></i>Fit
-      </button>
-    </div>
-
-    <!-- Right: Desk Theme, Undo/Redo & Preview -->
-    <div class="d-flex align-items-center gap-2 ms-auto">
-      <!-- Desk Theme Selector -->
-      <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1 py-1" type="button" data-bs-toggle="dropdown" title="Change Studio Desk Backdrop" style="font-size:0.8rem; border-color:#CBD5E1;">
-          <i class="bi bi-palette text-primary"></i>
-          <span>Desk</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size:0.82rem;">
-          <li><h6 class="dropdown-header">Canvas Desk Backdrop</h6></li>
-          <li><a class="dropdown-item active" href="#" id="themeStudioBtn" onclick="setCanvasDeskTheme('studio'); return false;"><i class="bi bi-circle-fill text-dark me-2"></i>Dark Slate Studio (Default)</a></li>
-          <li><a class="dropdown-item" href="#" id="themeLightBtn" onclick="setCanvasDeskTheme('light'); return false;"><i class="bi bi-circle-fill text-secondary me-2"></i>Light Drafting Desk</a></li>
-          <li><a class="dropdown-item" href="#" id="themeBlueprintBtn" onclick="setCanvasDeskTheme('blueprint'); return false;"><i class="bi bi-circle-fill text-primary me-2"></i>Customs Blueprint</a></li>
-        </ul>
-      </div>
-
-      <!-- Preview Final PDF Toggle -->
-      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 py-1" id="btnPreviewToggle" onclick="toggleHidePreview()" title="Preview Final Masked PDF" style="font-size:0.8rem; border-color:#CBD5E1;">
-        <i class="bi bi-eye"></i>
-        <span>Preview</span>
-      </button>
-
-      <!-- Undo / Redo -->
-      <div class="btn-group btn-group-sm">
-        <button class="btn btn-outline-secondary py-1" id="btnUndo" onclick="undoEdit()" disabled title="Undo (Ctrl+Z)" style="border-color:#CBD5E1;"><i class="bi bi-arrow-counterclockwise"></i></button>
-        <button class="btn btn-outline-secondary py-1" id="btnRedo" onclick="redoEdit()" disabled title="Redo (Ctrl+Y)" style="border-color:#CBD5E1;"><i class="bi bi-arrow-clockwise"></i></button>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================================================================
-       TIER 3: MAIN SPLIT STUDIO WORKSPACE (CANVAS + DOCKED INSPECTOR)
-       ========================================================================= -->
-  <div class="pdf-studio-split-body" id="pdfStudioSplitWorkspace">
+  <!-- Main Viewport / Desk -->
+  <main class="editor-viewport" id="viewport">
     
-    <!-- Left / Center: Canvas Desk Viewport Shell -->
-    <div class="pdf-studio-canvas-pane" id="pdfStudioCanvasPane">
-      
-      <!-- Scrollable Studio Desk Environment -->
-      <div class="pdf-viewport-wrapper text-center position-relative" id="pdfViewportWrapper" style="flex:1; height:100%; overflow:auto;">
-        
-        <!-- Loading State Overlay -->
-        <div id="pdfLoadingState" class="position-absolute top-50 start-50 translate-middle text-center p-4" style="display:none; z-index: 200; background:rgba(255,255,255,0.95); border-radius:12px; box-shadow:0 12px 35px rgba(0,0,0,0.3);">
-          <div class="spinner-border text-primary mb-2" role="status"></div>
-          <div class="fw-bold text-dark" id="loadingText">Rendering PDF Page...</div>
-          <div class="small text-muted">Please wait while high-resolution vectors load</div>
+    <!-- Modern Elegant Dropzone Empty State -->
+    <div class="empty-hero" id="emptyHero">
+      <div class="empty-dropzone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <div class="dropzone-icon-bubble">
+          <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
         </div>
-
-        <!-- Empty Welcome State -->
-        <div id="pdfEmptyState" class="p-5 text-center my-auto" style="z-index: 10;">
-          <div class="d-inline-flex p-4 rounded-circle bg-white shadow-lg text-primary mb-3">
-            <i class="bi bi-file-earmark-pdf fs-1"></i>
-          </div>
-          <h4 class="fw-bold text-white mb-2">No Document Opened</h4>
-          <p class="text-white-50 mx-auto mb-4" style="max-width: 480px; font-size: 0.9rem;">
-            Choose a sample export document from the top bar (Shipping Bill, Commercial Invoice, or Bill of Lading) or upload a local PDF to start masking and correcting values.
-          </p>
-          <div class="d-flex justify-content-center gap-2">
-            <button class="btn btn-primary shadow-sm" onclick="loadSampleDoc('1469 SB ORIGINAL.PDF', 'Shipping Bill #1469')">
-              <i class="bi bi-lightning-charge me-1"></i> Quick Load Shipping Bill 1469
-            </button>
-            <button class="btn btn-light shadow-sm" onclick="document.getElementById('pdfFileInput').click();">
-              <i class="bi bi-upload me-1"></i> Upload File
-            </button>
-          </div>
+        <h4 class="fw-bold text-white mb-2">Upload Export PDF Document</h4>
+        <p class="text-white-50 small empty-desc">
+          Drag & drop your export document here, or click to browse. Easily whiteout sensitive values, stamp verified consigner particulars, and edit text with 100% solid masking.
+        </p>
+        <button type="button" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-semibold d-inline-flex align-items-center gap-2">
+          <i class="bi bi-folder2-open"></i> Browse PDF File
+        </button>
+        <div class="text-white-50 small mt-3 dropzone-hint">
+          Supports: Customs EDI Shipping Bills, Commercial Invoices, Bills of Lading, Packing Lists
         </div>
-
-        <!-- Stacked PDF Canvas & Interactive Annotation Canvas (Genuine Paper Sheet) -->
-        <div id="canvasContainer" class="d-inline-block position-relative" style="display:none !important; user-select:none; margin: 30px auto 120px auto !important;">
-          <!-- Base PDF.js Canvas -->
-          <canvas id="pdfRenderCanvas" style="display:block;"></canvas>
-          <!-- Interactive Drawing & Transform Overlay Canvas -->
-          <canvas id="annotationOverlayCanvas" class="position-absolute top-0 start-0" style="touch-action:none;"></canvas>
-
-          <!-- Direct Inline Text Editor (type directly onto document in-place) -->
-          <textarea id="inlineTextEditor" class="position-absolute shadow border border-primary rounded-1" style="display:none; z-index:50; resize:both; outline:2px solid #2563EB; padding:4px 6px; background:#FFFFFF; overflow:hidden; font-family:Helvetica; line-height:1.25;"></textarea>
-
-          <!-- Floating Quick Action Bar for selected item -->
-          <div id="floatingItemToolbar" class="position-absolute bg-white shadow-lg border rounded-pill px-2 py-1 d-flex align-items-center gap-1" style="display:none; z-index:60; transform: translateY(-130%); font-size:0.75rem;">
-            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill fw-semibold" id="floatBtnEdit" onclick="startInlineEditing(PDFEditorState.selectedId)" title="Edit Text Directly"><i class="bi bi-pencil-fill me-1"></i>Edit Text</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill" onclick="quickStepFontSize(-1)" title="Decrease Font Size"><i class="bi bi-dash fs-6"></i></button>
-            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill" onclick="quickStepFontSize(1)" title="Increase Font Size"><i class="bi bi-plus fs-6"></i></button>
-            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill" onclick="autoFitSelectedBox()" title="Fit Box to Text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit</button>
-            <div class="vr my-1"></div>
-            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill" onclick="deleteAnnotationById(PDFEditorState.selectedId)" title="Delete This Correction"><i class="bi bi-trash-fill"></i></button>
-          </div>
-        </div>
-
       </div>
-
-      <!-- Permanently Floating Studio Dock (Pinned at Bottom Center) -->
-      <div class="studio-floating-dock" id="studioFloatingDock">
-        <!-- Page Pager -->
-        <button class="studio-dock-btn" id="btnPrevPage" onclick="changePage(-1)" disabled title="Previous Page">
-          <i class="bi bi-chevron-left"></i>
-        </button>
-        <span class="studio-dock-label" id="pageIndicator">Page 1 / 1</span>
-        <button class="studio-dock-btn" id="btnNextPage" onclick="changePage(1)" disabled title="Next Page">
-          <i class="bi bi-chevron-right"></i>
-        </button>
-
-        <div class="studio-dock-divider"></div>
-
-        <!-- Zoom Controls -->
-        <button class="studio-dock-btn" onclick="adjustZoom(-0.15)" title="Zoom Out">
-          <i class="bi bi-zoom-out"></i>
-        </button>
-        <span class="studio-dock-label" id="zoomIndicator">100%</span>
-        <button class="studio-dock-btn" onclick="adjustZoom(0.15)" title="Zoom In">
-          <i class="bi bi-zoom-in"></i>
-        </button>
-        <button class="studio-dock-btn" onclick="resetZoomFit()" title="Fit to Width">
-          <i class="bi bi-arrows-expand"></i>
-        </button>
-      </div>
-
     </div>
 
-    <!-- Right: Full-Height Docked Inspector Panel (360px) -->
-    <aside class="pdf-studio-inspector-pane" id="pdfStudioInspectorPane">
+    <!-- Paper Sheet Container -->
+    <div class="paper-sheet" id="paperSheet">
+      <canvas id="pdfCanvas"></canvas>
+      <canvas id="drawCanvas"></canvas>
       
-      <!-- Inspector Tab Header -->
-      <div class="inspector-tab-nav" role="tablist">
-        <button class="inspector-tab-btn active" id="tabCorrectionsBtn" onclick="switchInspectorTab('corrections')">
-          <i class="bi bi-layers-half me-1"></i> Edits
-          <span class="badge bg-primary rounded-pill ms-1" id="pageEditsCount">0</span>
+      <!-- Direct In-Place Textarea Input (Opaque White) -->
+      <textarea id="liveInput" placeholder="Type replacement text here..."></textarea>
+      
+      <!-- Floating Action Buttons right below the editing textarea -->
+      <div id="liveInputActions">
+        <button type="button" class="btn btn-primary btn-sm py-0 px-2 fw-semibold d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); commitLiveText();">
+          <i class="bi bi-check-lg"></i> Save Edit
         </button>
-        <button class="inspector-tab-btn" id="tabPresetsBtn" onclick="switchInspectorTab('presets')">
-          <i class="bi bi-magic me-1"></i> Presets
+        <button type="button" class="btn btn-light btn-sm py-0 px-2 border d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); cancelLiveText();">
+          <i class="bi bi-x-lg"></i> Cancel
         </button>
-        <button class="inspector-tab-btn" id="tabConsignersBtn" onclick="switchInspectorTab('consigners')">
-          <i class="bi bi-building-up me-1"></i> Consigners
-        </button>
-      </div>
-
-      <!-- Tab Content Body (Smooth Internal Scroll) -->
-      <div class="pdf-studio-inspector-content">
-        
-        <!-- Tab 1: Corrections List -->
-        <div id="tabPaneCorrections">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="small text-muted fw-bold" style="font-size:0.75rem;">CURRENT PAGE CORRECTIONS</span>
-            <button class="btn btn-link btn-sm text-danger p-0" id="btnClearPage" onclick="clearCurrentPageEdits()" disabled style="font-size:0.75rem; text-decoration:none;">
-              <i class="bi bi-trash"></i> Clear All
-            </button>
-          </div>
-          
-          <div id="annotationsListContainer">
-            <div class="text-center text-muted p-4 small" id="noEditsNotice">
-              <i class="bi bi-pencil-slash d-block fs-3 mb-2 text-secondary opacity-50"></i>
-              No corrections on this page yet.<br>Click & drag with <strong>Whiteout</strong> or <strong>Replace Text</strong> tool.
-            </div>
-            <div class="list-group list-group-flush" id="annotationsList"></div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Standard Presets -->
-        <div class="d-none" id="tabPanePresets">
-          <p class="small text-muted mb-3" style="font-size:0.8rem;">1-Click standard export document redactions & amendments:</p>
-          <div class="d-grid gap-2">
-            <button class="btn btn-outline-secondary btn-sm text-start d-flex align-items-center justify-content-between p-2" onclick="applyPreset('mask_rates')">
-              <div>
-                <div class="fw-semibold text-dark"><i class="bi bi-currency-dollar text-danger me-1"></i> Mask Item Rates</div>
-                <div class="small text-muted" style="font-size:0.72rem;">Whiteout FOB unit rates for customs</div>
-              </div>
-              <i class="bi bi-plus-circle text-primary fs-6"></i>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm text-start d-flex align-items-center justify-content-between p-2" onclick="applyPreset('amend_haiphong')">
-              <div>
-                <div class="fw-semibold text-dark"><i class="bi bi-geo-alt text-success me-1"></i> Amend Destination</div>
-                <div class="small text-muted" style="font-size:0.72rem;">Replace buyer address with Hai Phong Port</div>
-              </div>
-              <i class="bi bi-plus-circle text-primary fs-6"></i>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm text-start d-flex align-items-center justify-content-between p-2" onclick="applyPreset('mask_freight')">
-              <div>
-                <div class="fw-semibold text-dark"><i class="bi bi-shield-lock text-warning me-1"></i> Redact Freight Charges</div>
-                <div class="small text-muted" style="font-size:0.72rem;">Blackout confidential shipping freight</div>
-              </div>
-              <i class="bi bi-plus-circle text-primary fs-6"></i>
-            </button>
-            <button class="btn btn-outline-secondary btn-sm text-start d-flex align-items-center justify-content-between p-2" onclick="applyPreset('add_original_stamp')">
-              <div>
-                <div class="fw-semibold text-dark"><i class="bi bi-patch-check text-primary me-1"></i> Official Copy Stamp</div>
-                <div class="small text-muted" style="font-size:0.72rem;">Stamp verified export documentation copy</div>
-              </div>
-              <i class="bi bi-plus-circle text-primary fs-6"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Tab 3: Registered Consigners Direct Stamper -->
-        <div class="d-none" id="tabPaneConsigners">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="small text-muted fw-bold" style="font-size:0.75rem;">REGISTERED CONSIGNERS</span>
-            <a href="consigners.php" class="small text-primary fw-semibold text-decoration-none" style="font-size:0.75rem;">Manage &rarr;</a>
-          </div>
-          <p class="small text-muted mb-2" style="font-size:0.75rem;">Click any consigner to stamp verified export particulars directly on the PDF:</p>
-          <div class="d-grid gap-2" id="sidebarConsignersList">
-            <!-- Populated dynamically via JS -->
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Inspector Footer: Quick Keyboard Reference -->
-      <footer class="pdf-studio-inspector-footer">
-        <div class="d-flex align-items-center justify-content-between text-muted" style="font-size:0.72rem;">
-          <span><kbd class="bg-white border text-dark px-1">V</kbd> Select</span>
-          <span><kbd class="bg-white border text-dark px-1">W</kbd> Whiteout</span>
-          <span><kbd class="bg-white border text-dark px-1">T</kbd> Text</span>
-          <span><kbd class="bg-white border text-dark px-1">Ctrl+Z</kbd> Undo</span>
-        </div>
-      </footer>
-
-    </aside>
-
-  </div>
-
-</main>
-
-<!-- Modal: Text Edit Modal for double-clicked text annotation -->
-<div class="modal fade" id="editTextModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header py-2 border-bottom">
-        <h6 class="modal-title fw-bold"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Correction Text</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Replacement Text / Values</label>
-          <textarea class="form-control" id="modalTextInput" rows="3" placeholder="Enter corrected text..."></textarea>
-          <div class="d-flex align-items-center justify-content-between mt-1">
-            <span class="small text-muted" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success me-1"></i>Text wraps & strictly stays inside box</span>
-            <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size:0.75rem;" onclick="autoFitBoxToText()" title="Automatically resize the box to fit this text">
-              <i class="bi bi-arrows-angle-expand me-1 text-primary"></i>Auto-fit Box
-            </button>
-          </div>
-        </div>
-        <div class="row g-2">
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Font Size</label>
-            <select class="form-select form-select-sm" id="modalTextFontSize">
-              <option value="8">8 pt</option>
-              <option value="9">9 pt</option>
-              <option value="10">10 pt</option>
-              <option value="11">11 pt</option>
-              <option value="12">12 pt</option>
-              <option value="14">14 pt</option>
-              <option value="16">16 pt</option>
-              <option value="20">20 pt</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Font Style</label>
-            <select class="form-select form-select-sm" id="modalTextFontWeight">
-              <option value="normal">Normal</option>
-              <option value="bold">Bold</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer py-2 border-top">
-        <button type="button" class="btn btn-sm btn-outline-danger me-auto" onclick="deleteCurrentModalItem()">Delete</button>
-        <button type="button" class="btn btn-sm btn-outline-primary" onclick="autoFitBoxToText()">
-          <i class="bi bi-arrows-angle-expand me-1"></i>Fit Box to Text
-        </button>
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-sm btn-primary" onclick="saveModalTextChanges()">Apply Changes</button>
       </div>
     </div>
-  </div>
+
+    <!-- Floating Dock -->
+    <div class="floating-dock" id="floatingDock">
+      <button class="dock-btn" id="btnPrev" onclick="navPage(-1)" disabled title="Previous Page">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <span class="dock-text" id="dockPageText">Page 1 / 1</span>
+      <button class="dock-btn" id="btnNext" onclick="navPage(1)" disabled title="Next Page">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+
+      <div class="dock-divider"></div>
+
+      <button class="dock-btn" onclick="zoomChange(-0.15)" title="Zoom Out">
+        <i class="bi bi-zoom-out"></i>
+      </button>
+      <span class="dock-text" id="dockZoomText">100%</span>
+      <button class="dock-btn" onclick="zoomChange(0.15)" title="Zoom In">
+        <i class="bi bi-zoom-in"></i>
+      </button>
+
+      <div class="dock-divider"></div>
+
+      <button class="dock-btn" onclick="undo()" title="Undo (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
+      <button class="dock-btn" onclick="redo()" title="Redo (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
+    </div>
+
+  </main>
 </div>
 
-<!-- Load PDF.js & pdf-lib from reliable CDNs -->
+<!-- Essential CDNs -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   if (typeof pdfjsLib !== 'undefined') {
@@ -447,8 +171,1133 @@ include_once __DIR__ . '/includes/header.php';
 </script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-<!-- Custom PDF Visual Editor Script -->
-<script src="js/pdf-editor.js?v=<?= time() ?>"></script>
+<!-- Clean, Modular & Responsive Editor Logic -->
+<script>
+/**
+ * Clean Visual PDF Editor
+ * Logic: Streamlined Canvas Hit-testing, Drawing, 100% Solid White Masking & PDF-Lib Export
+ */
+
+const App = {
+  pdfDoc: null,
+  rawBytes: null,
+  fileName: "document.pdf",
+  numPages: 0,
+  page: 1,
+  scale: 1.0,
+  tool: "select", // "select" | "whiteout" | "text" | "redact"
+
+  // Per-page annotations: { [pageNum]: Array<Item> }
+  annotations: {},
+  selectedId: null,
+  activeItem: null,
+  editingId: null,
+
+  // Drag / Resize / Draw interaction states
+  isDrawing: false,
+  isDragging: false,
+  isResizing: false,
+  resizeCorner: null,
+  startX: 0,
+  startY: 0,
+  originBox: null,
+
+  // History Stack
+  history: [],
+  historyIdx: -1
+};
+
+// Cached DOM Elements
+const ui = {
+  emptyHero: document.getElementById("emptyHero"),
+  paperSheet: document.getElementById("paperSheet"),
+  pdfCanvas: document.getElementById("pdfCanvas"),
+  drawCanvas: document.getElementById("drawCanvas"),
+  liveInput: document.getElementById("liveInput"),
+  liveInputActions: document.getElementById("liveInputActions"),
+  floatingDock: document.getElementById("floatingDock"),
+  dockPageText: document.getElementById("dockPageText"),
+  dockZoomText: document.getElementById("dockZoomText"),
+  btnPrev: document.getElementById("btnPrev"),
+  btnNext: document.getElementById("btnNext"),
+  btnDownload: document.getElementById("btnDownload"),
+  docNameLabel: document.getElementById("docNameLabel"),
+  docStatusLabel: document.getElementById("docStatusLabel"),
+  saveBadge: document.getElementById("saveBadge"),
+  formatBar: document.getElementById("formatBar"),
+  fontSizeDisplay: document.getElementById("fontSizeDisplay"),
+  btnBoldToggle: document.getElementById("btnBoldToggle")
+};
+
+// =========================================================================
+// 1. INITIALIZATION & FILE LOADING
+// =========================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupCanvasEvents();
+  setupKeyboardEvents();
+  initConsignersDropdown();
+});
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dz = document.querySelector(".empty-dropzone");
+  if (dz) dz.classList.add("dragover");
+}
+
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dz = document.querySelector(".empty-dropzone");
+  if (dz) dz.classList.remove("dragover");
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const dz = document.querySelector(".empty-dropzone");
+  if (dz) dz.classList.remove("dragover");
+  const files = e.dataTransfer && e.dataTransfer.files;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        await loadPdfBytes(reader.result, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert("Please drop a valid PDF document.");
+    }
+  }
+}
+
+function handleFile(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    await loadPdfBytes(reader.result, file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function loadPdfBytes(arrayBuffer, name) {
+  App.rawBytes = arrayBuffer.slice(0);
+  App.fileName = name;
+  App.annotations = {};
+  App.history = [];
+  App.historyIdx = -1;
+  App.selectedId = null;
+
+  ui.docNameLabel.textContent = name;
+  ui.docStatusLabel.textContent = "Parsing...";
+
+  const task = pdfjsLib.getDocument({ data: arrayBuffer });
+  App.pdfDoc = await task.promise;
+  App.numPages = App.pdfDoc.numPages;
+  App.page = 1;
+
+  // Mobile responsive initial scale fit
+  if (window.innerWidth < 768) {
+    App.scale = Math.max(0.45, Math.min(1.0, (window.innerWidth - 32) / 600));
+  } else {
+    App.scale = 1.0;
+  }
+
+  ui.emptyHero.style.display = "none";
+  ui.paperSheet.style.display = "block";
+  ui.floatingDock.style.display = "flex";
+  ui.btnDownload.disabled = false;
+  ui.docStatusLabel.textContent = `${App.numPages} Page${App.numPages > 1 ? 's' : ''}`;
+
+  saveSnapshot();
+  updateSaveBadge(false);
+  await renderPage();
+  updateDock();
+}
+
+// =========================================================================
+// 2. PAGE RENDERING (PDF.JS + OVERLAY)
+// =========================================================================
+
+async function renderPage() {
+  if (!App.pdfDoc) return;
+  const page = await App.pdfDoc.getPage(App.page);
+  
+  // Calculate sharp high-DPI resolution
+  const pixelRatio = window.devicePixelRatio || 1.5;
+  const viewport = page.getViewport({ scale: App.scale * pixelRatio });
+  const unscaled = page.getViewport({ scale: 1.0 });
+
+  const displayWidth = unscaled.width * App.scale;
+  const displayHeight = unscaled.height * App.scale;
+
+  // Set Canvas internal buffer sizes
+  ui.pdfCanvas.width = viewport.width;
+  ui.pdfCanvas.height = viewport.height;
+  ui.drawCanvas.width = viewport.width;
+  ui.drawCanvas.height = viewport.height;
+
+  // Set display dimensions dynamically to match scale
+  ui.pdfCanvas.style.width = `${displayWidth}px`;
+  ui.pdfCanvas.style.height = `${displayHeight}px`;
+  ui.drawCanvas.style.width = `${displayWidth}px`;
+  ui.drawCanvas.style.height = `${displayHeight}px`;
+  ui.paperSheet.style.width = `${displayWidth}px`;
+  ui.paperSheet.style.height = `${displayHeight}px`;
+
+  const ctx = ui.pdfCanvas.getContext("2d");
+  await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+  redraw();
+}
+
+function getPageItems() {
+  if (!App.annotations[App.page]) {
+    App.annotations[App.page] = [];
+  }
+  return App.annotations[App.page];
+}
+
+// =========================================================================
+// 3. CANVAS INTERACTION (DRAW, MOVE, RESIZE, IN-PLACE EDIT)
+// =========================================================================
+
+function setupCanvasEvents() {
+  ui.drawCanvas.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
+  ui.drawCanvas.addEventListener("dblclick", onDoubleClick);
+
+  // Mobile touchscreen support (touchstart, touchmove, touchend)
+  function touchWrapper(handler) {
+    return function(e) {
+      if (e.touches && e.touches.length > 0) {
+        const t = e.touches[0];
+        const synthetic = {
+          clientX: t.clientX,
+          clientY: t.clientY,
+          target: e.target,
+          preventDefault: () => e.preventDefault(),
+          stopPropagation: () => e.stopPropagation()
+        };
+        handler(synthetic);
+      } else if (e.type === "touchend") {
+        handler(e);
+      }
+    };
+  }
+
+  ui.drawCanvas.addEventListener("touchstart", touchWrapper(onMouseDown), { passive: false });
+  window.addEventListener("touchmove", touchWrapper(onMouseMove), { passive: false });
+  window.addEventListener("touchend", onMouseUp, { passive: false });
+
+  // Live in-place text input
+  ui.liveInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      commitLiveText();
+    } else if (e.key === "Escape") {
+      cancelLiveText();
+    }
+  });
+
+  ui.liveInput.addEventListener("blur", () => {
+    setTimeout(() => {
+      const active = document.activeElement;
+      if (ui.liveInputActions && ui.liveInputActions.contains(active)) return;
+      commitLiveText();
+    }, 150);
+  });
+}
+
+function getNormalized(e) {
+  const rect = ui.drawCanvas.getBoundingClientRect();
+  const rawX = e.clientX - rect.left;
+  const rawY = e.clientY - rect.top;
+  const x = Math.max(0, Math.min(1, rawX / rect.width));
+  const y = Math.max(0, Math.min(1, rawY / rect.height));
+  return { x, y, rawX, rawY, rectW: rect.width, rectH: rect.height };
+}
+
+function onMouseDown(e) {
+  if (!App.pdfDoc) return;
+  if (App.editingId) commitLiveText();
+
+  const { x, y, rawX, rawY, rectW, rectH } = getNormalized(e);
+  const items = getPageItems();
+
+  // Check resize handle on selected item
+  if (App.selectedId) {
+    const sel = items.find(i => i.id === App.selectedId);
+    if (sel) {
+      const handle = hitCornerHandle(sel, rawX, rawY, rectW, rectH);
+      if (handle) {
+        App.isResizing = true;
+        App.resizeCorner = handle;
+        App.startX = x;
+        App.startY = y;
+        App.originBox = { ...sel };
+        return;
+      }
+    }
+  }
+
+  // Hit test existing item
+  let hit = null;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i];
+    if (x >= it.x && x <= it.x + it.w && y >= it.y && y <= it.y + it.h) {
+      hit = it;
+      break;
+    }
+  }
+
+  if (hit) {
+    App.selectedId = hit.id;
+    App.isDragging = true;
+    App.startX = x;
+    App.startY = y;
+    App.originBox = { ...hit };
+    syncFormatBar(hit);
+    redraw();
+    return;
+  }
+
+  // Click on empty space
+  if (App.tool === "select") {
+    App.selectedId = null;
+    syncFormatBar(null);
+    redraw();
+    return;
+  }
+
+  // Drawing new item (whiteout, text, redact)
+  App.selectedId = null;
+  App.isDrawing = true;
+  App.startX = x;
+  App.startY = y;
+
+  const newItem = {
+    id: "item_" + Date.now(),
+    type: App.tool,
+    x: x,
+    y: y,
+    w: 0.001,
+    h: 0.001,
+    text: "",
+    fontSize: 10,
+    isBold: false,
+    color: "#0F172A",
+    backgroundColor: App.tool === "redact" ? "#000000" : "#FFFFFF"
+  };
+
+  items.push(newItem);
+  App.activeItem = newItem;
+  syncFormatBar(null);
+  redraw();
+}
+
+function onMouseMove(e) {
+  if (!App.pdfDoc) return;
+  const { x, y, rawX, rawY, rectW, rectH } = getNormalized(e);
+  const items = getPageItems();
+
+  // Dynamic cursor feedback
+  if (!App.isDrawing && !App.isDragging && !App.isResizing) {
+    let cur = (App.tool === "select") ? "default" : "crosshair";
+    if (App.selectedId) {
+      const sel = items.find(i => i.id === App.selectedId);
+      if (sel && hitCornerHandle(sel, rawX, rawY, rectW, rectH)) {
+        cur = "nwse-resize";
+      }
+    }
+    ui.drawCanvas.style.cursor = cur;
+  }
+
+  // Draw box
+  if (App.isDrawing && App.activeItem) {
+    App.activeItem.x = Math.min(App.startX, x);
+    App.activeItem.y = Math.min(App.startY, y);
+    App.activeItem.w = Math.max(0.005, Math.abs(x - App.startX));
+    App.activeItem.h = Math.max(0.005, Math.abs(y - App.startY));
+    redraw();
+    return;
+  }
+
+  // Move box
+  if (App.isDragging && App.selectedId) {
+    const item = items.find(i => i.id === App.selectedId);
+    if (!item || !App.originBox) return;
+    const dx = x - App.startX;
+    const dy = y - App.startY;
+    item.x = Math.max(0, Math.min(1 - item.w, App.originBox.x + dx));
+    item.y = Math.max(0, Math.min(1 - item.h, App.originBox.y + dy));
+    redraw();
+    return;
+  }
+
+  // Resize box
+  if (App.isResizing && App.selectedId) {
+    const item = items.find(i => i.id === App.selectedId);
+    if (!item || !App.originBox) return;
+    if (App.resizeCorner === "se") {
+      item.w = Math.max(0.01, x - App.originBox.x);
+      item.h = Math.max(0.01, y - App.originBox.y);
+    }
+    redraw();
+    return;
+  }
+}
+
+function onMouseUp() {
+  if (App.isDrawing && App.activeItem) {
+    const item = App.activeItem;
+    App.isDrawing = false;
+    App.activeItem = null;
+
+    // Filter tiny accidental clicks or single click creation
+    if (item.w < 0.02 || item.h < 0.02) {
+      if (item.type === "text") {
+        item.w = 0.22;
+        item.h = 0.045;
+        App.selectedId = item.id;
+        saveSnapshot();
+        updateSaveBadge(true);
+        redraw();
+        startLiveInput(item);
+        return;
+      }
+      const items = getPageItems();
+      const idx = items.indexOf(item);
+      if (idx !== -1) items.splice(idx, 1);
+    } else {
+      App.selectedId = item.id;
+      saveSnapshot();
+      updateSaveBadge(true);
+      if (item.type === "text") {
+        redraw();
+        startLiveInput(item);
+        return;
+      }
+    }
+    redraw();
+    return;
+  }
+
+  if (App.isDragging || App.isResizing) {
+    App.isDragging = false;
+    App.isResizing = false;
+    App.resizeCorner = null;
+    App.originBox = null;
+    saveSnapshot();
+    updateSaveBadge(true);
+  }
+}
+
+function onDoubleClick(e) {
+  const { x, y } = getNormalized(e);
+  const items = getPageItems();
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i];
+    if (x >= it.x && x <= it.x + it.w && y >= it.y && y <= it.y + it.h) {
+      App.selectedId = it.id;
+      it.type = "text"; // allow adding text to whiteout box instantly
+      startLiveInput(it);
+      break;
+    }
+  }
+}
+
+function hitCornerHandle(item, rawX, rawY, rectW, rectH) {
+  const cornerX = (item.x + item.w) * rectW;
+  const cornerY = (item.y + item.h) * rectH;
+  if (Math.hypot(rawX - cornerX, rawY - cornerY) <= 12) {
+    return "se";
+  }
+  return null;
+}
+
+// Auto-fit box so solid white background GUARANTEES 100% coverage over text
+function autoFitItemToText(item) {
+  if (!item || !item.text) return;
+  const ctx = ui.drawCanvas.getContext("2d");
+  const W = ui.drawCanvas.width;
+  const H = ui.drawCanvas.height;
+  const fontScale = W / 800;
+  const fontSizePx = Math.max(8, (item.fontSize || 10) * fontScale);
+  ctx.font = `${item.isBold ? 'bold' : 'normal'} ${fontSizePx}px Helvetica, Arial, sans-serif`;
+
+  const lines = item.text.split("\n");
+  let maxW = 0;
+  lines.forEach(l => {
+    const measure = ctx.measureText(l).width;
+    if (measure > maxW) maxW = measure;
+  });
+
+  const padX = 12 * fontScale;
+  const padY = 8 * fontScale;
+  const neededW = (maxW + padX * 2) / W;
+  const neededH = ((lines.length * fontSizePx * 1.35) + padY * 2) / H;
+
+  // Solid white mask must be at least large enough to cover all text + padding
+  item.w = Math.min(1 - item.x, Math.max(item.w || 0, neededW));
+  item.h = Math.min(1 - item.y, Math.max(item.h || 0, neededH));
+}
+
+// Direct In-Place Text Editing (With Opaque White Mask & Floating Save Button)
+function startLiveInput(item) {
+  App.editingId = item.id;
+  const rect = ui.drawCanvas.getBoundingClientRect();
+  const left = item.x * rect.width;
+  const top = item.y * rect.height;
+  const width = Math.max(120, item.w * rect.width);
+  const height = Math.max(36, item.h * rect.height);
+
+  const fontScale = rect.width / 800;
+  const fontSizePx = Math.max(10, (item.fontSize || 10) * fontScale);
+
+  ui.liveInput.style.left = `${left}px`;
+  ui.liveInput.style.top = `${top}px`;
+  ui.liveInput.style.width = `${width}px`;
+  ui.liveInput.style.height = `${height}px`;
+  ui.liveInput.style.fontSize = `${fontSizePx}px`;
+  ui.liveInput.style.fontWeight = item.isBold ? "bold" : "normal";
+  ui.liveInput.style.color = item.color || "#0F172A";
+  ui.liveInput.style.backgroundColor = "#FFFFFF";
+  ui.liveInput.value = item.text || "";
+  ui.liveInput.style.display = "block";
+
+  // Position Floating Save / Cancel Bar
+  if (ui.liveInputActions) {
+    ui.liveInputActions.style.left = `${left}px`;
+    ui.liveInputActions.style.top = `${top + height + 6}px`;
+    ui.liveInputActions.style.display = "flex";
+  }
+
+  ui.liveInput.focus();
+  ui.liveInput.select();
+  syncFormatBar(item);
+  redraw();
+}
+
+function commitLiveText() {
+  if (!App.editingId) return;
+  const items = getPageItems();
+  const item = items.find(i => i.id === App.editingId);
+  if (item) {
+    item.text = ui.liveInput.value.trim();
+
+    // Synchronize box dimensions from live textarea if user resized it
+    const rect = ui.drawCanvas.getBoundingClientRect();
+    const inputW = ui.liveInput.offsetWidth / rect.width;
+    const inputH = ui.liveInput.offsetHeight / rect.height;
+    item.w = Math.max(item.w, inputW);
+    item.h = Math.max(item.h, inputH);
+
+    // Auto-fit so white mask is GUARANTEED to cover 100% of the text!
+    autoFitItemToText(item);
+  }
+  ui.liveInput.style.display = "none";
+  if (ui.liveInputActions) ui.liveInputActions.style.display = "none";
+  App.editingId = null;
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
+}
+
+function cancelLiveText() {
+  ui.liveInput.style.display = "none";
+  if (ui.liveInputActions) ui.liveInputActions.style.display = "none";
+  App.editingId = null;
+  redraw();
+}
+
+function deselectAll() {
+  if (App.editingId) commitLiveText();
+  App.selectedId = null;
+  syncFormatBar(null);
+  redraw();
+}
+
+// Update Header Save Status Badge
+function updateSaveBadge(isDirty = true) {
+  if (!ui.saveBadge) return;
+  let count = 0;
+  Object.values(App.annotations).forEach(arr => count += arr.length);
+  if (count === 0) {
+    ui.saveBadge.className = "badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge";
+    ui.saveBadge.innerHTML = "No Edits";
+  } else if (isDirty) {
+    ui.saveBadge.className = "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle doc-save-badge";
+    ui.saveBadge.innerHTML = `<i class="bi bi-circle-fill me-1 live-action-icon-dot"></i>${count} Unsaved Edit${count > 1 ? 's' : ''}`;
+  } else {
+    ui.saveBadge.className = "badge bg-success-subtle text-success border border-success-subtle doc-save-badge";
+    ui.saveBadge.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i>All Changes Saved`;
+  }
+}
+
+// =========================================================================
+// 4. CANVAS OVERLAY RENDERING (100% SOLID OPAQUE WHITEOUT MASK)
+// =========================================================================
+
+function redraw() {
+  const ctx = ui.drawCanvas.getContext("2d");
+  const W = ui.drawCanvas.width;
+  const H = ui.drawCanvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const items = getPageItems();
+
+  items.forEach(it => {
+    const x = it.x * W;
+    const y = it.y * H;
+    const w = it.w * W;
+    const h = it.h * H;
+    const isSel = it.id === App.selectedId;
+
+    // 1. Draw 100% OPAQUE SOLID MASK (NO TRANSPARENCY)
+    if (it.type === "redact") {
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(x, y, w, h);
+    } else {
+      // Solid Whiteout Mask: Completely wipes out the underlying original text!
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(x, y, w, h);
+    }
+
+    // 2. Draw Replacement Text (Clipped strictly inside the solid white mask)
+    if (it.text && it.id !== App.editingId) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.clip(); // Guarantees text NEVER bleeds outside the white mask
+
+      const fontScale = W / 800;
+      const fontSizePx = Math.max(8, (it.fontSize || 10) * fontScale);
+      ctx.font = `${it.isBold ? 'bold' : 'normal'} ${fontSizePx}px Helvetica, Arial, sans-serif`;
+      ctx.fillStyle = it.color || "#0F172A";
+      ctx.textBaseline = "top";
+
+      const padX = 6 * fontScale;
+      const padY = 4 * fontScale;
+      const lines = it.text.split("\n");
+      const lineH = fontSizePx * 1.25;
+
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, x + padX, y + padY + (idx * lineH));
+      });
+
+      ctx.restore();
+    }
+
+    // 3. Selection outline
+    if (isSel) {
+      ctx.save();
+      ctx.strokeStyle = "#2563EB";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+
+      // Bottom-Right resize handle
+      ctx.fillStyle = "#2563EB";
+      ctx.beginPath();
+      ctx.arc(x + w, y + h, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+    } else if (it.type === "whiteout" && !it.text) {
+      // Subtle dashed border for empty whiteout so user can see its placement on paper
+      ctx.save();
+      ctx.strokeStyle = "#94A3B8";
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, w, h);
+      ctx.restore();
+    }
+  });
+}
+
+// =========================================================================
+// 5. TOOLBAR, FORMATTING & SHORTCUTS
+// =========================================================================
+
+function setTool(toolName) {
+  App.tool = toolName;
+  ["btnToolSelect", "btnToolWhiteout", "btnToolText", "btnToolRedact"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("active");
+  });
+
+  const activeBtn = {
+    select: "btnToolSelect",
+    whiteout: "btnToolWhiteout",
+    text: "btnToolText",
+    redact: "btnToolRedact"
+  }[toolName];
+
+  if (activeBtn) document.getElementById(activeBtn).classList.add("active");
+  ui.drawCanvas.style.cursor = toolName === "select" ? "default" : "crosshair";
+}
+
+function syncFormatBar(item) {
+  if (!item) {
+    ui.formatBar.classList.remove("show");
+    return;
+  }
+  ui.formatBar.classList.add("show");
+  ui.fontSizeDisplay.textContent = `${item.fontSize || 10}pt`;
+  if (item.isBold) {
+    ui.btnBoldToggle.classList.add("btn-primary");
+    ui.btnBoldToggle.classList.remove("btn-light");
+  } else {
+    ui.btnBoldToggle.classList.remove("btn-primary");
+    ui.btnBoldToggle.classList.add("btn-light");
+  }
+}
+
+function stepFontSize(delta) {
+  if (!App.selectedId) return;
+  const items = getPageItems();
+  const item = items.find(i => i.id === App.selectedId);
+  if (!item) return;
+
+  item.fontSize = Math.max(6, Math.min(32, (item.fontSize || 10) + delta));
+  autoFitItemToText(item);
+  syncFormatBar(item);
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
+}
+
+function toggleBold() {
+  if (!App.selectedId) return;
+  const items = getPageItems();
+  const item = items.find(i => i.id === App.selectedId);
+  if (!item) return;
+
+  item.isBold = !item.isBold;
+  autoFitItemToText(item);
+  syncFormatBar(item);
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
+}
+
+function fitSelected() {
+  if (!App.selectedId) return;
+  const items = getPageItems();
+  const item = items.find(i => i.id === App.selectedId);
+  if (!item) return;
+
+  autoFitItemToText(item);
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
+}
+
+function deleteSelected() {
+  if (!App.selectedId) return;
+  const items = getPageItems();
+  const idx = items.findIndex(i => i.id === App.selectedId);
+  if (idx !== -1) {
+    items.splice(idx, 1);
+    App.selectedId = null;
+    syncFormatBar(null);
+    saveSnapshot();
+    updateSaveBadge(true);
+    redraw();
+  }
+}
+
+function setupKeyboardEvents() {
+  window.addEventListener("keydown", (e) => {
+    const inInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+    
+    // Delete key
+    if ((e.key === "Delete" || e.key === "Backspace") && App.selectedId && !inInput) {
+      deleteSelected();
+      e.preventDefault();
+    }
+    // Tool shortcuts
+    if (!inInput && !e.ctrlKey && !e.metaKey) {
+      if (e.key.toLowerCase() === "v") setTool("select");
+      else if (e.key.toLowerCase() === "w") setTool("whiteout");
+      else if (e.key.toLowerCase() === "t") setTool("text");
+      else if (e.key.toLowerCase() === "r") setTool("redact");
+    }
+    // Undo / Redo
+    if (e.ctrlKey && e.key.toLowerCase() === "z" && !e.shiftKey) {
+      undo();
+      e.preventDefault();
+    }
+    if ((e.ctrlKey && e.key.toLowerCase() === "y") || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "z")) {
+      redo();
+      e.preventDefault();
+    }
+  });
+}
+
+// =========================================================================
+// 6. MULTI-PAGE & ZOOM CONTROLS
+// =========================================================================
+
+async function navPage(offset) {
+  const target = App.page + offset;
+  if (target >= 1 && target <= App.numPages) {
+    App.page = target;
+    App.selectedId = null;
+    syncFormatBar(null);
+    await renderPage();
+    updateDock();
+  }
+}
+
+async function zoomChange(delta) {
+  const newScale = Math.max(0.5, Math.min(2.5, App.scale + delta));
+  App.scale = Math.round(newScale * 10) / 10;
+  await renderPage();
+  updateDock();
+}
+
+function updateDock() {
+  ui.dockPageText.textContent = `Page ${App.page} / ${App.numPages}`;
+  ui.dockZoomText.textContent = `${Math.round(App.scale * 100)}%`;
+  ui.btnPrev.disabled = App.page <= 1;
+  ui.btnNext.disabled = App.page >= App.numPages;
+}
+
+// History Snapshots
+function saveSnapshot() {
+  App.history = App.history.slice(0, App.historyIdx + 1);
+  App.history.push(JSON.parse(JSON.stringify(App.annotations)));
+  App.historyIdx = App.history.length - 1;
+}
+
+function undo() {
+  if (App.historyIdx > 0) {
+    App.historyIdx--;
+    App.annotations = JSON.parse(JSON.stringify(App.history[App.historyIdx]));
+    App.selectedId = null;
+    syncFormatBar(null);
+    updateSaveBadge(true);
+    redraw();
+  }
+}
+
+function redo() {
+  if (App.historyIdx < App.history.length - 1) {
+    App.historyIdx++;
+    App.annotations = JSON.parse(JSON.stringify(App.history[App.historyIdx]));
+    App.selectedId = null;
+    syncFormatBar(null);
+    updateSaveBadge(true);
+    redraw();
+  }
+}
+
+// =========================================================================
+// 7. PDF-LIB NATIVE VECTOR EXPORT (SOLID OPAQUE WHITE MASKING)
+// =========================================================================
+
+async function downloadPdf() {
+  if (!App.rawBytes) return;
+
+  try {
+    ui.docStatusLabel.textContent = "Compiling clean PDF...";
+    const pdfDoc = await PDFLib.PDFDocument.load(App.rawBytes.slice(0));
+    
+    // Standard crisp fonts
+    const fontHelvetica = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+    const fontHelveticaBold = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const pages = pdfDoc.getPages();
+
+    // Iterate through all document pages
+    for (let pNum = 1; pNum <= pages.length; pNum++) {
+      const items = App.annotations[pNum] || [];
+      if (items.length === 0) continue;
+
+      const page = pages[pNum - 1];
+      const { width: pdfW, height: pdfH } = page.getSize();
+
+      items.forEach(it => {
+        const chosenFont = it.isBold ? fontHelveticaBold : fontHelvetica;
+        const fontSize = Math.max(6, it.fontSize || 10);
+        let boxW = it.w * pdfW;
+        let boxH = it.h * pdfH;
+
+        // Auto-fit check: ensure the white mask completely covers all text + padding
+        if (it.text) {
+          const lines = it.text.split("\n");
+          let maxTextW = 0;
+          lines.forEach(line => {
+            try {
+              const tw = chosenFont.widthOfTextAtSize(line, fontSize);
+              if (tw > maxTextW) maxTextW = tw;
+            } catch (e) {
+              const tw = line.length * (fontSize * 0.55);
+              if (tw > maxTextW) maxTextW = tw;
+            }
+          });
+          const neededW = maxTextW + 12; // 6pt padding on each side
+          const neededH = (lines.length * fontSize * 1.3) + 8;
+          boxW = Math.max(boxW, neededW);
+          boxH = Math.max(boxH, neededH);
+        }
+
+        const x = it.x * pdfW;
+        // Invert Y coordinate for PDF coordinate space
+        const y = pdfH - (it.y * pdfH) - boxH;
+
+        // 1. Draw 100% SOLID OPAQUE MASK RECTANGLE (NO TRANSPARENCY!)
+        page.drawRectangle({
+          x: x,
+          y: y,
+          width: boxW,
+          height: boxH,
+          color: it.type === "redact" ? PDFLib.rgb(0, 0, 0) : PDFLib.rgb(1, 1, 1),
+          borderWidth: 0,
+          opacity: 1.0 // Strictly opaque
+        });
+
+        // 2. Draw Text on top of the solid white rectangle
+        if (it.text) {
+          const lines = it.text.split("\n");
+          const lineStep = fontSize * 1.25;
+          let textY = y + boxH - fontSize - 4; // Top of the white box downwards
+
+          lines.forEach(line => {
+            if (line.trim().length > 0) {
+              try {
+                page.drawText(line, {
+                  x: x + 6,
+                  y: textY,
+                  size: fontSize,
+                  font: chosenFont,
+                  color: PDFLib.rgb(0.06, 0.09, 0.16)
+                });
+              } catch (err) {
+                console.warn("Could not draw text:", err);
+              }
+            }
+            textY -= lineStep;
+          });
+        }
+      });
+    }
+
+    const modified = await pdfDoc.save();
+    const blob = new Blob([modified], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = App.fileName.replace(/\.pdf$/i, "") + "_CLEAN.pdf";
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+      ui.docStatusLabel.textContent = "Downloaded successfully";
+      updateSaveBadge(false);
+    }, 1000);
+
+  } catch (err) {
+    console.error("Download error:", err);
+    alert("Could not export PDF: " + err.message);
+    ui.docStatusLabel.textContent = "Export failed";
+  }
+}
+
+// =========================================================================
+// 8. CONSIGNERS INTEGRATION FOR PDF STAMPING & AMENDMENTS
+// =========================================================================
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getRegisteredConsigners() {
+  const DEFAULT_CONSIGNERS = [
+    {
+      id: "EXP-001",
+      name: "Reliance Granito Private Limited",
+      iec: "ABEFR3842G",
+      iecBranch: "0",
+      gstin: "08ABEFR3842G1Z5",
+      adCode: "6390013",
+      forexBank: "ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)",
+      registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
+      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
+      region: "Morbi",
+      status: "Active"
+    },
+    {
+      id: "EXP-002",
+      name: "Reliance Granito (Morbi Plant II)",
+      iec: "ABEFR3842G",
+      iecBranch: "1",
+      gstin: "24ABEFR3842G1Z2",
+      adCode: "6390013",
+      forexBank: "State Bank of India, Morbi Main Branch (A/C: 30894102941)",
+      registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
+      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Morbi - 363642, Gujarat, India",
+      region: "Morbi",
+      status: "Active"
+    },
+    {
+      id: "EXP-003",
+      name: "Reliance Ceramic Industries LLP",
+      iec: "AABFR9182K",
+      iecBranch: "0",
+      gstin: "24AABFR9182K1Z9",
+      adCode: "6391104",
+      forexBank: "HDFC Bank Limited, Morbi Branch",
+      registeredAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
+      factoryAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
+      region: "Morbi",
+      status: "Active"
+    },
+    {
+      id: "EXP-004",
+      name: "Marwar Granite & Quartz Export LLP",
+      iec: "AARFM7721H",
+      iecBranch: "0",
+      gstin: "08AARFM7721H1Z1",
+      adCode: "6389920",
+      forexBank: "Axis Bank Limited, Mandore Road, Jodhpur",
+      registeredAddress: "Plot 45-B, Mandore Industrial Area, Jodhpur - 342007, Rajasthan",
+      factoryAddress: "RIICO Industrial Area, Phase II, Boranada, Jodhpur - 342012, Rajasthan",
+      region: "Jodhpur",
+      status: "Active"
+    }
+  ];
+
+  try {
+    const raw = localStorage.getItem("reliance_edms_consigners");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.warn("Could not read consigners from localStorage:", e);
+  }
+  return DEFAULT_CONSIGNERS;
+}
+
+function initConsignersDropdown() {
+  const menu = document.getElementById("consignerDropdownMenu");
+  if (!menu) return;
+
+  const consigners = getRegisteredConsigners();
+  const activeConsigners = consigners.filter(c => c.status !== "Inactive");
+
+  const itemsHtml = activeConsigners.map(c => `
+    <li>
+      <a class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link" href="#" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
+        <div class="overflow-hidden pe-3">
+          <div class="fw-bold text-dark consigner-name-truncate">${escapeHtml(c.name)}</div>
+          <div class="text-muted consigner-meta-text">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Morbi')}</div>
+        </div>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle consigner-apply-pill">Apply</span>
+      </a>
+    </li>
+  `).join("");
+
+  menu.innerHTML = `
+    <li><h6 class="dropdown-header text-uppercase">Stamp Registered Consigner</h6></li>
+    ${itemsHtml}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="consigners.php">
+        <i class="bi bi-gear"></i> Manage Consigners Directory &rarr;
+      </a>
+    </li>
+  `;
+
+  // Also check if opened from consigners.php via sessionStorage
+  try {
+    const raw = sessionStorage.getItem("reliance_stamp_consigner");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      sessionStorage.removeItem("reliance_stamp_consigner");
+      if (parsed && parsed.id) {
+        setTimeout(() => {
+          applyConsignerStamp(parsed.id);
+        }, 800);
+      }
+    }
+  } catch (e) {
+    console.warn("Session consigner check:", e);
+  }
+}
+
+function applyConsignerStamp(consignerId) {
+  if (!App.pdfDoc) {
+    alert("Please upload an export PDF document first before stamping.");
+    return;
+  }
+
+  const stampLines = [
+    c.name.toUpperCase(),
+    c.factoryAddress || c.registeredAddress,
+    `IEC: ${c.iec} (BRANCH: ${c.iecBranch || '0'}) | GSTIN: ${c.gstin} | AD CODE: ${c.adCode || '6390013'}`,
+    `BANK: ${c.forexBank || 'ICICI BANK LIMITED, JODHPUR / MORBI BRANCH'}`
+  ];
+
+  const text = stampLines.join("\n");
+  const items = getPageItems();
+
+  // If user has an existing text item selected, replace its content with the consigner details!
+  if (App.selectedId) {
+    const selected = items.find(it => it.id === App.selectedId);
+    if (selected && selected.type === "text") {
+      selected.text = text;
+      selected.backgroundColor = "#FFFFFF";
+      autoFitItemToText(selected);
+      syncFormatBar(selected);
+      saveSnapshot();
+      updateSaveBadge(true);
+      redraw();
+      ui.docStatusLabel.textContent = `Applied ${c.name} to selected box`;
+      return;
+    }
+  }
+
+  // Create clean Consigner overlay box with solid opaque white mask at exporter position
+  const newAnnotation = {
+    id: "ann_consigner_" + Date.now(),
+    type: "text",
+    x: 0.05,
+    y: 0.08,
+    w: 0.88,
+    h: 0.09,
+    text: text,
+    fontSize: 8.5,
+    isBold: true,
+    color: "#0F172A",
+    backgroundColor: "#FFFFFF"
+  };
+
+  autoFitItemToText(newAnnotation);
+  items.push(newAnnotation);
+  App.selectedId = newAnnotation.id;
+  syncFormatBar(newAnnotation);
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
+  ui.docStatusLabel.textContent = `Stamped ${c.name}`;
+}
+</script>
 
 <?php
 include_once __DIR__ . '/includes/footer.php';

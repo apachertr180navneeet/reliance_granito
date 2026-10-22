@@ -11,7 +11,7 @@ include_once __DIR__ . '/includes/header.php';
 <main class="content-area p-3 p-lg-4" id="overviewSection">
   
   <!-- Welcome Banner -->
-  <div class="card border-0 shadow-sm mb-4" style="border-radius:12px; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); color:white;">
+  <div class="card border-0 shadow-sm mb-4 dashboard-hero-card">
     <div class="card-body p-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
@@ -32,7 +32,7 @@ include_once __DIR__ . '/includes/header.php';
   <!-- Operational Action Cards -->
   <div class="row g-3 mb-4">
     <div class="col-md-6 col-lg-3">
-      <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
+      <div class="card border-0 shadow-sm h-100 dashboard-action-card">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="text-muted small fw-semibold">PRIMARY WORKFLOW</span>
@@ -48,7 +48,7 @@ include_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="col-md-6 col-lg-3">
-      <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
+      <div class="card border-0 shadow-sm h-100 dashboard-action-card">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="text-muted small fw-semibold">PARTY DIRECTORY</span>
@@ -64,7 +64,7 @@ include_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="col-md-6 col-lg-3">
-      <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
+      <div class="card border-0 shadow-sm h-100 dashboard-action-card">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="text-muted small fw-semibold">ACTIVE DOCKET</span>
@@ -72,15 +72,15 @@ include_once __DIR__ . '/includes/header.php';
           </div>
           <h5 class="fw-bold mb-1">Consignment 1469</h5>
           <p class="text-muted small mb-3">Shipping Bill, Commercial Invoice & BL for CJ Stone Co. Ltd (Vietnam). Ready for review and redaction.</p>
-          <a href="pdf-editor.php" onclick="setTimeout(() => loadSampleDoc('1469 SB ORIGINAL.PDF'), 200);" class="btn btn-outline-secondary btn-sm w-100">
-            Edit Shipping Bill 1469 &rarr;
+          <a href="pdf-editor.php" class="btn btn-outline-secondary btn-sm w-100">
+            Open PDF Editor &rarr;
           </a>
         </div>
       </div>
     </div>
 
     <div class="col-md-6 col-lg-3">
-      <div class="card border-0 shadow-sm h-100" style="border-radius:10px;">
+      <div class="card border-0 shadow-sm h-100 dashboard-action-card">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-2">
             <span class="text-muted small fw-semibold">COMPLIANCE</span>
@@ -88,8 +88,8 @@ include_once __DIR__ . '/includes/header.php';
           </div>
           <h5 class="fw-bold mb-1">ICEGATE & Customs</h5>
           <p class="text-muted small mb-3">Export Inspection Agency, Mundra Port Gateway, and RFID electronic seal verification dockets.</p>
-          <a href="pdf-editor.php" onclick="setTimeout(() => loadSampleDoc('1469 BL.pdf'), 200);" class="btn btn-outline-secondary btn-sm w-100">
-            Edit Bill of Lading &rarr;
+          <a href="pdf-editor.php" class="btn btn-outline-secondary btn-sm w-100">
+            Open PDF Editor &rarr;
           </a>
         </div>
       </div>

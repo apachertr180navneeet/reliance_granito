@@ -61,12 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCanvasListeners();
   initKeyboardShortcuts();
   initConsignersDropdown();
-  
-  // Auto-load sample Shipping Bill on first open
-  setTimeout(() => {
-    loadSampleDoc("1469 SB ORIGINAL.PDF", "Shipping Bill #1469 (Original Customs EDI)");
-    checkPendingConsignerStamp();
-  }, 350);
+  checkPendingConsignerStamp();
 });
 
 function cacheElements() {
