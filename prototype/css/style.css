@@ -1874,10 +1874,31 @@ body.pdf-editor-active .app-footer {
   padding: 9px 16px;
   transition: background 0.15s ease;
   border-bottom: 1px solid #F8FAFC;
+  cursor: grab;
+  user-select: none;
+}
+
+.consigner-item-link:active {
+  cursor: grabbing;
+  background: #EFF6FF;
 }
 
 .consigner-item-link:hover {
   background: #F8FAFC;
+}
+
+.consigner-hint-pill {
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.consigner-drag-target {
+  cursor: grab;
 }
 
 .consigner-name-truncate {

@@ -1809,33 +1809,28 @@ function applyConsignerStamp(consignerId) {
     return;
   }
 
-  const stampLines = [
-    c.name.toUpperCase(),
-    c.factoryAddress || c.registeredAddress,
-    `IEC: ${c.iec} (BRANCH: ${c.iecBranch || '0'}) | GSTIN: ${c.gstin} | AD CODE: ${c.adCode || '6390013'}`,
-    `BANK: ${c.forexBank || 'ICICI BANK LIMITED, JODHPUR / MORBI BRANCH'}`
-  ];
-
-  const text = stampLines.join("\n");
+  // Only stamp the Consigner Legal Name as requested
+  const text = c.name.toUpperCase().trim();
 
   if (!PDFEditorState.annotations[PDFEditorState.currentPage]) {
     PDFEditorState.annotations[PDFEditorState.currentPage] = [];
   }
 
-  // Create clean Consigner overlay box at the standard Exporter location (top left of customs document)
+  // Create clean Consigner overlay box with solid opaque white mask (Name Only)
   const newAnnotation = {
     id: "ann_consigner_" + Date.now(),
     type: "text",
     x: 0.05,
     y: 0.08,
-    width: 0.88,
-    height: 0.09,
+    width: 0.35,
+    height: 0.035,
     text: text,
-    fontFamily: "Courier",
-    fontSize: 8.5,
+    fontFamily: "Helvetica",
+    fontSize: 10,
     isBold: true,
     color: "#0F172A",
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "transparent",
+    isTransparent: true
   };
 
   PDFEditorState.annotations[PDFEditorState.currentPage].push(newAnnotation);

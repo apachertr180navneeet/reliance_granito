@@ -62,9 +62,9 @@ include_once __DIR__ . '/includes/header.php';
 
       <!-- Contextual Formatting Bar -->
       <div class="format-bar" id="formatBar">
-        <span class="badge bg-white text-success border border-success-subtle px-2 py-1 format-badge-solid">
-          <i class="bi bi-shield-fill-check me-1"></i>Solid White Mask
-        </span>
+        <button type="button" class="btn btn-sm btn-light border py-0 px-2 fw-semibold" id="btnToggleBackground" onclick="toggleBackgroundMask()" title="Toggle Transparent vs Solid White Mask">
+          <i class="bi bi-circle me-1 text-primary" id="iconBackgroundMask"></i><span id="labelBackgroundMask">Transparent</span>
+        </button>
         <span class="fw-bold text-primary ms-1 format-label-size">SIZE:</span>
         <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(-1)" title="Decrease Size">-</button>
         <span id="fontSizeDisplay" class="fw-semibold text-dark px-1 format-font-val">10pt</span>
@@ -394,6 +394,29 @@ function setupCanvasEvents() {
   window.addEventListener("touchmove", touchWrapper(onMouseMove), { passive: false });
   window.addEventListener("touchend", onMouseUp, { passive: false });
 
+  // Native HTML5 Drag & Drop from Consigner Dropdown to PDF Canvas
+  function onCanvasConsignerDragOver(e) {
+    if (e.dataTransfer && (e.dataTransfer.types.includes("application/x-consigner-id") || e.dataTransfer.types.includes("text/plain"))) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  }
+
+  function onCanvasConsignerDrop(e) {
+    const consignerId = e.dataTransfer.getData("application/x-consigner-id") || e.dataTransfer.getData("text/plain");
+    if (consignerId) {
+      e.preventDefault();
+      e.stopPropagation();
+      const { x, y } = getNormalized(e);
+      applyConsignerStamp(consignerId, x, y);
+    }
+  }
+
+  ui.drawCanvas.addEventListener("dragover", onCanvasConsignerDragOver);
+  ui.drawCanvas.addEventListener("drop", onCanvasConsignerDrop);
+  ui.paperSheet.addEventListener("dragover", onCanvasConsignerDragOver);
+  ui.paperSheet.addEventListener("drop", onCanvasConsignerDrop);
+
   // Live in-place text input
   ui.liveInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -510,8 +533,22 @@ function onMouseMove(e) {
     let cur = (App.tool === "select") ? "default" : "crosshair";
     if (App.selectedId) {
       const sel = items.find(i => i.id === App.selectedId);
-      if (sel && hitCornerHandle(sel, rawX, rawY, rectW, rectH)) {
-        cur = "nwse-resize";
+      if (sel) {
+        if (hitCornerHandle(sel, rawX, rawY, rectW, rectH)) {
+          cur = "nwse-resize";
+        } else if (rawX >= sel.x * rectW && rawX <= (sel.x + sel.w) * rectW && rawY >= sel.y * rectH && rawY <= (sel.y + sel.h) * rectH) {
+          cur = "move";
+        }
+      }
+    }
+    // Check if hovering over any other annotation on the page
+    if (cur === "default" || cur === "crosshair") {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        if (rawX >= it.x * rectW && rawX <= (it.x + it.w) * rectW && rawY >= it.y * rectH && rawY <= (it.y + it.h) * rectH) {
+          cur = (it.id === App.selectedId) ? "move" : "pointer";
+          break;
+        }
       }
     }
     ui.drawCanvas.style.cursor = cur;
@@ -620,8 +657,8 @@ function hitCornerHandle(item, rawX, rawY, rectW, rectH) {
   return null;
 }
 
-// Auto-fit box so solid white background GUARANTEES 100% coverage over text
-function autoFitItemToText(item) {
+// Auto-fit box so solid white background GUARANTEES 100% coverage tightly wrapped to text
+function autoFitItemToText(item, forceExact = true) {
   if (!item || !item.text) return;
   const ctx = ui.drawCanvas.getContext("2d");
   const W = ui.drawCanvas.width;
@@ -637,14 +674,20 @@ function autoFitItemToText(item) {
     if (measure > maxW) maxW = measure;
   });
 
-  const padX = 12 * fontScale;
-  const padY = 8 * fontScale;
-  const neededW = (maxW + padX * 2) / W;
-  const neededH = ((lines.length * fontSizePx * 1.35) + padY * 2) / H;
+  const padX = 6 * fontScale;
+  const padY = 4 * fontScale;
+  const lineH = fontSizePx * 1.25;
+  const neededW = (maxW + padX * 2 + 2 * fontScale) / W;
+  const neededH = ((lines.length * lineH) + padY * 2) / H;
 
-  // Solid white mask must be at least large enough to cover all text + padding
-  item.w = Math.min(1 - item.x, Math.max(item.w || 0, neededW));
-  item.h = Math.min(1 - item.y, Math.max(item.h || 0, neededH));
+  // Shrink-wrap box tight to the text bounds without excess empty space
+  if (forceExact) {
+    item.w = Math.min(1 - item.x, neededW);
+    item.h = Math.min(1 - item.y, neededH);
+  } else {
+    item.w = Math.min(1 - item.x, Math.max(item.w || 0, neededW));
+    item.h = Math.min(1 - item.y, Math.max(item.h || 0, neededH));
+  }
 }
 
 // Direct In-Place Text Editing (With Opaque White Mask & Floating Save Button)
@@ -690,15 +733,8 @@ function commitLiveText() {
   if (item) {
     item.text = ui.liveInput.value.trim();
 
-    // Synchronize box dimensions from live textarea if user resized it
-    const rect = ui.drawCanvas.getBoundingClientRect();
-    const inputW = ui.liveInput.offsetWidth / rect.width;
-    const inputH = ui.liveInput.offsetHeight / rect.height;
-    item.w = Math.max(item.w, inputW);
-    item.h = Math.max(item.h, inputH);
-
-    // Auto-fit so white mask is GUARANTEED to cover 100% of the text!
-    autoFitItemToText(item);
+    // Auto-fit so selection box and white mask wrap tightly according to text!
+    autoFitItemToText(item, true);
   }
   ui.liveInput.style.display = "none";
   if (ui.liveInputActions) ui.liveInputActions.style.display = "none";
@@ -758,22 +794,25 @@ function redraw() {
     const h = it.h * H;
     const isSel = it.id === App.selectedId;
 
-    // 1. Draw 100% OPAQUE SOLID MASK (NO TRANSPARENCY)
+    // 1. Draw Background Mask (Skipped when Transparent)
+    const isTransparent = it.backgroundColor === "transparent" || it.isTransparent;
     if (it.type === "redact") {
       ctx.fillStyle = "#000000";
       ctx.fillRect(x, y, w, h);
-    } else {
+    } else if (!isTransparent) {
       // Solid Whiteout Mask: Completely wipes out the underlying original text!
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(x, y, w, h);
     }
 
-    // 2. Draw Replacement Text (Clipped strictly inside the solid white mask)
+    // 2. Draw Replacement Text
     if (it.text && it.id !== App.editingId) {
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, w, h);
-      ctx.clip(); // Guarantees text NEVER bleeds outside the white mask
+      if (!isTransparent) {
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip(); // Guarantees text NEVER bleeds outside the white mask
+      }
 
       const fontScale = W / 800;
       const fontSizePx = Math.max(8, (it.fontSize || 10) * fontScale);
@@ -857,6 +896,51 @@ function syncFormatBar(item) {
     ui.btnBoldToggle.classList.remove("btn-primary");
     ui.btnBoldToggle.classList.add("btn-light");
   }
+
+  // Update Background Mask / Transparent toggle button
+  const btnToggleBg = document.getElementById("btnToggleBackground");
+  const iconBg = document.getElementById("iconBackgroundMask");
+  const labelBg = document.getElementById("labelBackgroundMask");
+
+  if (btnToggleBg && iconBg && labelBg) {
+    if (item.type === "redact") {
+      btnToggleBg.classList.add("d-none");
+    } else {
+      btnToggleBg.classList.remove("d-none");
+      const isTransparent = item.backgroundColor === "transparent" || item.isTransparent;
+      if (isTransparent) {
+        iconBg.className = "bi bi-circle me-1 text-primary";
+        labelBg.textContent = "Transparent";
+        btnToggleBg.title = "Click to switch to Solid White Mask";
+        btnToggleBg.className = "btn btn-sm btn-light text-primary border border-primary-subtle py-0 px-2 fw-semibold";
+      } else {
+        iconBg.className = "bi bi-shield-fill-check me-1 text-success";
+        labelBg.textContent = "White Mask";
+        btnToggleBg.title = "Click to make background Transparent";
+        btnToggleBg.className = "btn btn-sm btn-light text-dark border py-0 px-2 fw-semibold";
+      }
+    }
+  }
+}
+
+function toggleBackgroundMask() {
+  if (!App.selectedId) return;
+  const items = getPageItems();
+  const item = items.find(i => i.id === App.selectedId);
+  if (!item) return;
+
+  const isTransparent = item.backgroundColor === "transparent" || item.isTransparent;
+  if (isTransparent) {
+    item.backgroundColor = "#FFFFFF";
+    item.isTransparent = false;
+  } else {
+    item.backgroundColor = "transparent";
+    item.isTransparent = true;
+  }
+  syncFormatBar(item);
+  saveSnapshot();
+  updateSaveBadge(true);
+  redraw();
 }
 
 function stepFontSize(delta) {
@@ -893,7 +977,7 @@ function fitSelected() {
   const item = items.find(i => i.id === App.selectedId);
   if (!item) return;
 
-  autoFitItemToText(item);
+  autoFitItemToText(item, true);
   saveSnapshot();
   updateSaveBadge(true);
   redraw();
@@ -1052,22 +1136,28 @@ async function downloadPdf() {
         // Invert Y coordinate for PDF coordinate space
         const y = pdfH - (it.y * pdfH) - boxH;
 
-        // 1. Draw 100% SOLID OPAQUE MASK RECTANGLE (NO TRANSPARENCY!)
-        page.drawRectangle({
-          x: x,
-          y: y,
-          width: boxW,
-          height: boxH,
-          color: it.type === "redact" ? PDFLib.rgb(0, 0, 0) : PDFLib.rgb(1, 1, 1),
-          borderWidth: 0,
-          opacity: 1.0 // Strictly opaque
-        });
+        const isTransparent = it.backgroundColor === "transparent" || it.isTransparent;
+
+        // 1. Draw MASK RECTANGLE (Only if NOT transparent)
+        if (!isTransparent) {
+          page.drawRectangle({
+            x: x,
+            y: y,
+            width: boxW,
+            height: boxH,
+            color: it.type === "redact" ? PDFLib.rgb(0, 0, 0) : PDFLib.rgb(1, 1, 1),
+            borderWidth: 0,
+            opacity: 1.0 // Strictly opaque
+          });
+        }
 
         // 2. Draw Text on top of the solid white rectangle
         if (it.text) {
           const lines = it.text.split("\n");
           const lineStep = fontSize * 1.25;
-          let textY = y + boxH - fontSize - 4; // Top of the white box downwards
+          // Exact sub-pixel baseline alignment: Helvetica cap-height is ~0.75 * fontSize
+          // This ensures the top of the exported text exactly matches the canvas preview padY (4pt)
+          let textY = (y + boxH) - 4 - (fontSize * 0.75);
 
           lines.forEach(line => {
             if (line.trim().length > 0) {
@@ -1203,18 +1293,30 @@ function initConsignersDropdown() {
 
   const itemsHtml = activeConsigners.map(c => `
     <li>
-      <a class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link" href="#" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
-        <div class="overflow-hidden pe-3">
-          <div class="fw-bold text-dark consigner-name-truncate">${escapeHtml(c.name)}</div>
+      <div class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link"
+           draggable="true"
+           data-consigner-id="${escapeHtml(c.id)}"
+           title="Click to stamp or drag & drop directly onto the PDF!">
+        <div class="overflow-hidden pe-3 consigner-drag-target" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
+          <div class="fw-bold text-dark consigner-name-truncate">
+            <i class="bi bi-grip-vertical text-muted me-1"></i>${escapeHtml(c.name)}
+          </div>
           <div class="text-muted consigner-meta-text">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Morbi')}</div>
         </div>
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle consigner-apply-pill">Apply</span>
-      </a>
+        <button type="button" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle consigner-apply-pill px-2 py-1" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
+          Apply
+        </button>
+      </div>
     </li>
   `).join("");
 
   menu.innerHTML = `
-    <li><h6 class="dropdown-header text-uppercase">Stamp Registered Consigner</h6></li>
+    <li>
+      <div class="dropdown-header text-uppercase d-flex align-items-center justify-content-between">
+        <span>Stamp Consigner</span>
+        <span class="badge consigner-hint-pill">Drag & Drop or Click</span>
+      </div>
+    </li>
     ${itemsHtml}
     <li><hr class="dropdown-divider"></li>
     <li>
@@ -1223,6 +1325,25 @@ function initConsignersDropdown() {
       </a>
     </li>
   `;
+
+  // Attach HTML5 dragstart listener to all consigner menu items
+  menu.querySelectorAll(".consigner-item-link").forEach(el => {
+    el.addEventListener("dragstart", (e) => {
+      const id = el.getAttribute("data-consigner-id");
+      if (id) {
+        e.dataTransfer.setData("text/plain", id);
+        e.dataTransfer.setData("application/x-consigner-id", id);
+        e.dataTransfer.effectAllowed = "copy";
+
+        // Auto-close dropdown popover so canvas is fully visible underneath
+        const dropdownBtn = document.getElementById("btnConsignerDropdown");
+        if (dropdownBtn) {
+          const bsDrop = bootstrap.Dropdown.getInstance(dropdownBtn);
+          if (bsDrop) bsDrop.hide();
+        }
+      }
+    });
+  });
 
   // Also check if opened from consigners.php via sessionStorage
   try {
@@ -1241,20 +1362,28 @@ function initConsignersDropdown() {
   }
 }
 
-function applyConsignerStamp(consignerId) {
+function applyConsignerStamp(consignerId, targetX = null, targetY = null) {
   if (!App.pdfDoc) {
     alert("Please upload an export PDF document first before stamping.");
     return;
   }
 
-  const stampLines = [
-    c.name.toUpperCase(),
-    c.factoryAddress || c.registeredAddress,
-    `IEC: ${c.iec} (BRANCH: ${c.iecBranch || '0'}) | GSTIN: ${c.gstin} | AD CODE: ${c.adCode || '6390013'}`,
-    `BANK: ${c.forexBank || 'ICICI BANK LIMITED, JODHPUR / MORBI BRANCH'}`
-  ];
+  const list = getRegisteredConsigners();
+  const c = list.find(item => item.id === consignerId);
+  if (!c) {
+    console.error("Consigner not found:", consignerId);
+    return;
+  }
 
-  const text = stampLines.join("\n");
+  // Close dropdown if open
+  const dropdownBtn = document.getElementById("btnConsignerDropdown");
+  if (dropdownBtn) {
+    const bsDrop = bootstrap.Dropdown.getInstance(dropdownBtn);
+    if (bsDrop) bsDrop.hide();
+  }
+
+  // Only stamp the Consigner Legal Name as requested
+  const text = c.name.toUpperCase().trim();
   const items = getPageItems();
 
   // If user has an existing text item selected, replace its content with the consigner details!
@@ -1262,40 +1391,63 @@ function applyConsignerStamp(consignerId) {
     const selected = items.find(it => it.id === App.selectedId);
     if (selected && selected.type === "text") {
       selected.text = text;
-      selected.backgroundColor = "#FFFFFF";
-      autoFitItemToText(selected);
+      selected.backgroundColor = "transparent";
+      selected.isTransparent = true;
+      autoFitItemToText(selected, true);
       syncFormatBar(selected);
       saveSnapshot();
       updateSaveBadge(true);
       redraw();
-      ui.docStatusLabel.textContent = `Applied ${c.name} to selected box`;
+      ui.docStatusLabel.textContent = `Applied ${c.name} (Transparent)`;
       return;
     }
   }
 
-  // Create clean Consigner overlay box with solid opaque white mask at exporter position
+  // Determine starting position:
+  let posX = 0.05;
+  let posY = 0.08;
+
+  if (targetX !== null && targetY !== null) {
+    posX = Math.max(0.01, Math.min(0.65, targetX));
+    posY = Math.max(0.01, Math.min(0.85, targetY));
+  } else {
+    // Center in current scroll position of viewport
+    try {
+      const rect = ui.drawCanvas.getBoundingClientRect();
+      const vpRect = ui.viewport.getBoundingClientRect();
+      const relativeTop = (vpRect.top + 80 - rect.top) / rect.height;
+      if (relativeTop > 0 && relativeTop < 0.8) {
+        posY = relativeTop;
+      }
+    } catch (e) {}
+  }
+
+  // Create clean Consigner overlay box with transparent background (Transparent Text Only)
   const newAnnotation = {
     id: "ann_consigner_" + Date.now(),
     type: "text",
-    x: 0.05,
-    y: 0.08,
-    w: 0.88,
-    h: 0.09,
+    x: posX,
+    y: posY,
+    w: 0.01,
+    h: 0.01,
     text: text,
-    fontSize: 8.5,
+    fontSize: 10,
     isBold: true,
     color: "#0F172A",
-    backgroundColor: "#FFFFFF"
+    backgroundColor: "transparent",
+    isTransparent: true
   };
 
-  autoFitItemToText(newAnnotation);
+  // Shrink-wrap box dimensions exactly according to text!
+  autoFitItemToText(newAnnotation, true);
   items.push(newAnnotation);
   App.selectedId = newAnnotation.id;
+  setTool('select');
   syncFormatBar(newAnnotation);
   saveSnapshot();
   updateSaveBadge(true);
   redraw();
-  ui.docStatusLabel.textContent = `Stamped ${c.name}`;
+  ui.docStatusLabel.textContent = `Stamped ${c.name} (Transparent) — Drag & drop to position`;
 }
 </script>
 

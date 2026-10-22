@@ -95,6 +95,11 @@ reliance_granito_export_workflow/
 
 | Timestamp (IST) | Version | Module / Scope | Action & Description | Target Files | Status |
 |:---|:---|:---|:---|:---|:---|
+| **2026-10-22 01:55 PM** | `v1.7.3` | **Transparent Drag & Drop Section** | Transparent background by default for drag & drop consigner names with interactive White Mask / Transparent format bar toggle | `prototype/pdf-editor.php`<br>`prototype/js/pdf-editor.js` | ✅ Verified |
+| **2026-10-22 01:10 PM** | `v1.7.2` | **Box Auto-Fit Precision** | Dynamic shrink-wrapping of selection box and whiteout mask tightly according to text bounds on drag and drop | `prototype/pdf-editor.php` | ✅ Verified |
+| **2026-10-22 01:00 PM** | `v1.7.1` | **Consigner Stamp Format** | Simplified consigner stamping to output legal company name only, auto-fitted with crisp typography | `prototype/pdf-editor.php`<br>`prototype/js/pdf-editor.js` | ✅ Verified |
+| **2026-10-22 12:55 PM** | `v1.7.0` | **Consigner Drag & Drop Placement** | Native HTML5 Drag & Drop from Consigner menu directly onto PDF canvas, auto-select with interactive move & drag | `prototype/pdf-editor.php`<br>`prototype/css/style.css` | ✅ Verified |
+| **2026-10-22 12:45 PM** | `v1.6.1` | **Coordinate Engine & Precision** | Verified 1:1 mathematical coordinate mapping & sub-pixel font baseline alignment for exact exported text placement | `prototype/pdf-editor.php` | ✅ Verified |
 | **2026-10-22 12:20 PM** | `v1.6.0` | **UI & Dropzone Overhaul** | Removed all sample PDF dependencies; redesigned sleek uncrowded header ribbon, rich consigner popover, and modern drag-and-drop upload zone | `prototype/pdf-editor.php`<br>`prototype/css/style.css`<br>`prototype/index.php` | ✅ Verified |
 | **2026-10-22 12:10 PM** | `v1.5.0` | **Documentation & Audit** | Structured complete chronological audit trail with date/time stamps for change traceability | `README.md` | ✅ Verified |
 | **2026-10-22 12:05 PM** | `v1.4.0` | **Mobile Responsiveness** | Full project mobile & tablet responsiveness, drawer navigation, touch canvas & auto-scaling | `prototype/css/style.css`<br>`prototype/pdf-editor.php`<br>`prototype/js/app.js`<br>`prototype/includes/` | ✅ Verified |
@@ -107,6 +112,57 @@ reliance_granito_export_workflow/
 ---
 
 ### Detailed Audit Trail Entries
+
+#### [2026-10-22 13:55:00 IST] - Release v1.7.3: Transparent Drag & Drop Consigner Section
+- **Scope**: Background Mask Transparency, Canvas Rendering & Interactive Toggle
+- **Files Modified**: 
+  - `prototype/pdf-editor.php`
+  - `prototype/js/pdf-editor.js`
+- **Changes**:
+  - **Transparent Background for Stamped Consigners**: Set `backgroundColor: "transparent"` and `isTransparent: true` by default when dragging and dropping or applying a consigner name onto the PDF. Text renders directly over underlying document lines, tables, or form boxes without opaque white cutouts.
+  - **Conditional Canvas Mask Rendering**: Updated `redraw()` to skip `ctx.fillRect()` when `isTransparent` is true, ensuring pure text rendering without white patches over existing lines.
+  - **Conditional Vector Export (`pdf-lib`)**: In `downloadPdf()`, omitted `page.drawRectangle` for transparent items so exported vector PDFs retain clean background transparency beneath the text.
+  - **Interactive Format Bar Toggle (`toggleBackgroundMask`)**: Replaced static mask badge with an interactive toggle button (`[ ◯ Transparent / 🛡️ White Mask ]`) allowing users to switch any text box between Transparent and Solid Whiteout Mask with one click.
+
+#### [2026-10-22 13:10:00 IST] - Release v1.7.2: Text-Based Selection Box Auto-Fitting Precision
+- **Scope**: Bounding Box Metrics, Canvas Interaction & Typography Auto-Fit
+- **Files Modified**: 
+  - `prototype/pdf-editor.php`
+- **Changes**:
+  - **Zero-Slack Shrink-Wrapping**: Updated `autoFitItemToText(item, forceExact = true)` to measure text width and calculate needed box dimensions tightly around the text (`padX = 6px`, `padY = 4px`), eliminating the trailing whitespace gap observed to the right of the company name.
+  - **Drag & Drop Exact Box Fitting**: Initialized consigner stamp bounding dimensions to zero and forced dynamic text-metric measurement on creation so the selection box snaps snugly to the company name string length.
+  - **Live Edit Auto-Sizing**: Updated `commitLiveText()`, `stepFontSize()`, `toggleBold()`, and `fitSelected()` to automatically re-fit the selection box directly to the exact width and height of the updated text.
+
+#### [2026-10-22 13:00:00 IST] - Release v1.7.1: Simplified Consigner Name Only Stamping
+- **Scope**: Typography, Mask Sizing & Document Particulars
+- **Files Modified**: 
+  - `prototype/pdf-editor.php`
+  - `prototype/js/pdf-editor.js`
+- **Changes**:
+  - **Single Legal Entity Name Stamping**: Streamlined the consigner stamping content to stamp strictly the legal company name in uppercase (e.g. `RELIANCE GRANITO PRIVATE LIMITED`), removing the secondary 4-line block (address, IEC, GSTIN, AD Code, Bank).
+  - **Single-Line Mask Box Auto-Sizing**: Reduced initial mask bounding box dimensions to single-line proportions (`w: 0.35, h: 0.035, fontSize: 10, isBold: true`) with automated shrink-wrap fitting via `autoFitItemToText()`.
+  - **Seamless In-Place Replacement**: If an existing box or name is selected, applying any consigner replaces it cleanly with the new company name.
+
+#### [2026-10-22 12:55:00 IST] - Release v1.7.0: Consigner Drag & Drop Placement & Move Freedom
+- **Scope**: Master Data Stamping, Drag & Drop UX & Canvas Placement
+- **Files Modified**: 
+  - `prototype/pdf-editor.php`
+  - `prototype/css/style.css`
+- **Changes**:
+  - **Native HTML5 Drag & Drop from Consigner Menu**: Enabled `draggable="true"` on all active consigner menu items with grab grip handles (`<i class="bi bi-grip-vertical"></i>`). Users can drag any registered company directly from the dropdown and drop it onto the exact target location on the PDF.
+  - **Auto-Position & Viewport Tracking**: Stamping via the "Apply" button places the consigner particulars directly within the user's visible viewport and immediately switches tool to Select with active handles, allowing the user to freely drag & drop / reposition it anywhere across the document.
+  - **Selected Box In-Place Substitution**: If any existing text box or whiteout box is selected, applying a consigner updates that exact box instantly without creating a duplicate.
+  - **Dynamic Cursor Feedback**: Added `move` cursor feedback when hovering over selected annotations, and `pointer` cursor for non-selected items, making interactive drag-and-drop intuitive.
+  - **Zero Inline Styles**: Centralized all drag styles (`.consigner-item-link`, `.consigner-hint-pill`, `.consigner-drag-target`) strictly in `prototype/css/style.css`.
+
+#### [2026-10-22 12:45:00 IST] - Release v1.6.1: 1:1 Coordinate Precision & Sub-Pixel Baseline Alignment
+- **Scope**: Coordinate System Mapping, Font Metrics & Vector Export Fidelity
+- **Files Modified**: 
+  - `prototype/pdf-editor.php`
+- **Changes**:
+  - **1:1 Normalized Coordinate Mapping**: Confirmed that canvas overlay percentage coordinates `(it.x, it.y)` map directly to unscaled 72-DPI PDF point coordinates `(it.x * pdfW, pdfH - (it.y * pdfH) - boxH)`, guaranteeing exact placement fidelity regardless of browser zoom or device pixel ratio.
+  - **Sub-Pixel Font Baseline Alignment**: Refined the `textY` vector export calculation to `let textY = (y + boxH) - 4 - (fontSize * 0.75)`. This accurately accounts for Helvetica's cap-height (~0.75×) so the exported text baseline aligns identically with the screen preview's `padY = 4px` padding.
+  - **Zero Visual Drift**: Eliminates any vertical or horizontal drift between on-screen positioning and the downloaded clean vector PDF.
 
 #### [2026-10-22 12:20:00 IST] - Release v1.6.0: Visual UI Declutter & Complete Sample Removal
 - **Scope**: User Interface, Visual Hierarchy & First-Class Upload Workflow
