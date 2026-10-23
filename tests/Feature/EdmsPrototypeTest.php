@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Consigner;
-use App\Models\Document;
-use App\Models\Shipment;
 use App\Models\User;
 use Database\Seeders\ConsignerSeeder;
 use Database\Seeders\DocumentSeeder;
@@ -20,7 +18,7 @@ class EdmsPrototypeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->seed([
             UserSeeder::class,
             ConsignerSeeder::class,
@@ -30,32 +28,65 @@ class EdmsPrototypeTest extends TestCase
     }
 
     /**
-     * Test the root redirects to dashboard.
+     * Test the root redirects to the login page first.
      */
-    public function test_root_redirects_to_dashboard(): void
+    public function test_root_redirects_to_login_page_first(): void
     {
         $response = $this->get('/');
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/login');
     }
 
     /**
-     * Test the dashboard loads successfully.
+     * Test the login page renders successfully.
      */
-    public function test_dashboard_renders_with_consignment_details(): void
+    public function test_login_page_renders_successfully(): void
     {
-        $response = $this->get('/dashboard');
+        $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertSee('Reliance Granito');
-        $response->assertSee('Export Control Tower');
-        $response->assertSee('Consignment #1469');
+        $response->assertSee('Account Sign In');
+        $response->assertSee('admin@reliancegranito.com');
     }
 
     /**
-     * Test the consigners page renders successfully.
+     * Test successful login redirects to dashboard.
      */
-    public function test_consigners_index_renders(): void
+    public function test_user_can_authenticate_and_redirect_to_dashboard(): void
     {
-        $response = $this->get('/consigners');
+        $response = $this->post('/login', [
+            'email' => 'admin@reliancegranito.com',
+            'password' => 'Reliance@2026',
+        ]);
+
+        $response->assertRedirect('/dashboard');
+        $this->assertAuthenticated();
+    }
+
+    /**
+     * Test the dashboard requires authentication and loads when logged in.
+     */
+    public function test_dashboard_requires_auth_and_renders(): void
+    {
+        // Unauthenticated access redirects to login
+        $unauthResponse = $this->get('/dashboard');
+        $unauthResponse->assertRedirect('/login');
+
+        // Authenticated access succeeds
+        $user = User::first();
+        $authResponse = $this->actingAs($user)->get('/dashboard');
+        $authResponse->assertStatus(200);
+        $authResponse->assertSee('Reliance Granito');
+        $authResponse->assertSee('Export Control Tower');
+        $authResponse->assertSee('Consignment #1469');
+    }
+
+    /**
+     * Test the consigners page renders when authenticated.
+     */
+    public function test_consigners_index_renders_when_authenticated(): void
+    {
+        $user = User::first();
+        $response = $this->actingAs($user)->get('/consigners');
         $response->assertStatus(200);
         $response->assertSee('Consigners Master');
         $response->assertSee('Reliance Granito Private Limited');
@@ -66,7 +97,8 @@ class EdmsPrototypeTest extends TestCase
      */
     public function test_consigners_api_returns_json(): void
     {
-        $response = $this->getJson('/consigners');
+        $user = User::first();
+        $response = $this->actingAs($user)->getJson('/consigners');
         $response->assertStatus(200);
         $response->assertJsonFragment([
             'consigner_code' => 'EXP-001',
@@ -79,6 +111,7 @@ class EdmsPrototypeTest extends TestCase
      */
     public function test_consigner_can_be_created_in_database(): void
     {
+        $user = User::first();
         $payload = [
             'name' => 'Morbi Export Tiles Unit 5',
             'entity_type' => 'Manufacturer Exporter',
@@ -91,7 +124,7 @@ class EdmsPrototypeTest extends TestCase
             'status' => 'Active',
         ];
 
-        $response = $this->postJson('/consigners', $payload);
+        $response = $this->actingAs($user)->postJson('/consigners', $payload);
         $response->assertStatus(201);
         $this->assertDatabaseHas('consigners', [
             'name' => 'Morbi Export Tiles Unit 5',
@@ -100,11 +133,12 @@ class EdmsPrototypeTest extends TestCase
     }
 
     /**
-     * Test PDF Editor renders with documents and consigners.
+     * Test PDF Editor renders with documents and consigners when authenticated.
      */
     public function test_pdf_editor_renders_successfully(): void
     {
-        $response = $this->get('/pdf-editor');
+        $user = User::first();
+        $response = $this->actingAs($user)->get('/pdf-editor');
         $response->assertStatus(200);
         $response->assertSee('Visual PDF Editor');
         $response->assertSee('1469 SB ORIGINAL.PDF');
@@ -125,6 +159,7 @@ class EdmsPrototypeTest extends TestCase
      */
     public function test_pdf_annotations_can_be_saved_to_mysql(): void
     {
+        $user = User::first();
         $payload = [
             'document_name' => '1469 SB ORIGINAL.PDF',
             'annotations' => [
@@ -136,13 +171,13 @@ class EdmsPrototypeTest extends TestCase
                         'y' => 0.2,
                         'w' => 0.3,
                         'h' => 0.05,
-                    ]
-                ]
+                    ],
+                ],
             ],
             'edits_count' => 1,
         ];
 
-        $response = $this->postJson('/pdf-editor/save', $payload);
+        $response = $this->actingAs($user)->postJson('/pdf-editor/save', $payload);
         $response->assertStatus(200);
         $this->assertDatabaseHas('pdf_edits', [
             'document_name' => '1469 SB ORIGINAL.PDF',
