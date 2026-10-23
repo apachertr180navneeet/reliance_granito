@@ -62,7 +62,7 @@
                             <div class="facility-status-sub">IEC: ABEFR3842G Verified</div>
                         </div>
                     </div>
-                    <span class="facility-status-badge">MySQL Live</span>
+                    <span class="facility-status-badge">Active</span>
                 </div>
             </div>
         </aside>
@@ -83,11 +83,8 @@
                     </div>
                 </div>
 
-                <!-- Right Side: User Profile & Database Status -->
+                <!-- Right Side: User Profile & Actions -->
                 <div class="top-actions ms-auto d-flex align-items-center gap-3">
-                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 d-none d-sm-inline-flex align-items-center gap-1 font-monospace" style="font-size: 0.75rem;">
-                        <i class="bi bi-database-check"></i> MySQL: reliance_granito
-                    </span>
 
                     <div class="user-profile-badge" onclick="window.location.href='{{ route('logout') }}'" title="Click to Sign Out">
                         <div class="user-avatar" id="navUserAvatar">{{ auth()->user()->avatar ?? 'RP' }}</div>

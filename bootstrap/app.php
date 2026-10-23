@@ -13,9 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: [
-            'consigners',
-            'consigners/*',
-            'pdf-editor/save',
             'api/*',
         ]);
     })

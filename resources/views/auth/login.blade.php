@@ -56,7 +56,7 @@
                             <span class="input-group-text" style="background:#F8FAFC; border-color:#CBD5E1; color:#2563EB;">
                                 <i class="bi bi-person-badge"></i>
                             </span>
-                            <input type="email" name="email" class="form-control" id="loginUsername" value="{{ old('email', 'admin@reliancegranito.com') }}" required placeholder="name@reliancegranito.com" style="background:#FFFFFF !important; color:#0F172A !important; border-color:#CBD5E1 !important; font-size:0.9rem;">
+                            <input type="email" name="email" class="form-control" id="loginUsername" value="{{ old('email') }}" required autocomplete="email" placeholder="Enter registered email" style="background:#FFFFFF !important; color:#0F172A !important; border-color:#CBD5E1 !important; font-size:0.9rem;">
                         </div>
                     </div>
 
@@ -64,13 +64,12 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <label class="form-label mb-0" style="font-size:0.84rem; font-weight:600; color:#1E293B !important;">Password</label>
-                            <span class="text-muted" style="font-size:0.76rem;">Default: <code class="text-primary fw-bold">Reliance@2026</code></span>
                         </div>
                         <div class="input-group">
                             <span class="input-group-text" style="background:#F8FAFC; border-color:#CBD5E1; color:#2563EB;">
                                 <i class="bi bi-shield-lock"></i>
                             </span>
-                            <input type="password" name="password" class="form-control" id="loginPassword" value="Reliance@2026" required style="background:#FFFFFF !important; color:#0F172A !important; border-color:#CBD5E1 !important; font-size:0.9rem;">
+                            <input type="password" name="password" class="form-control" id="loginPassword" required autocomplete="current-password" placeholder="Enter your password" style="background:#FFFFFF !important; color:#0F172A !important; border-color:#CBD5E1 !important; font-size:0.9rem;">
                             <button class="btn btn-secondary btn-sm" type="button" onclick="togglePasswordVisibility()" style="border-color:#CBD5E1; background:#F8FAFC; color:#64748B;">
                                 <i class="bi bi-eye" id="togglePasswordIcon"></i>
                             </button>

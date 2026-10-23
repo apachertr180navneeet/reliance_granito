@@ -15,6 +15,7 @@ class DocumentController extends Controller
     public function index(Request $request): JsonResponse
     {
         $docs = Document::orderBy('is_primary', 'desc')->get();
+
         return response()->json($docs);
     }
 
@@ -37,23 +38,36 @@ class DocumentController extends Controller
     }
 
     /**
-     * Stream a PDF document inline with secure path verification.
+     * Stream a PDF document inline with strict path traversal protection.
      */
     public function stream(string $filename): BinaryFileResponse
     {
+        // 1. Strip any directory traversal sequences
         $safeFilename = basename($filename);
-        $docsDir = base_path('docs');
-        $filePath = $docsDir . DIRECTORY_SEPARATOR . $safeFilename;
 
-        if (!file_exists($filePath) || !is_file($filePath)) {
-            abort(404, 'Document not found: ' . $safeFilename);
+        // 2. Enforce PDF extension
+        if (strtolower(pathinfo($safeFilename, PATHINFO_EXTENSION)) !== 'pdf') {
+            abort(403, 'Unauthorized file type requested.');
         }
 
-        return response()->file($filePath, [
+        $docsDir = realpath(base_path('docs'));
+        if (! $docsDir || ! is_dir($docsDir)) {
+            abort(500, 'Documents repository directory not accessible.');
+        }
+
+        $targetPath = realpath($docsDir.DIRECTORY_SEPARATOR.$safeFilename);
+
+        // 3. Strict containment check within docs directory
+        if (! $targetPath || ! file_exists($targetPath) || ! is_file($targetPath) || ! str_starts_with($targetPath, $docsDir)) {
+            abort(404, 'Document not found or inaccessible.');
+        }
+
+        return response()->file($targetPath, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $safeFilename . '"',
+            'Content-Disposition' => 'inline; filename="'.$safeFilename.'"',
             'Cache-Control' => 'private, max-age=0, must-revalidate',
             'Pragma' => 'public',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 }

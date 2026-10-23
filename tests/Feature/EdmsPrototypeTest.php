@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Consigner;
+use App\Models\Document;
 use App\Models\User;
 use Database\Seeders\ConsignerSeeder;
 use Database\Seeders\DocumentSeeder;
@@ -37,15 +38,18 @@ class EdmsPrototypeTest extends TestCase
     }
 
     /**
-     * Test the login page renders successfully.
+     * Test the login page renders with clean, secure inputs (no prefilled credentials or hints).
      */
-    public function test_login_page_renders_successfully(): void
+    public function test_login_page_renders_with_clean_inputs(): void
     {
         $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertSee('Reliance Granito');
         $response->assertSee('Account Sign In');
-        $response->assertSee('admin@reliancegranito.com');
+        // Ensure no credentials or passwords are leaked in the HTML markup
+        $response->assertDontSee('admin@reliancegranito.com');
+        $response->assertDontSee('Reliance@2026');
+        $response->assertDontSee('Default:');
     }
 
     /**
@@ -60,6 +64,20 @@ class EdmsPrototypeTest extends TestCase
 
         $response->assertRedirect('/dashboard');
         $this->assertAuthenticated();
+    }
+
+    /**
+     * Test invalid credentials are rejected and not authenticated.
+     */
+    public function test_invalid_credentials_are_rejected(): void
+    {
+        $response = $this->post('/login', [
+            'email' => 'admin@reliancegranito.com',
+            'password' => 'WrongPassword!@#',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertGuest();
     }
 
     /**
@@ -152,6 +170,15 @@ class EdmsPrototypeTest extends TestCase
         $response = $this->get('/docs/1469%20SB%20ORIGINAL.PDF');
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/pdf');
+    }
+
+    /**
+     * Test path traversal in document streaming is strictly blocked.
+     */
+    public function test_path_traversal_is_blocked_in_document_streaming(): void
+    {
+        $response = $this->get('/docs/..%2F..%2F.env');
+        $response->assertStatus(403);
     }
 
     /**
