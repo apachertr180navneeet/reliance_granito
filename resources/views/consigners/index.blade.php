@@ -58,58 +58,76 @@
     </div>
   </div>
 
-  <!-- Standalone Slim Search & Filter Card -->
-  <form action="{{ route('consigners.index') }}" method="GET" id="consignersFilterForm" class="card border-0 shadow-sm p-2 mb-3" style="border: 1px solid #E2E8F0 !important; border-radius: 10px; background: #FFFFFF;">
-    <input type="hidden" name="per_page" id="perPageInput" value="{{ $filters['per_page'] ?? 10 }}">
+  <!-- Main Unified Consigners Data Card -->
+  <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0 !important;">
+    
+    <!-- Integrated Search & Filter Toolbar (Full Width) -->
+    <div class="p-3 px-4 border-bottom bg-white" style="background-color: #FFFFFF !important;">
+      <form action="{{ route('consigners.index') }}" method="GET" id="consignersFilterForm" class="row g-2 align-items-center mb-0 w-100" style="width: 100% !important;">
+        <input type="hidden" name="per_page" id="perPageInput" value="{{ $filters['per_page'] ?? 10 }}">
 
-    <div class="row g-2 align-items-center">
-      <!-- Search Input -->
-      <div class="col-md-6 col-lg-6">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text border-end-0 text-muted ps-2.5" style="background: #F8FAFC; border-color: #E2E8F0;">
-            <i class="bi bi-search text-secondary"></i>
-          </span>
-          <input type="text" class="form-control border-start-0 ps-1" name="search" id="searchConsignerInput" value="{{ request('search') }}" placeholder="Search company name, IEC, GSTIN, location, AD code..." style="background: #F8FAFC; border-color: #E2E8F0; font-size: 0.83rem;">
-          @if(request('search'))
-            <a href="{{ route('consigners.index', array_merge(request()->except('search', 'page'), ['page' => 1])) }}" class="input-group-text border-start-0 text-muted" style="background: #F8FAFC; border-color: #E2E8F0;" title="Clear Search">
-              <i class="bi bi-x-circle-fill"></i>
+        <!-- Search Input -->
+        <div class="col-12 col-md-5 col-lg-5">
+          <div class="input-group">
+            <span class="input-group-text bg-light text-muted border-end-0 ps-2.5" style="border-color: #E2E8F0;">
+              <i class="bi bi-search text-secondary"></i>
+            </span>
+            <input type="text" class="form-control bg-light border-start-0 ps-1" name="search" id="searchConsignerInput" value="{{ request('search') }}" placeholder="Search company, IEC, GSTIN, location, AD code..." style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+            @if(request('search'))
+              <a href="{{ route('consigners.index', array_merge(request()->except('search', 'page'), ['page' => 1])) }}" class="input-group-text bg-light border-start-0 text-muted" style="border-color: #E2E8F0;" title="Clear Search">
+                <i class="bi bi-x-circle-fill"></i>
+              </a>
+            @endif
+          </div>
+        </div>
+
+        <!-- Manufacturing Hubs Filter -->
+        <div class="col-6 col-md-3 col-lg-3">
+          <select class="form-select bg-light" name="region" id="filterRegionSelect" onchange="this.form.submit()" style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+            <option value="ALL" {{ request('region') === 'ALL' || !request('region') ? 'selected' : '' }}>All Manufacturing Hubs</option>
+            <option value="Morbi" {{ request('region') === 'Morbi' ? 'selected' : '' }}>Morbi Facility (Gujarat)</option>
+            <option value="Jodhpur" {{ request('region') === 'Jodhpur' ? 'selected' : '' }}>Jodhpur Facility (Rajasthan)</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-6 col-md-2 col-lg-2">
+          <select class="form-select bg-light" name="status" id="filterStatusSelect" onchange="this.form.submit()" style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+            <option value="ALL" {{ request('status') === 'ALL' || !request('status') ? 'selected' : '' }}>All Statuses</option>
+            <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active Only</option>
+            <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive Only</option>
+          </select>
+        </div>
+
+        <!-- Reset Button or Records Badge -->
+        <div class="col-12 col-md-2 col-lg-2 text-md-end">
+          @if(request('search') || (request('region') && request('region') !== 'ALL') || (request('status') && request('status') !== 'ALL'))
+            <a href="{{ route('consigners.index') }}" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center gap-1.5 w-100" title="Reset all search filters" style="height: 38px; font-size: 0.82rem; font-weight: 500;">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              <span>Reset Filters</span>
             </a>
+          @else
+            <div class="d-none d-md-flex align-items-center justify-content-end text-muted small pe-1" style="height: 38px; font-size: 0.78rem;">
+              <span class="badge bg-light text-secondary border px-2.5 py-1.5 rounded-2">
+                <strong class="text-dark">{{ $consigners->total() }}</strong> records found
+              </span>
+            </div>
           @endif
         </div>
-      </div>
-
-      <!-- Filter: Location -->
-      <div class="col-sm-6 col-md-3 col-lg-3">
-        <select class="form-select form-select-sm" name="region" id="filterRegionSelect" onchange="this.form.submit()" style="border-color: #E2E8F0; background-color: #F8FAFC; font-size: 0.83rem;">
-          <option value="ALL" {{ request('region') === 'ALL' || !request('region') ? 'selected' : '' }}>All Locations</option>
-          <option value="Morbi" {{ request('region') === 'Morbi' ? 'selected' : '' }}>Morbi Ceramic Cluster (GJ)</option>
-          <option value="Jodhpur" {{ request('region') === 'Jodhpur' ? 'selected' : '' }}>Jodhpur Granite Hub (RJ)</option>
-        </select>
-      </div>
-
-      <!-- Filter: Status -->
-      <div class="col-sm-6 col-md-3 col-lg-3">
-        <select class="form-select form-select-sm" name="status" id="filterStatusSelect" onchange="this.form.submit()" style="border-color: #E2E8F0; background-color: #F8FAFC; font-size: 0.83rem;">
-          <option value="ALL" {{ request('status') === 'ALL' || !request('status') ? 'selected' : '' }}>All Statuses</option>
-          <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active Only</option>
-          <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive Only</option>
-        </select>
-      </div>
+      </form>
     </div>
-  </form>
 
-  <!-- Clean Enterprise Data Table Container -->
-  <div class="card border-0 shadow-sm mb-4" style="border: 1px solid #E2E8F0 !important; border-radius: 10px; overflow: hidden; background: #FFFFFF;" id="consignersTableWrapper">
+    <!-- Clean Enterprise Data Table -->
     <div class="table-responsive">
-      <table class="table consigner-data-table align-middle mb-0" id="consignersTable">
-        <thead>
+      <table class="table table-hover align-middle mb-0" id="consignersTable">
+        <thead class="table-light text-uppercase small" style="font-size:0.75rem; letter-spacing:0.04em;">
           <tr>
-            <th style="width: 32%;"><i class="bi bi-building me-1 opacity-75"></i> Exporter / Legal Entity</th>
-            <th style="width: 20%;"><i class="bi bi-upc-scan me-1 opacity-75"></i> IEC & GSTIN</th>
-            <th style="width: 22%;"><i class="bi bi-geo-alt me-1 opacity-75"></i> Works & Location</th>
-            <th style="width: 16%;"><i class="bi bi-bank me-1 opacity-75"></i> Bank & AD Code</th>
-            <th class="text-center" style="width: 5%;"><i class="bi bi-shield-check me-1 opacity-75"></i> Status</th>
-            <th class="text-end pe-3" style="width: 5%;">Actions</th>
+            <th class="ps-4 py-3" style="width: 32%;">Exporter / Legal Entity</th>
+            <th class="py-3" style="width: 18%;">Compliance (IEC & GSTIN)</th>
+            <th class="py-3" style="width: 22%;">Factory / Works Location</th>
+            <th class="py-3" style="width: 14%;">AD Code & Bank</th>
+            <th class="py-3 text-center" style="width: 6%;">Status</th>
+            <th class="pe-4 py-3 text-end" style="width: 8%;">Actions</th>
           </tr>
         </thead>
         <tbody id="consignersTableBody">
@@ -118,23 +136,22 @@
               $isMorbi = ($c->region === 'Morbi' || (str_contains($c->factory_address ?? '', 'Morbi')));
               $words = preg_split('/\s+/', trim($c->name));
               $initials = count($words) === 1 ? strtoupper(substr($words[0], 0, 2)) : strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
-              $avatarClass = $isMorbi ? 'morbi' : 'jodhpur';
+              $avatarBgClass = $isMorbi ? 'bg-amber-soft' : 'bg-sky-soft';
             @endphp
             <tr>
               <!-- Exporter Name & Details -->
-              <td>
-                <div class="d-flex align-items-center gap-2.5">
-                  <div class="company-avatar-box {{ $avatarClass }}">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="company-avatar-box {{ $isMorbi ? 'morbi' : 'jodhpur' }} flex-shrink-0">
                     {{ $initials }}
                   </div>
-                  <div>
-                    <div class="fw-bold text-dark d-flex align-items-center gap-1" style="font-size: 0.88rem;">
-                      <span role="button" onclick="viewConsignerDetails({{ $c->id }})" class="text-dark text-decoration-none" style="cursor: pointer;">{{ $c->name }}</span>
+                  <div class="overflow-hidden">
+                    <div class="fw-bold text-dark text-truncate d-flex align-items-center gap-1" style="font-size: 0.89rem;">
+                      <span role="button" onclick="viewConsignerDetails({{ $c->id }})" class="text-dark text-decoration-none" style="cursor: pointer;" title="{{ $c->name }}">{{ $c->name }}</span>
                       <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem;" title="ICEGATE Certified Exporter"></i>
                     </div>
-                    <div class="text-muted d-flex align-items-center gap-1.5 mt-0.5" style="font-size: 0.74rem;">
-                      <span class="consigner-code-badge">{{ $c->consigner_code ?? ('EXP-' . $c->id) }}</span>
-                      <span class="text-muted">&bull;</span>
+                    <div class="text-muted small d-flex align-items-center gap-2 mt-0.5" style="font-size: 0.74rem;">
+                      <span class="badge bg-light text-secondary border font-monospace py-0.5 px-1.5" style="font-size: 0.68rem;">{{ $c->consigner_code ?? ('EXP-' . $c->id) }}</span>
                       <span>{{ $c->entity_type ?? 'Manufacturer Exporter' }}</span>
                     </div>
                   </div>
@@ -142,101 +159,99 @@
               </td>
 
               <!-- IEC & GSTIN -->
-              <td>
-                <div class="iec-badge-chip mb-1">
-                  <span class="iec-label">IEC</span>
-                  <span class="iec-val">{{ $c->iec }}</span>
-                  <button type="button" class="iec-copy-btn ms-1" onclick="copyToClipboard('{{ $c->iec }}', this)" title="Copy IEC Code">
-                    <i class="bi bi-copy"></i>
-                  </button>
-                </div>
-                <div class="gstin-code-text">
-                  <span class="text-muted" style="font-size: 0.68rem; font-weight: 600;">GST</span> {{ $c->gstin }}
+              <td class="py-3">
+                <div class="d-flex flex-column gap-1">
+                  <div class="d-flex align-items-center gap-1.5">
+                    <span class="text-muted small" style="font-size: 0.72rem;">IEC:</span>
+                    <span class="font-monospace fw-bold text-dark small">{{ $c->iec }}</span>
+                    <button type="button" class="btn btn-link p-0 text-muted" onclick="copyToClipboard('{{ $c->iec }}', this)" title="Copy IEC Code" style="font-size: 0.7rem; line-height: 1;">
+                      <i class="bi bi-copy"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <span class="text-muted small" style="font-size: 0.72rem;">GST:</span>
+                    <span class="font-monospace text-primary small" style="font-size: 0.76rem;">{{ $c->gstin }}</span>
+                  </div>
                 </div>
               </td>
 
               <!-- Works & Location -->
-              <td>
+              <td class="py-3">
                 <div class="mb-1">
                   @if($isMorbi)
-                    <span class="facility-pill-badge facility-pill-morbi"><i class="bi bi-geo-alt-fill"></i> Morbi, GJ</span>
+                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle py-0.5 px-2" style="font-size: 0.7rem;"><i class="bi bi-geo-alt-fill text-warning me-1"></i>Morbi Facility (GJ)</span>
                   @else
-                    <span class="facility-pill-badge facility-pill-jodhpur"><i class="bi bi-building"></i> Jodhpur, RJ</span>
+                    <span class="badge bg-info-subtle text-dark border border-info-subtle py-0.5 px-2" style="font-size: 0.7rem;"><i class="bi bi-building text-info me-1"></i>Jodhpur Hub (RJ)</span>
                   @endif
                 </div>
-                <div class="text-muted text-truncate" style="max-width: 230px; font-size: 0.74rem;" title="{{ $c->registered_address }}">
-                  {{ $c->registered_address }}
+                <div class="text-muted small text-truncate" style="max-width: 260px; font-size: 0.75rem;" title="{{ $c->registered_address }}">
+                  <i class="bi bi-geo-alt text-muted me-1"></i>{{ $c->registered_address }}
                 </div>
               </td>
 
               <!-- Bank & AD Code -->
-              <td>
-                <div class="font-monospace text-dark fw-bold mb-0.5" style="font-size: 0.78rem;">
-                  <span class="text-muted fw-semibold" style="font-size: 0.7rem;">AD:</span> {{ $c->ad_code ?? 'N/A' }}
+              <td class="py-3">
+                <div class="small">
+                  <span class="text-muted" style="font-size: 0.72rem;">AD Code:</span>
+                  <span class="font-monospace fw-bold text-dark">{{ $c->ad_code ?? 'Pending' }}</span>
                 </div>
-                <div class="text-muted text-truncate" style="max-width: 190px; font-size: 0.74rem;" title="{{ $c->forex_bank ?? '' }}">
-                  <i class="bi bi-bank text-secondary me-1" style="font-size: 0.7rem;"></i>{{ $c->forex_bank ?? 'Standard Export Bank' }}
+                <div class="text-muted small text-truncate mt-0.5" style="max-width: 190px; font-size: 0.74rem;" title="{{ $c->forex_bank ?? '' }}">
+                  <i class="bi bi-bank text-secondary me-1" style="font-size: 0.7rem;"></i>{{ $c->forex_bank ?? 'Authorized Dealer' }}
                 </div>
               </td>
 
               <!-- Status -->
-              <td class="text-center">
+              <td class="py-3 text-center">
                 @if($c->status === 'Active')
-                  <span class="status-pill-active">
-                    <span class="status-live-dot"></span> Active
+                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold" style="font-size: 0.72rem;">
+                    <i class="bi bi-check-circle-fill me-1"></i>Active
                   </span>
                 @else
-                  <span class="status-pill-inactive">Inactive</span>
+                  <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
+                    Inactive
+                  </span>
                 @endif
               </td>
 
-              <!-- Clean Actions (Edit + Stamp + More Dropdown) -->
-              <td class="text-end pe-3">
-                <div class="d-inline-flex align-items-center gap-1.5">
-                  <!-- Edit Button -->
-                  <a href="{{ route('consigners.edit', $c->id) }}" class="action-btn-edit" title="Edit Consigner">
-                    <i class="bi bi-pencil-square text-primary"></i>
-                    <span>Edit</span>
+              <!-- Action Buttons -->
+              <td class="pe-4 py-3 text-end">
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="{{ route('consigners.edit', $c->id) }}" class="btn btn-outline-primary" title="Edit Consigner">
+                    <i class="bi bi-pencil me-1"></i> Edit
                   </a>
-                  
-                  <!-- Stamp on PDF Button -->
-                  <button type="button" class="action-btn-stamp" onclick="stampInPdfEditor({{ $c->id }})" title="Stamp on PDF">
+                  <button type="button" class="btn btn-outline-secondary" onclick="stampInPdfEditor({{ $c->id }})" title="Stamp on PDF">
                     <i class="bi bi-file-earmark-diff"></i>
                   </button>
-
-                  <!-- More Options Dropdown -->
-                  <div class="dropdown d-inline-block">
-                    <button type="button" class="action-btn-more" data-bs-toggle="dropdown" aria-expanded="false" title="More Options">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="border-radius: 8px; font-size: 0.82rem;">
-                      <li>
-                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})">
-                          <i class="bi bi-eye text-primary"></i>
-                          <span>View Full Profile</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="{{ route('consigners.edit', $c->id) }}">
-                          <i class="bi bi-pencil-square text-dark"></i>
-                          <span>Edit Particulars</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="stampInPdfEditor({{ $c->id }})">
-                          <i class="bi bi-file-earmark-diff text-success"></i>
-                          <span>Stamp on PDF</span>
-                        </a>
-                      </li>
-                      <li><hr class="dropdown-divider my-1"></li>
-                      <li>
-                        <a class="dropdown-item py-1.5 text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="openDeleteConsignerModal({{ $c->id }})">
-                          <i class="bi bi-trash3 text-danger"></i>
-                          <span>Delete Consigner</span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                  <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">More Actions</span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="border-radius: 8px; font-size: 0.82rem;">
+                    <li>
+                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})">
+                        <i class="bi bi-eye text-primary"></i>
+                        <span>View Full Profile</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="{{ route('consigners.edit', $c->id) }}">
+                        <i class="bi bi-pencil-square text-dark"></i>
+                        <span>Edit Particulars</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="stampInPdfEditor({{ $c->id }})">
+                        <i class="bi bi-file-earmark-diff text-success"></i>
+                        <span>Stamp on PDF</span>
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                      <a class="dropdown-item py-1.5 text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="openDeleteConsignerModal({{ $c->id }})">
+                        <i class="bi bi-trash3 text-danger"></i>
+                        <span>Delete Consigner</span>
+                      </a>
+                    </li>
+                  </ul>
                 </div>
               </td>
             </tr>
@@ -263,17 +278,17 @@
       </table>
     </div>
 
-    <!-- Clean Server-Side Pagination Footer -->
+    <!-- Card Footer with Clean Server-Side Pagination -->
     @if($consigners->total() > 0)
-    <div class="p-2.5 px-3 bg-white border-top d-flex flex-wrap align-items-center justify-content-between gap-2" style="border-color: #F1F5F9 !important;">
-      <div class="text-muted small" style="font-size: 0.8rem;">
-        Showing <span class="fw-semibold text-dark">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-semibold text-dark">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-semibold text-dark">{{ $consigners->total() }}</span> consigners
+    <div class="card-footer bg-white border-top py-2.5 px-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="text-muted small">
+        Showing <span class="fw-bold text-dark">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-bold text-dark">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-bold text-dark">{{ $consigners->total() }}</span> consigners
       </div>
       
       <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center gap-1.5">
-          <label for="perPageSelector" class="text-muted small mb-0" style="font-size: 0.76rem;">Rows:</label>
-          <select id="perPageSelector" class="form-select form-select-sm py-1 px-2" style="width: 70px; font-size: 0.78rem; border-color: #CBD5E1;" onchange="changePerPage(this.value)">
+          <label for="perPageSelector" class="text-muted small mb-0" style="font-size: 0.78rem;">Rows:</label>
+          <select id="perPageSelector" class="form-select form-select-sm py-1 px-2" style="width: 70px; font-size: 0.78rem;" onchange="changePerPage(this.value)">
             <option value="5" {{ $consigners->perPage() == 5 ? 'selected' : '' }}>5</option>
             <option value="10" {{ $consigners->perPage() == 10 ? 'selected' : '' }}>10</option>
             <option value="25" {{ $consigners->perPage() == 25 ? 'selected' : '' }}>25</option>
