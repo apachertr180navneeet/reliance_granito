@@ -182,17 +182,44 @@ class ConsignerController extends Controller
     }
 
     /**
+     * Toggle or update consigner status via AJAX.
+     */
+    public function toggleStatus(Request $request, Consigner $consigner): JsonResponse
+    {
+        $newStatus = $request->input('status');
+        if (! in_array($newStatus, ['Active', 'Inactive'])) {
+            $newStatus = $consigner->status === 'Active' ? 'Inactive' : 'Active';
+        }
+
+        $consigner->update(['status' => $newStatus]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Consigner status updated to {$newStatus}.",
+            'status' => $newStatus,
+            'data' => $consigner,
+            'stats' => [
+                'total' => Consigner::count(),
+                'active' => Consigner::where('status', 'Active')->count(),
+            ],
+        ]);
+    }
+
+    /**
      * Remove the specified consigner from storage.
      */
     public function destroy(Request $request, Consigner $consigner): JsonResponse|RedirectResponse
     {
         $name = $consigner->name;
+        $id = $consigner->id;
         $consigner->delete();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => "Consigner {$name} deleted successfully from MySQL.",
+                'message' => "Consigner {$name} deleted successfully.",
+                'id' => $id,
+                'total' => Consigner::count(),
             ]);
         }
 

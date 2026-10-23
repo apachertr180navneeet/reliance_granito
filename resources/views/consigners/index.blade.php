@@ -14,7 +14,7 @@
       </nav>
       <div class="d-flex align-items-center gap-2">
         <h3 class="fw-bold text-dark mb-0 fs-5" style="letter-spacing: -0.01em;">Consigners Master</h3>
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2 py-0.5 rounded-pill" id="totalRegisteredBadge" style="font-size: 0.72rem;">
           {{ $consigners->total() }} Registered
         </span>
       </div>
@@ -138,7 +138,7 @@
               $initials = count($words) === 1 ? strtoupper(substr($words[0], 0, 2)) : strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
               $avatarBgClass = $isMorbi ? 'bg-amber-soft' : 'bg-sky-soft';
             @endphp
-            <tr>
+            <tr id="consigner-row-{{ $c->id }}" class="consigner-data-row">
               <!-- Exporter Name & Details -->
               <td class="ps-4 py-3">
                 <div class="d-flex align-items-center gap-3">
@@ -200,17 +200,23 @@
                 </div>
               </td>
 
-              <!-- Status -->
-              <td class="py-3 text-center">
-                @if($c->status === 'Active')
-                  <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold" style="font-size: 0.72rem;">
-                    <i class="bi bi-check-circle-fill me-1"></i>Active
-                  </span>
-                @else
-                  <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
-                    Inactive
-                  </span>
-                @endif
+              <!-- Status (Interactive AJAX Toggle) -->
+              <td class="py-3 text-center" id="status-cell-{{ $c->id }}">
+                <button type="button" 
+                        class="btn p-0 border-0 bg-transparent text-decoration-none shadow-none" 
+                        id="status-btn-{{ $c->id }}" 
+                        onclick="toggleConsignerStatus({{ $c->id }}, '{{ $c->status }}')" 
+                        title="Click to toggle status (Active / Inactive)">
+                  @if($c->status === 'Active')
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-{{ $c->id }}" style="font-size: 0.72rem; cursor: pointer;">
+                      <i class="bi bi-check-circle-fill me-1"></i>Active
+                    </span>
+                  @else
+                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-{{ $c->id }}" style="font-size: 0.72rem; cursor: pointer;">
+                      <i class="bi bi-dash-circle me-1"></i>Inactive
+                    </span>
+                  @endif
+                </button>
               </td>
 
               <!-- Action Buttons -->
@@ -230,6 +236,12 @@
                       <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})">
                         <i class="bi bi-eye text-primary"></i>
                         <span>View Full Profile</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" id="status-dropdown-btn-{{ $c->id }}" onclick="toggleConsignerStatus({{ $c->id }}, '{{ $c->status }}')">
+                        <i class="bi bi-arrow-repeat text-warning"></i>
+                        <span>Toggle Status</span>
                       </a>
                     </li>
                     <li>
@@ -256,7 +268,7 @@
               </td>
             </tr>
           @empty
-            <tr>
+            <tr id="emptyConsignersRow">
               <td colspan="6" class="text-center py-4">
                 <div class="text-muted mb-2">
                   <i class="bi bi-search fs-3 text-secondary"></i>
@@ -280,9 +292,9 @@
 
     <!-- Card Footer with Clean Server-Side Pagination -->
     @if($consigners->total() > 0)
-    <div class="card-footer bg-white border-top py-2.5 px-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div class="card-footer bg-white border-top py-2.5 px-4 d-flex flex-wrap align-items-center justify-content-between gap-2" id="consignersTableFooter">
       <div class="text-muted small">
-        Showing <span class="fw-bold text-dark">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-bold text-dark">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-bold text-dark">{{ $consigners->total() }}</span> consigners
+        Showing <span class="fw-bold text-dark" id="paginationFirstItem">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-bold text-dark" id="paginationLastItem">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-bold text-dark" id="paginationTotalCount">{{ $consigners->total() }}</span> consigners
       </div>
       
       <div class="d-flex align-items-center gap-3">
@@ -321,7 +333,7 @@
           </div>
           <div>
             <h6 class="modal-title fw-bold fs-6 mb-0 text-white" id="viewModalCompanyName">Consigner Details</h6>
-            <div class="text-white-50" id="viewModalSubTitle" style="font-size: 0.7rem;">ICEGATE & Customs Master Record (MySQL)</div>
+            <div class="text-white-50" id="viewModalSubTitle" style="font-size: 0.7rem;">ICEGATE & Customs Master Record</div>
           </div>
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -362,7 +374,7 @@
           <i class="bi bi-exclamation-triangle fs-4"></i>
         </div>
         <h6 class="fw-bold mb-1 text-dark fs-6">Delete Consigner?</h6>
-        <p class="text-muted small mb-3">Permanently delete <strong id="deleteConsignerName">this firm</strong> from MySQL?</p>
+        <p class="text-muted small mb-3">Permanently delete <strong id="deleteConsignerName">this firm</strong>?</p>
         <div class="d-flex justify-content-center gap-2">
           <button type="button" class="btn btn-light border btn-sm px-2.5" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-danger btn-sm px-2.5 fw-semibold shadow-sm" id="confirmDeleteBtn" onclick="executeDeleteConsigner()">
@@ -519,8 +531,112 @@
         modal.show();
     }
 
+    // AJAX: Toggle Consigner Status (Active / Inactive) In-Place
+    async function toggleConsignerStatus(id, currentStatus) {
+        const btn = document.getElementById(`status-btn-${id}`);
+        const dropdownItem = document.getElementById(`status-dropdown-btn-${id}`);
+        const badge = document.getElementById(`status-badge-${id}`);
+
+        // If currentStatus not passed, resolve from dataset or badge
+        if (!currentStatus) {
+            const item = consignersCurrentPage.find(c => c.id == id);
+            currentStatus = item ? item.status : (badge && badge.textContent.includes('Active') ? 'Active' : 'Inactive');
+        }
+
+        const nextStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+
+        // Temporary Loading Spinner on the Badge
+        if (btn) btn.disabled = true;
+        if (badge) {
+            badge.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" style="width: 0.65rem; height: 0.65rem; border-width: 1.5px;"></span>Updating...`;
+        }
+
+        try {
+            const response = await fetch(`/consigners/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': window.csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: nextStatus })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                const updatedStatus = result.status;
+
+                // Update in-memory page array
+                const localItem = consignersCurrentPage.find(c => c.id == id);
+                if (localItem) localItem.status = updatedStatus;
+
+                // Update badge HTML
+                if (btn) {
+                    btn.setAttribute('onclick', `toggleConsignerStatus(${id}, '${updatedStatus}')`);
+                    if (updatedStatus === 'Active') {
+                        btn.innerHTML = `
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
+                                <i class="bi bi-check-circle-fill me-1"></i>Active
+                            </span>
+                        `;
+                    } else {
+                        btn.innerHTML = `
+                            <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
+                                <i class="bi bi-dash-circle me-1"></i>Inactive
+                            </span>
+                        `;
+                    }
+                }
+
+                if (dropdownItem) {
+                    dropdownItem.setAttribute('onclick', `toggleConsignerStatus(${id}, '${updatedStatus}')`);
+                }
+
+                if (window.showToast) {
+                    showToast(result.message || `Status updated to ${updatedStatus}.`, 'success');
+                }
+            } else {
+                throw new Error(result.message || 'Failed to update status');
+            }
+        } catch (err) {
+            console.error('Status toggle error:', err);
+            // Revert badge to original state
+            if (btn) {
+                if (currentStatus === 'Active') {
+                    btn.innerHTML = `
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
+                            <i class="bi bi-check-circle-fill me-1"></i>Active
+                        </span>
+                    `;
+                } else {
+                    btn.innerHTML = `
+                        <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
+                            <i class="bi bi-dash-circle me-1"></i>Inactive
+                        </span>
+                    `;
+                }
+            }
+            if (window.showToast) {
+                showToast(err.message || 'Error communicating with database', 'danger');
+            } else {
+                alert(err.message || 'Error communicating with database');
+            }
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    // AJAX: Delete Consigner with In-Place Row Animation & Counter Updates
     async function executeDeleteConsigner() {
         if (!pendingDeleteId) return;
+
+        const deleteBtn = document.getElementById('confirmDeleteBtn');
+        const originalBtnHtml = deleteBtn ? deleteBtn.innerHTML : '';
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Deleting...`;
+        }
 
         try {
             const response = await fetch(`/consigners/${pendingDeleteId}`, {
@@ -532,22 +648,113 @@
             });
 
             const result = await response.json();
-            if (response.ok) {
-                bootstrap.Modal.getInstance(document.getElementById('consignerDeleteModal')).hide();
-                showToast(result.message || 'Consigner removed from database.', 'success');
-                setTimeout(() => window.location.reload(), 600);
+
+            if (response.ok && result.success) {
+                // 1. Hide confirmation modal immediately
+                const modalEl = document.getElementById('consignerDeleteModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+
+                const deletedId = pendingDeleteId;
+                pendingDeleteId = null;
+
+                // 2. Animate and remove the row from the table DOM in-place
+                const row = document.getElementById(`consigner-row-${deletedId}`);
+                if (row) {
+                    row.style.transition = 'all 0.35s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(25px)';
+                    row.style.backgroundColor = '#FEE2E2';
+
+                    setTimeout(() => {
+                        row.remove();
+
+                        // 3. Update in-memory records array
+                        consignersCurrentPage = consignersCurrentPage.filter(c => c.id != deletedId);
+
+                        // 4. Update Header and Footer Counters
+                        const remainingRows = document.querySelectorAll('.consigner-data-row');
+                        const newTotal = typeof result.total !== 'undefined' 
+                            ? result.total 
+                            : Math.max(0, parseInt(document.getElementById('paginationTotalCount')?.textContent || '1') - 1);
+
+                        // Update Registered badge in header
+                        const regBadge = document.getElementById('totalRegisteredBadge');
+                        if (regBadge) regBadge.textContent = `${newTotal} Registered`;
+
+                        // Update total count in footer
+                        const totalCountEl = document.getElementById('paginationTotalCount');
+                        if (totalCountEl) totalCountEl.textContent = newTotal;
+
+                        // Update pagination last item number
+                        const lastItemEl = document.getElementById('paginationLastItem');
+                        const firstItemEl = document.getElementById('paginationFirstItem');
+                        if (lastItemEl && firstItemEl) {
+                            const first = parseInt(firstItemEl.textContent) || 0;
+                            const currentLast = parseInt(lastItemEl.textContent) || 0;
+                            if (newTotal === 0) {
+                                firstItemEl.textContent = '0';
+                                lastItemEl.textContent = '0';
+                            } else if (currentLast > newTotal) {
+                                lastItemEl.textContent = newTotal;
+                            }
+                        }
+
+                        // 5. If table is now empty, render empty state row
+                        if (remainingRows.length === 0) {
+                            const tbody = document.getElementById('consignersTableBody');
+                            if (tbody && !document.getElementById('emptyConsignersRow')) {
+                                tbody.innerHTML = `
+                                    <tr id="emptyConsignersRow">
+                                        <td colspan="6" class="text-center py-4">
+                                            <div class="text-muted mb-2">
+                                                <i class="bi bi-search fs-3 text-secondary"></i>
+                                            </div>
+                                            <h6 class="fw-bold text-dark mb-1">No Consigners Found</h6>
+                                            <p class="text-muted small mb-2">No records found in this view.</p>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary btn-sm px-2.5 py-1">Reset View</a>
+                                                <a href="{{ route('consigners.create') }}" class="btn btn-primary btn-sm px-2.5 py-1">Add Consigner</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            }
+                            const footer = document.getElementById('consignersTableFooter');
+                            if (footer && newTotal === 0) footer.style.display = 'none';
+                        }
+                    }, 350);
+                }
+
+                // 6. Show clean toast message
+                if (window.showToast) {
+                    showToast(result.message || 'Consigner removed from database.', 'success');
+                }
             } else {
-                alert(result.message || 'Error deleting consigner.');
+                if (window.showToast) {
+                    showToast(result.message || 'Error deleting consigner.', 'danger');
+                } else {
+                    alert(result.message || 'Error deleting consigner.');
+                }
             }
         } catch (err) {
-            console.error(err);
-            showToast('Error communicating with database', 'danger');
+            console.error('Delete error:', err);
+            if (window.showToast) {
+                showToast('Error communicating with database', 'danger');
+            } else {
+                alert('Error communicating with database');
+            }
+        } finally {
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = originalBtnHtml;
+            }
         }
     }
 
     // Reset Demo Data
     async function resetDemoData() {
-        if (!confirm('Restore default verified consigners in MySQL?')) return;
+        if (!confirm('Restore default verified consigners?')) return;
 
         try {
             const response = await fetch('/consigners/reset-demo', {
@@ -560,7 +767,7 @@
 
             const result = await response.json();
             if (response.ok) {
-                showToast(result.message || 'Demo dataset restored in MySQL.', 'success');
+                showToast(result.message || 'Demo dataset restored successfully.', 'success');
                 setTimeout(() => window.location.reload(), 600);
             } else {
                 alert(result.message || 'Error restoring demo data');

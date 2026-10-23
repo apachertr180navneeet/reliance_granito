@@ -25,7 +25,7 @@
           </span>
         </div>
         <p class="text-muted small mb-0">
-          Modifying official export records for <strong>{{ $consigner->name }}</strong> in MySQL database. Updates reflect immediately across the PDF visual editor and shipping bills.
+          Modifying official export records for <strong>{{ $consigner->name }}</strong>. Updates reflect immediately across the PDF visual editor and shipping bills.
         </p>
       </div>
 
@@ -392,7 +392,7 @@
             <div class="p-3">
               <button type="submit" class="btn btn-primary w-100 fw-semibold py-2.5 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3">
                 <i class="bi bi-check-lg fs-5"></i>
-                <span>Update Consigner in MySQL</span>
+                <span>Update Consigner</span>
               </button>
               
               <div class="d-flex gap-2">

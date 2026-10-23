@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{consigner}', [ConsignerController::class, 'show'])->name('show');
         Route::get('/{consigner}/edit', [ConsignerController::class, 'edit'])->name('edit');
         Route::put('/{consigner}', [ConsignerController::class, 'update'])->name('update');
+        Route::patch('/{consigner}/status', [ConsignerController::class, 'toggleStatus'])->name('toggle-status');
         Route::delete('/{consigner}', [ConsignerController::class, 'destroy'])->name('destroy');
     });
 

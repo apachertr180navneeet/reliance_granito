@@ -22,7 +22,7 @@
           </span>
         </div>
         <p class="text-muted small mb-0">
-          Register a new corporate export firm, ICEGATE statutory credentials, Morbi/Jodhpur factory works, and Authorized Dealer Forex bank codes in MySQL.
+          Register a new corporate export firm, ICEGATE statutory credentials, Morbi/Jodhpur factory works, and Authorized Dealer Forex bank codes.
         </p>
       </div>
 
@@ -377,7 +377,7 @@
             <div class="p-3">
               <button type="submit" class="btn btn-primary w-100 fw-semibold py-2.5 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3">
                 <i class="bi bi-check-lg fs-5"></i>
-                <span>Save Consigner to MySQL</span>
+                <span>Save Consigner</span>
               </button>
               <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary w-100 py-2 rounded-3" style="font-size: 0.88rem;">
                 <i class="bi bi-x-lg me-1"></i> Cancel & Discard
