@@ -1,9 +1,9 @@
 <?php
 // Reliance Granito Export Documentation Management System (EDMS)
 // Consigners (Consignor / Exporter) Master Management (CRUD)
-$pageTitle = "Reliance Granito | Consigners (Consignor) Master CRUD";
-$activeNav = "consigners";
-include_once __DIR__ . '/includes/header.php';
+$pageTitle = 'Reliance Granito | Consigners (Consignor) Master CRUD';
+$activeNav = 'consigners';
+include_once __DIR__.'/includes/header.php';
 ?>
 
 <!-- Consigners Master Management Area -->
@@ -429,7 +429,7 @@ include_once __DIR__ . '/includes/header.php';
 </div>
 
 <?php
-include_once __DIR__ . '/includes/footer.php';
+include_once __DIR__.'/includes/footer.php';
 ?>
 
 <!-- Consigners Master Management Script -->

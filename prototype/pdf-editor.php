@@ -1,9 +1,9 @@
 <?php
 // Reliance Granito Export Documentation Management System (EDMS)
 // Clean & Intuitive Visual PDF Editor (Pure CSS Classes - Zero Inline Styles)
-$pageTitle = "Reliance Granito | Visual PDF Editor & Masker";
-$activeNav = "pdf-editor";
-include_once __DIR__ . '/includes/header.php';
+$pageTitle = 'Reliance Granito | Visual PDF Editor & Masker';
+$activeNav = 'pdf-editor';
+include_once __DIR__.'/includes/header.php';
 ?>
 
 <script>document.body.classList.add('pdf-editor-active');</script>
@@ -1452,5 +1452,5 @@ function applyConsignerStamp(consignerId, targetX = null, targetY = null) {
 </script>
 
 <?php
-include_once __DIR__ . '/includes/footer.php';
+include_once __DIR__.'/includes/footer.php';
 ?>

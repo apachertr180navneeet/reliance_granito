@@ -13,20 +13,22 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ConsignerController extends Controller
 {
     /**
-     * Display a listing of consigners or return JSON.
+     * Display a listing of consigners with server-side pagination.
      */
     public function index(Request $request): View|JsonResponse
     {
         $query = Consigner::query();
 
         if ($request->filled('search')) {
-            $term = $request->input('search');
+            $term = trim($request->input('search'));
             $query->where(function ($q) use ($term) {
                 $q->where('name', 'like', "%{$term}%")
                     ->orWhere('iec', 'like', "%{$term}%")
                     ->orWhere('gstin', 'like', "%{$term}%")
                     ->orWhere('ad_code', 'like', "%{$term}%")
-                    ->orWhere('region', 'like', "%{$term}%");
+                    ->orWhere('region', 'like', "%{$term}%")
+                    ->orWhere('registered_address', 'like', "%{$term}%")
+                    ->orWhere('factory_address', 'like', "%{$term}%");
             });
         }
 
@@ -38,7 +40,12 @@ class ConsignerController extends Controller
             $query->where('region', $request->input('region'));
         }
 
-        $consigners = $query->orderBy('id', 'asc')->get();
+        $perPage = (int) $request->input('per_page', 10);
+        if (! in_array($perPage, [5, 10, 25, 50])) {
+            $perPage = 10;
+        }
+
+        $consigners = $query->orderBy('id', 'asc')->paginate($perPage)->withQueryString();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json($consigners);
@@ -54,6 +61,12 @@ class ConsignerController extends Controller
         return view('consigners.index', [
             'consigners' => $consigners,
             'stats' => $stats,
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'region' => $request->input('region', 'ALL'),
+                'status' => $request->input('status', 'ALL'),
+                'per_page' => $perPage,
+            ],
         ]);
     }
 

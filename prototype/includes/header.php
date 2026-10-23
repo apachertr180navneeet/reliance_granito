@@ -1,7 +1,7 @@
 <?php
 // Reliance Granito EDMS - Common Header Component
-if (!isset($pageTitle)) {
-    $pageTitle = "Reliance Granito | Export Documentation Management System (EDMS)";
+if (! isset($pageTitle)) {
+    $pageTitle = 'Reliance Granito | Export Documentation Management System (EDMS)';
 }
 ?>
 <!DOCTYPE html>
@@ -20,7 +20,7 @@ if (!isset($pageTitle)) {
 <body>
   <div class="app-container">
     <!-- Common Sidebar Component -->
-    <?php include_once __DIR__ . '/sidebar.php'; ?>
+    <?php include_once __DIR__.'/sidebar.php'; ?>
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <!-- Main Workspace Area -->

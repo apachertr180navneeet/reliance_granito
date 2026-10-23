@@ -1,7 +1,7 @@
 <?php
 // Reliance Granito Export Documentation Management System (EDMS)
 // Single Sign-In Authentication Page
-$pageTitle = "Reliance Granito | Export Documentation Management System - Sign In";
+$pageTitle = 'Reliance Granito | Export Documentation Management System - Sign In';
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">

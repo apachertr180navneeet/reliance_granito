@@ -76,7 +76,7 @@ class DocumentSeeder extends Seeder
         ];
 
         foreach ($docList as $item) {
-            $filePath = $docsDir . DIRECTORY_SEPARATOR . $item['name'];
+            $filePath = $docsDir.DIRECTORY_SEPARATOR.$item['name'];
             $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
 
             Document::updateOrCreate(
@@ -85,7 +85,7 @@ class DocumentSeeder extends Seeder
                     'shipment_id' => $shipment?->id,
                     'title' => $item['title'],
                     'doc_type' => $item['doc_type'],
-                    'file_path' => 'docs/' . $item['name'],
+                    'file_path' => 'docs/'.$item['name'],
                     'file_size' => $fileSize,
                     'status' => $item['status'],
                     'is_primary' => $item['is_primary'],
