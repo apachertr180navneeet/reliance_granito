@@ -21,11 +21,11 @@
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
-          <!-- Add Consigner Button -->
-          <button type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-3" onclick="openAddConsignerModal()">
+          <!-- Add Consigner Page Link -->
+          <a href="{{ route('consigners.create') }}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-3">
             <i class="bi bi-plus-circle-fill"></i>
             <span>Add Consigner</span>
-          </button>
+          </a>
 
           <!-- Export Dropdown -->
           <div class="dropdown">
@@ -197,163 +197,15 @@
       </div>
       <h5 class="fw-bold text-dark">No Consigners Found</h5>
       <p class="text-muted small mb-3">No export consigner entities match your search or filter criteria.</p>
-      <button class="btn btn-primary btn-sm px-3" onclick="openAddConsignerModal()">
+      <a href="{{ route('consigners.create') }}" class="btn btn-primary btn-sm px-3">
         <i class="bi bi-plus-lg me-1"></i> Add New Consigner
-      </button>
+      </a>
     </div>
   </div>
 
 </main>
 
-<!-- =========================================================================
-     MODAL 1: ADD / EDIT CONSIGNER FORM MODAL
-     ========================================================================= -->
-<div class="modal fade" id="consignerFormModal" tabindex="-1" aria-labelledby="consignerFormModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0 shadow">
-      
-      <!-- Modal Header -->
-      <div class="modal-header bg-light py-3 border-bottom">
-        <div class="d-flex align-items-center gap-2">
-          <div class="bg-primary text-white rounded p-1 d-flex align-items-center justify-content-center" style="width:32px; height:32px;">
-            <i class="bi bi-building" id="formModalIcon"></i>
-          </div>
-          <div>
-            <h5 class="modal-title fw-bold fs-6 mb-0 text-dark" id="consignerFormModalLabel">Add New Consigner</h5>
-            <div class="small text-muted" style="font-size:0.75rem;">Enter legally registered exporter particulars for Customs & Shipping Bills</div>
-          </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
 
-      <!-- Modal Form Body -->
-      <form id="consignerForm" onsubmit="handleConsignerFormSubmit(event)">
-        <div class="modal-body p-4">
-          <input type="hidden" id="formConsignerId">
-
-          <!-- Section 1: Firm & Exporter Information -->
-          <div class="mb-3">
-            <h6 class="fw-bold text-primary mb-3 text-uppercase" style="font-size:0.75rem; letter-spacing:0.05em;">
-              <i class="bi bi-building-gear me-1"></i> 1. Firm & Exporter Legal Particulars
-            </h6>
-            <div class="row g-3">
-              <div class="col-md-8">
-                <label class="form-label small fw-semibold">Company / Firm Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm" id="formName" required placeholder="e.g. Reliance Granito Private Limited">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Entity Type</label>
-                <select class="form-select form-select-sm" id="formEntityType">
-                  <option value="Manufacturer Exporter">Manufacturer Exporter</option>
-                  <option value="Merchant Exporter">Merchant Exporter</option>
-                  <option value="Manufacturing Facility / Plant">Manufacturing Facility / Plant</option>
-                  <option value="Sister Firm / Associate">Sister Firm / Associate</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 2: Statutory EDI & Tax Codes -->
-          <div class="mb-3 pt-2 border-top">
-            <h6 class="fw-bold text-primary mb-3 text-uppercase" style="font-size:0.75rem; letter-spacing:0.05em;">
-              <i class="bi bi-patch-check me-1"></i> 2. Statutory Customs EDI & Tax Registration
-            </h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">IEC Code (10 Chars) <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm text-uppercase font-monospace" id="formIec" required maxlength="10" placeholder="e.g. ABEFR3842G">
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Branch No</label>
-                <input type="text" class="form-control form-control-sm font-monospace" id="formIecBranch" value="0" maxlength="3" placeholder="0">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small fw-semibold">GSTIN (15 Chars) <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-sm text-uppercase font-monospace" id="formGstin" required maxlength="15" placeholder="e.g. 08ABEFR3842G1Z5">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">PAN / Tax ID</label>
-                <input type="text" class="form-control form-control-sm text-uppercase font-monospace" id="formPan" maxlength="10" placeholder="e.g. ABEFR3842G">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">AD Code (7 Digits)</label>
-                <input type="text" class="form-control form-control-sm font-monospace" id="formAdCode" maxlength="10" placeholder="e.g. 6390013">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Operational Status</label>
-                <select class="form-select form-select-sm" id="formStatus">
-                  <option value="Active">Active (Ready for Docs)</option>
-                  <option value="Inactive">Inactive / Suspended</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 3: Authorized Bank & AD Details -->
-          <div class="mb-3 pt-2 border-top">
-            <h6 class="fw-bold text-primary mb-3 text-uppercase" style="font-size:0.75rem; letter-spacing:0.05em;">
-              <i class="bi bi-bank me-1"></i> 3. Authorized Dealer Forex Bank Details
-            </h6>
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label small fw-semibold">Authorized Bank Name, Branch & Account No</label>
-                <input type="text" class="form-control form-control-sm" id="formForexBank" placeholder="e.g. ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)">
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 4: Operational Addresses -->
-          <div class="mb-3 pt-2 border-top">
-            <h6 class="fw-bold text-primary mb-3 text-uppercase" style="font-size:0.75rem; letter-spacing:0.05em;">
-              <i class="bi bi-geo-alt me-1"></i> 4. Factory & Registered Addresses
-            </h6>
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label small fw-semibold">Registered Office Address <span class="text-danger">*</span></label>
-                <textarea class="form-control form-control-sm" id="formRegisteredAddress" rows="2" required placeholder="Street address, City, District, State, PIN Code"></textarea>
-              </div>
-              <div class="col-12">
-                <label class="form-label small fw-semibold">Factory / Manufacturing Works Address (e.g. Morbi Plant)</label>
-                <textarea class="form-control form-control-sm" id="formFactoryAddress" rows="2" placeholder="Factory premises, Highway / GIDC, Morbi - 363642, Gujarat"></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 5: Authorized Contact Details -->
-          <div class="pt-2 border-top">
-            <h6 class="fw-bold text-primary mb-3 text-uppercase" style="font-size:0.75rem; letter-spacing:0.05em;">
-              <i class="bi bi-person-lines-fill me-1"></i> 5. Authorized Contact Person
-            </h6>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Contact Person</label>
-                <input type="text" class="form-control form-control-sm" id="formContactPerson" placeholder="e.g. Rajesh B. Patel">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Direct Phone / Mobile</label>
-                <input type="text" class="form-control form-control-sm" id="formContactPhone" placeholder="e.g. +91 2822 240890">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Official Email</label>
-                <input type="email" class="form-control form-control-sm" id="formContactEmail" placeholder="e.g. export@reliancegranito.com">
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="modal-footer py-2 bg-light border-top">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm px-4 fw-semibold" id="btnSaveConsigner">
-            <i class="bi bi-check-lg me-1"></i> Save to MySQL
-          </button>
-        </div>
-      </form>
-
-    </div>
-  </div>
-</div>
 
 <!-- =========================================================================
      MODAL 2: VIEW CONSIGNER FULL DETAILS MODAL
@@ -384,9 +236,9 @@
           </button>
         </div>
         <div>
-          <button type="button" class="btn btn-outline-secondary btn-sm me-1" id="viewModalEditBtn" onclick="openEditFromViewModal()">
+          <a href="javascript:void(0)" class="btn btn-outline-secondary btn-sm me-1" id="viewModalEditBtn">
             <i class="bi bi-pencil me-1"></i> Edit
-          </button>
+          </a>
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
@@ -512,9 +364,9 @@
                             <button class="btn btn-outline-secondary" onclick="viewConsignerDetails(${c.id})" title="View Complete Details">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-outline-primary" onclick="openEditConsignerModal(${c.id})" title="Edit Consigner Particulars">
+                            <a href="/consigners/${c.id}/edit" class="btn btn-outline-primary" title="Edit Consigner Particulars">
                                 <i class="bi bi-pencil"></i>
-                            </button>
+                            </a>
                             <button class="btn btn-outline-success" onclick="stampInPdfEditor(${c.id})" title="Open & Stamp on PDF in Editor">
                                 <i class="bi bi-file-earmark-diff"></i>
                             </button>
@@ -561,7 +413,7 @@
                                 <button class="btn btn-outline-primary btn-sm" onclick="viewConsignerDetails(${c.id})"><i class="bi bi-eye me-1"></i>Details</button>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-outline-success" onclick="stampInPdfEditor(${c.id})" title="Stamp in PDF"><i class="bi bi-file-earmark-diff"></i></button>
-                                    <button class="btn btn-outline-secondary" onclick="openEditConsignerModal(${c.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                                    <a href="/consigners/${c.id}/edit" class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
                                     <button class="btn btn-outline-danger" onclick="openDeleteConsignerModal(${c.id})" title="Delete"><i class="bi bi-trash"></i></button>
                                 </div>
                             </div>
@@ -629,102 +481,7 @@
         renderConsigners();
     }
 
-    // Open Add Modal
-    function openAddConsignerModal() {
-        document.getElementById('consignerForm').reset();
-        document.getElementById('formConsignerId').value = '';
-        document.getElementById('consignerFormModalLabel').textContent = 'Add New Consigner';
-        document.getElementById('btnSaveConsigner').innerHTML = '<i class="bi bi-check-lg me-1"></i> Save to MySQL';
-        const modal = new bootstrap.Modal(document.getElementById('consignerFormModal'));
-        modal.show();
-    }
 
-    // Open Edit Modal
-    function openEditConsignerModal(id) {
-        const c = consignersList.find(item => item.id == id);
-        if (!c) return;
-
-        document.getElementById('formConsignerId').value = c.id;
-        document.getElementById('formName').value = c.name || '';
-        document.getElementById('formEntityType').value = c.entity_type || 'Manufacturer Exporter';
-        document.getElementById('formIec').value = c.iec || '';
-        document.getElementById('formIecBranch').value = c.iec_branch || '0';
-        document.getElementById('formGstin').value = c.gstin || '';
-        document.getElementById('formPan').value = c.pan || '';
-        document.getElementById('formAdCode').value = c.ad_code || '';
-        document.getElementById('formStatus').value = c.status || 'Active';
-        document.getElementById('formForexBank').value = c.forex_bank || '';
-        document.getElementById('formRegisteredAddress').value = c.registered_address || '';
-        document.getElementById('formFactoryAddress').value = c.factory_address || '';
-        document.getElementById('formContactPerson').value = c.contact_person || '';
-        document.getElementById('formContactPhone').value = c.contact_phone || '';
-        document.getElementById('formContactEmail').value = c.contact_email || '';
-
-        document.getElementById('consignerFormModalLabel').textContent = 'Edit Consigner Particulars';
-        document.getElementById('btnSaveConsigner').innerHTML = '<i class="bi bi-check-lg me-1"></i> Update in MySQL';
-
-        const modal = new bootstrap.Modal(document.getElementById('consignerFormModal'));
-        modal.show();
-    }
-
-    // Submit Add or Edit Form to MySQL via Fetch
-    async function handleConsignerFormSubmit(event) {
-        event.preventDefault();
-        const id = document.getElementById('formConsignerId').value;
-        const isEdit = !!id;
-
-        const payload = {
-            name: document.getElementById('formName').value,
-            entity_type: document.getElementById('formEntityType').value,
-            iec: document.getElementById('formIec').value,
-            iec_branch: document.getElementById('formIecBranch').value,
-            gstin: document.getElementById('formGstin').value,
-            pan: document.getElementById('formPan').value,
-            ad_code: document.getElementById('formAdCode').value,
-            status: document.getElementById('formStatus').value,
-            forex_bank: document.getElementById('formForexBank').value,
-            registered_address: document.getElementById('formRegisteredAddress').value,
-            factory_address: document.getElementById('formFactoryAddress').value,
-            contact_person: document.getElementById('formContactPerson').value,
-            contact_phone: document.getElementById('formContactPhone').value,
-            contact_email: document.getElementById('formContactEmail').value,
-        };
-
-        const url = isEdit ? `/consigners/${id}` : '/consigners';
-        const method = isEdit ? 'PUT' : 'POST';
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': window.csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                // Update local dataset
-                if (isEdit) {
-                    const idx = consignersList.findIndex(c => c.id == id);
-                    if (idx !== -1) consignersList[idx] = result.data;
-                } else {
-                    consignersList.push(result.data);
-                }
-
-                bootstrap.Modal.getInstance(document.getElementById('consignerFormModal')).hide();
-                renderConsigners();
-                showToast(result.message || 'Saved successfully in MySQL', 'success');
-            } else {
-                alert(result.message || 'Failed to save consigner.');
-            }
-        } catch (err) {
-            console.error(err);
-            showToast('Error connecting to MySQL server', 'danger');
-        }
-    }
 
     // View Details Modal
     function viewConsignerDetails(id) {
@@ -811,14 +568,15 @@
         `;
 
         document.getElementById('viewModalContent').innerHTML = html;
+        const editBtn = document.getElementById('viewModalEditBtn');
+        if (editBtn) editBtn.href = `/consigners/${c.id}/edit`;
         const modal = new bootstrap.Modal(document.getElementById('consignerViewModal'));
         modal.show();
     }
 
     function openEditFromViewModal() {
         if (!activeViewingConsigner) return;
-        bootstrap.Modal.getInstance(document.getElementById('consignerViewModal')).hide();
-        openEditConsignerModal(activeViewingConsigner.id);
+        window.location.href = `/consigners/${activeViewingConsigner.id}/edit`;
     }
 
     function openConsignerInPdfEditor() {

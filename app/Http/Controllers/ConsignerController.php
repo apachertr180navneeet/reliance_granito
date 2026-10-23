@@ -7,7 +7,6 @@ use Database\Seeders\ConsignerSeeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -59,6 +58,14 @@ class ConsignerController extends Controller
     }
 
     /**
+     * Show the form for creating a new consigner.
+     */
+    public function create(): View
+    {
+        return view('consigners.create');
+    }
+
+    /**
      * Store a newly created consigner in storage.
      */
     public function store(Request $request): JsonResponse|RedirectResponse
@@ -83,13 +90,13 @@ class ConsignerController extends Controller
 
         // Auto-assign region if not provided
         if (empty($validated['region'])) {
-            $address = ($validated['factory_address'] ?? '') . ' ' . $validated['registered_address'];
+            $address = ($validated['factory_address'] ?? '').' '.$validated['registered_address'];
             $validated['region'] = stripos($address, 'Morbi') !== false ? 'Morbi' : 'Jodhpur';
         }
 
         // Generate next code
         $nextId = Consigner::max('id') + 1;
-        $validated['consigner_code'] = 'EXP-' . str_pad((string)$nextId, 3, '0', STR_PAD_LEFT);
+        $validated['consigner_code'] = 'EXP-'.str_pad((string) $nextId, 3, '0', STR_PAD_LEFT);
 
         $consigner = Consigner::create($validated);
 
@@ -110,6 +117,14 @@ class ConsignerController extends Controller
     public function show(Consigner $consigner): JsonResponse
     {
         return response()->json($consigner);
+    }
+
+    /**
+     * Show the form for editing the specified consigner.
+     */
+    public function edit(Consigner $consigner): View
+    {
+        return view('consigners.edit', compact('consigner'));
     }
 
     /**
@@ -136,7 +151,7 @@ class ConsignerController extends Controller
         ]);
 
         if (empty($validated['region'])) {
-            $address = ($validated['factory_address'] ?? '') . ' ' . $validated['registered_address'];
+            $address = ($validated['factory_address'] ?? '').' '.$validated['registered_address'];
             $validated['region'] = stripos($address, 'Morbi') !== false ? 'Morbi' : 'Jodhpur';
         }
 
@@ -220,7 +235,7 @@ class ConsignerController extends Controller
      */
     public function resetDemo(): JsonResponse
     {
-        (new ConsignerSeeder())->run();
+        (new ConsignerSeeder)->run();
 
         return response()->json([
             'success' => true,

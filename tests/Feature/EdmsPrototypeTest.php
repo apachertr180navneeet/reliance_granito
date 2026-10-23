@@ -244,4 +244,112 @@ class EdmsPrototypeTest extends TestCase
             $response->assertSee('Laravel 12 & MySQL', false);
         }
     }
+
+    /**
+     * Test consigner create page renders with form and layout.
+     */
+    public function test_consigner_create_page_renders_successfully(): void
+    {
+        $user = User::first();
+        $response = $this->actingAs($user)->get('/consigners/create');
+
+        $response->assertStatus(200);
+        $response->assertSee('Add New Consigner Entity');
+        $response->assertSee('Firm & Exporter Legal Particulars', false);
+        $response->assertSee('Save Consigner to MySQL');
+        $response->assertSee('app-sidebar');
+        $response->assertSee('top-navbar');
+        $response->assertSee('app-footer');
+    }
+
+    /**
+     * Test consigner edit page renders with existing consigner data.
+     */
+    public function test_consigner_edit_page_renders_with_existing_data(): void
+    {
+        $user = User::first();
+        $consigner = Consigner::first();
+
+        $response = $this->actingAs($user)->get("/consigners/{$consigner->id}/edit");
+
+        $response->assertStatus(200);
+        $response->assertSee('Edit Consigner Particulars');
+        $response->assertSee($consigner->name);
+        $response->assertSee($consigner->iec);
+        $response->assertSee('Update Consigner in MySQL');
+        $response->assertSee('app-sidebar');
+        $response->assertSee('top-navbar');
+        $response->assertSee('app-footer');
+    }
+
+    /**
+     * Test submitting create form stores record and redirects to consigners list.
+     */
+    public function test_user_can_submit_create_form_and_redirect_to_index(): void
+    {
+        $user = User::first();
+        $payload = [
+            'name' => 'Royal Granito Morbi Unit 9',
+            'entity_type' => 'Manufacturer Exporter',
+            'iec' => 'ABCDE9999F',
+            'iec_branch' => '0',
+            'gstin' => '24ABCDE9999F1Z9',
+            'pan' => 'ABCDE9999F',
+            'ad_code' => '7788990',
+            'forex_bank' => 'State Bank of India, Morbi Branch',
+            'registered_address' => 'Morbi Ceramic Highway, Morbi, Gujarat',
+            'factory_address' => 'Morbi Ceramic Highway, Morbi, Gujarat',
+            'region' => 'Morbi',
+            'contact_person' => 'Bhavesh Patel',
+            'contact_phone' => '+91 98250 11223',
+            'contact_email' => 'bhavesh@royalgranito.com',
+            'status' => 'Active',
+        ];
+
+        $response = $this->actingAs($user)->post('/consigners', $payload);
+
+        $response->assertRedirect('/consigners');
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('consigners', [
+            'name' => 'Royal Granito Morbi Unit 9',
+            'iec' => 'ABCDE9999F',
+        ]);
+    }
+
+    /**
+     * Test submitting edit form updates record and redirects to consigners list.
+     */
+    public function test_user_can_submit_edit_form_and_redirect_to_index(): void
+    {
+        $user = User::first();
+        $consigner = Consigner::first();
+
+        $payload = [
+            'name' => 'Reliance Granito Private Limited (Updated HQ)',
+            'entity_type' => 'Manufacturer Exporter',
+            'iec' => $consigner->iec,
+            'iec_branch' => '1',
+            'gstin' => $consigner->gstin,
+            'pan' => $consigner->pan,
+            'ad_code' => '6390013',
+            'forex_bank' => 'ICICI Bank Ltd, Jodhpur',
+            'registered_address' => 'Updated Jodhpur Address, Rajasthan',
+            'factory_address' => $consigner->factory_address,
+            'region' => 'Jodhpur',
+            'contact_person' => 'Rajesh B. Patel',
+            'contact_phone' => '+91 2822 240890',
+            'contact_email' => 'export@reliancegranito.com',
+            'status' => 'Active',
+        ];
+
+        $response = $this->actingAs($user)->put("/consigners/{$consigner->id}", $payload);
+
+        $response->assertRedirect('/consigners');
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('consigners', [
+            'id' => $consigner->id,
+            'name' => 'Reliance Granito Private Limited (Updated HQ)',
+            'iec_branch' => '1',
+        ]);
+    }
 }

@@ -30,10 +30,12 @@ Route::middleware('auth')->group(function () {
     // Consigners Master CRUD
     Route::prefix('consigners')->name('consigners.')->group(function () {
         Route::get('/', [ConsignerController::class, 'index'])->name('index');
+        Route::get('/create', [ConsignerController::class, 'create'])->name('create');
         Route::post('/', [ConsignerController::class, 'store'])->name('store');
         Route::get('/export', [ConsignerController::class, 'export'])->name('export');
         Route::post('/reset-demo', [ConsignerController::class, 'resetDemo'])->name('reset-demo');
         Route::get('/{consigner}', [ConsignerController::class, 'show'])->name('show');
+        Route::get('/{consigner}/edit', [ConsignerController::class, 'edit'])->name('edit');
         Route::put('/{consigner}', [ConsignerController::class, 'update'])->name('update');
         Route::delete('/{consigner}', [ConsignerController::class, 'destroy'])->name('destroy');
     });
