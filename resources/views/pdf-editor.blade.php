@@ -1,24 +1,34 @@
 @extends('layouts.app')
 
-@section('body-class', 'pdf-editor-active')
-
 @section('content')
-<div class="editor-app">
-  <!-- Top Navigation & Controls Header -->
-  <header class="editor-header">
-    <!-- Left: Document Identity & Switcher -->
-    <div class="doc-info">
-      <div class="doc-icon-badge">
-        <i class="bi bi-file-earmark-pdf fs-5"></i>
-      </div>
-      <div class="doc-meta-block">
-        <div class="d-flex align-items-center gap-2">
+<main class="content-area p-3 p-lg-4" id="pdfEditorMain">
+  
+  <!-- Page Header & Action Bar -->
+  <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+    <div class="card-body p-3 p-md-4">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-2 py-1" style="font-size:0.75rem;">
+              <i class="bi bi-file-earmark-diff me-1"></i>PDF Visual Editor
+            </span>
+            <span class="badge bg-success-subtle text-success fw-bold px-2 py-1" style="font-size:0.75rem;">
+              <i class="bi bi-database-check me-1"></i>MySQL Synced
+            </span>
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge" id="saveBadge">Clean</span>
+          </div>
+          <h3 class="fw-bold text-dark mb-1">Export Document PDF Visual Editor & Masker</h3>
+          <p class="text-muted small mb-0" id="docStatusLabel">Loading authentic document from MySQL...</p>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
           <!-- Document Switcher Dropdown (MySQL Backed) -->
           <div class="dropdown">
-            <button class="btn btn-sm btn-dark text-white dropdown-toggle doc-pill d-flex align-items-center gap-1 font-monospace" type="button" data-bs-toggle="dropdown" id="docNameLabel">
-              {{ $selectedDoc->name ?? 'Select Export PDF' }}
+            <button class="btn btn-outline-dark dropdown-toggle doc-pill d-flex align-items-center gap-2 font-monospace shadow-sm px-3" type="button" data-bs-toggle="dropdown" id="docNameLabel">
+              <i class="bi bi-file-earmark-pdf text-danger"></i>
+              <span>{{ $selectedDoc->name ?? 'Select Export PDF' }}</span>
             </button>
-            <ul class="dropdown-menu shadow-lg" style="min-width: 320px;">
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="min-width: 320px;">
               <li><h6 class="dropdown-header text-uppercase">Sample Export Documents (MySQL)</h6></li>
               @foreach($documents as $doc)
               <li>
@@ -41,175 +51,185 @@
             </ul>
           </div>
 
-          <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge" id="saveBadge">Clean</span>
+          <!-- Hidden File Upload Input -->
+          <input type="file" id="fileInput" accept="application/pdf" class="file-input-hidden" onchange="handleFile(event)">
+          
+          <!-- Upload PDF Button -->
+          <button class="btn btn-light border d-flex align-items-center gap-2 shadow-sm px-3" onclick="document.getElementById('fileInput').click()" title="Upload a local PDF file">
+            <i class="bi bi-upload text-primary"></i>
+            <span>Upload PDF</span>
+          </button>
+
+          <!-- Save & Export Clean PDF Button -->
+          <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-3" id="btnDownload" onclick="downloadPdf()" disabled title="Save edits to MySQL and download vector PDF">
+            <i class="bi bi-floppy2-fill"></i>
+            <span>Save / Export PDF</span>
+          </button>
         </div>
-        <div class="doc-status-text" id="docStatusLabel">Loading authentic document from MySQL...</div>
       </div>
     </div>
+  </div>
 
-    <!-- Center: Segmented Tool Palette & Consigner Stamping Dropdown -->
-    <div class="editor-header-center">
-      <div class="tool-palette">
-        <button type="button" class="tool-btn active" id="btnToolSelect" onclick="setTool('select')" title="Select / Move / Resize (V)">
-          <i class="bi bi-cursor-fill"></i> <span>Select</span>
-        </button>
-        <button type="button" class="tool-btn" id="btnToolWhiteout" onclick="setTool('whiteout')" title="Draw Solid Whiteout Mask (W)">
-          <i class="bi bi-square-fill text-warning"></i> <span>Whiteout</span>
-        </button>
-        <button type="button" class="tool-btn" id="btnToolText" onclick="setTool('text')" title="White Mask + Replacement Text (T)">
-          <i class="bi bi-fonts text-primary"></i> <span>Replace Text</span>
-        </button>
-        <button type="button" class="tool-btn" id="btnToolRedact" onclick="setTool('redact')" title="Solid Black Redaction (R)">
-          <i class="bi bi-square-fill text-dark"></i> <span>Redact</span>
-        </button>
-      </div>
-
-      <!-- Consigner Stamping Menu (MySQL Backed) -->
-      <div class="dropdown">
-        <button class="btn btn-consigner-picker dropdown-toggle" data-bs-toggle="dropdown" id="btnConsignerDropdown" title="Stamp Registered Consigner Particulars from MySQL">
-          <i class="bi bi-building-up text-primary"></i>
-          <span>Consigner</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end consigner-menu-popover shadow-lg" id="consignerDropdownMenu">
-          <li>
-            <div class="dropdown-header text-uppercase d-flex align-items-center justify-content-between">
-              <span>Stamp Consigner (MySQL)</span>
-              <span class="badge consigner-hint-pill">Drag & Drop or Click</span>
-            </div>
-          </li>
-          @forelse($consigners as $c)
-          <li>
-            <div class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link"
-                 draggable="true"
-                 data-consigner-id="{{ $c->id }}"
-                 data-consigner-name="{{ $c->name }}"
-                 data-consigner-iec="{{ $c->iec }}"
-                 data-consigner-region="{{ $c->region }}"
-                 title="Click to stamp or drag & drop directly onto the PDF!">
-              <div class="overflow-hidden pe-3 consigner-drag-target" onclick="applyConsignerStamp({{ $c->id }}); return false;">
-                <div class="fw-bold text-dark consigner-name-truncate">
-                  <i class="bi bi-grip-vertical text-muted me-1"></i>{{ $c->name }}
-                </div>
-                <div class="text-muted consigner-meta-text">IEC: {{ $c->iec }} &bull; {{ $c->region }} Plant</div>
-              </div>
-              <button type="button" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle consigner-apply-pill px-2 py-1" onclick="applyConsignerStamp({{ $c->id }}); return false;">
-                Apply
-              </button>
-            </div>
-          </li>
-          @empty
-          <li><span class="dropdown-item small text-muted">No active consigners found.</span></li>
-          @endforelse
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="{{ route('consigners.index') }}">
-              <i class="bi bi-gear"></i> Manage Consigners Directory &rarr;
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Contextual Formatting Bar -->
-      <div class="format-bar" id="formatBar">
-        <button type="button" class="btn btn-sm btn-light border py-0 px-2 fw-semibold" id="btnToggleBackground" onclick="toggleBackgroundMask()" title="Toggle Transparent vs Solid White Mask">
-          <i class="bi bi-circle me-1 text-primary" id="iconBackgroundMask"></i><span id="labelBackgroundMask">Transparent</span>
-        </button>
-        <span class="fw-bold text-primary ms-1 format-label-size">SIZE:</span>
-        <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(-1)" title="Decrease Size">-</button>
-        <span id="fontSizeDisplay" class="fw-semibold text-dark px-1 format-font-val">10pt</span>
-        <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(1)" title="Increase Size">+</button>
-        <button class="btn btn-sm btn-light border py-0 px-2" id="btnBoldToggle" onclick="toggleBold()" title="Toggle Bold"><b>B</b></button>
-        <button class="btn btn-sm btn-light border py-0 px-2" onclick="fitSelected()" title="Auto-fit white mask box to text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit Box</button>
-        <button class="btn btn-sm btn-success py-0 px-2 fw-semibold ms-1" onclick="deselectAll()" title="Done with this edit"><i class="bi bi-check2 me-1"></i>Done</button>
-        <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteSelected()" title="Delete Selected"><i class="bi bi-trash"></i></button>
-      </div>
-    </div>
-
-    <!-- Right Actions: Upload, Save & Export -->
-    <div class="editor-header-right">
-      <input type="file" id="fileInput" accept="application/pdf" class="file-input-hidden" onchange="handleFile(event)">
-      
-      <button class="btn btn-header-upload" onclick="document.getElementById('fileInput').click()" title="Upload a local PDF file">
-        <i class="bi bi-upload text-primary"></i> <span>Upload PDF</span>
-      </button>
-
-      <!-- Save & Export Clean PDF Button -->
-      <button class="btn btn-header-export" id="btnDownload" onclick="downloadPdf()" disabled title="Save edits to MySQL and download vector PDF">
-        <i class="bi bi-floppy2-fill"></i>
-        <span>Save / Export PDF</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Viewport / Desk -->
-  <main class="editor-viewport" id="viewport">
+  <!-- Interactive Studio Workbench (Toolbar + Paper Viewport) -->
+  <div class="card border-0 shadow-sm editor-studio-card mb-4" style="border-radius:12px; overflow:hidden;">
     
-    <!-- Modern Elegant Dropzone Empty State -->
-    <div class="empty-hero" id="emptyHero" style="display:none;">
-      <div class="empty-dropzone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-        <div class="dropzone-icon-bubble">
-          <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+    <!-- Top Navigation Ribbon / Toolbar -->
+    <div class="editor-header p-2 p-md-3 bg-white border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <!-- Left: Segmented Tool Palette & Consigner Stamping Dropdown -->
+      <div class="editor-header-center d-flex flex-wrap align-items-center gap-2">
+        <div class="tool-palette">
+          <button type="button" class="tool-btn active" id="btnToolSelect" onclick="setTool('select')" title="Select / Move / Resize (V)">
+            <i class="bi bi-cursor-fill"></i> <span>Select</span>
+          </button>
+          <button type="button" class="tool-btn" id="btnToolWhiteout" onclick="setTool('whiteout')" title="Draw Solid Whiteout Mask (W)">
+            <i class="bi bi-square-fill text-warning"></i> <span>Whiteout</span>
+          </button>
+          <button type="button" class="tool-btn" id="btnToolText" onclick="setTool('text')" title="White Mask + Replacement Text (T)">
+            <i class="bi bi-fonts text-primary"></i> <span>Replace Text</span>
+          </button>
+          <button type="button" class="tool-btn" id="btnToolRedact" onclick="setTool('redact')" title="Solid Black Redaction (R)">
+            <i class="bi bi-square-fill text-dark"></i> <span>Redact</span>
+          </button>
         </div>
-        <h4 class="fw-bold text-white mb-2">Upload Export PDF Document</h4>
-        <p class="text-white-50 small empty-desc">
-          Drag & drop your export document here, or click to browse. Easily whiteout sensitive values, stamp verified consigner particulars, and edit text with 100% solid masking.
-        </p>
-        <button type="button" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-semibold d-inline-flex align-items-center gap-2">
-          <i class="bi bi-folder2-open"></i> Browse PDF File
-        </button>
-        <div class="text-white-50 small mt-3 dropzone-hint">
-          Supports: Customs EDI Shipping Bills, Commercial Invoices, Bills of Lading, Packing Lists
+
+        <!-- Consigner Stamping Menu (MySQL Backed) -->
+        <div class="dropdown">
+          <button class="btn btn-consigner-picker dropdown-toggle" data-bs-toggle="dropdown" id="btnConsignerDropdown" title="Stamp Registered Consigner Particulars from MySQL">
+            <i class="bi bi-building-up text-primary"></i>
+            <span>Consigner</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-start consigner-menu-popover shadow-lg" id="consignerDropdownMenu">
+            <li>
+              <div class="dropdown-header text-uppercase d-flex align-items-center justify-content-between">
+                <span>Stamp Consigner (MySQL)</span>
+                <span class="badge consigner-hint-pill">Drag & Drop or Click</span>
+              </div>
+            </li>
+            @forelse($consigners as $c)
+            <li>
+              <div class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link"
+                   draggable="true"
+                   data-consigner-id="{{ $c->id }}"
+                   data-consigner-name="{{ $c->name }}"
+                   data-consigner-iec="{{ $c->iec }}"
+                   data-consigner-region="{{ $c->region }}"
+                   title="Click to stamp or drag & drop directly onto the PDF!">
+                <div class="overflow-hidden pe-3 consigner-drag-target" onclick="applyConsignerStamp({{ $c->id }}); return false;">
+                  <div class="fw-bold text-dark consigner-name-truncate">
+                    <i class="bi bi-grip-vertical text-muted me-1"></i>{{ $c->name }}
+                  </div>
+                  <div class="text-muted consigner-meta-text">IEC: {{ $c->iec }} &bull; {{ $c->region }} Plant</div>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle consigner-apply-pill px-2 py-1" onclick="applyConsignerStamp({{ $c->id }}); return false;">
+                  Apply
+                </button>
+              </div>
+            </li>
+            @empty
+            <li><span class="dropdown-item small text-muted">No active consigners found.</span></li>
+            @endforelse
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="{{ route('consigners.index') }}">
+                <i class="bi bi-gear"></i> Manage Consigners Directory &rarr;
+              </a>
+            </li>
+          </ul>
         </div>
+
+        <!-- Contextual Formatting Bar -->
+        <div class="format-bar" id="formatBar">
+          <button type="button" class="btn btn-sm btn-light border py-0 px-2 fw-semibold" id="btnToggleBackground" onclick="toggleBackgroundMask()" title="Toggle Transparent vs Solid White Mask">
+            <i class="bi bi-circle me-1 text-primary" id="iconBackgroundMask"></i><span id="labelBackgroundMask">Transparent</span>
+          </button>
+          <span class="fw-bold text-primary ms-1 format-label-size">SIZE:</span>
+          <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(-1)" title="Decrease Size">-</button>
+          <span id="fontSizeDisplay" class="fw-semibold text-dark px-1 format-font-val">10pt</span>
+          <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(1)" title="Increase Size">+</button>
+          <button class="btn btn-sm btn-light border py-0 px-2" id="btnBoldToggle" onclick="toggleBold()" title="Toggle Bold"><b>B</b></button>
+          <button class="btn btn-sm btn-light border py-0 px-2" onclick="fitSelected()" title="Auto-fit white mask box to text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit Box</button>
+          <button class="btn btn-sm btn-success py-0 px-2 fw-semibold ms-1" onclick="deselectAll()" title="Done with this edit"><i class="bi bi-check2 me-1"></i>Done</button>
+          <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteSelected()" title="Delete Selected"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+
+      <!-- Right: Operational Tips -->
+      <div class="d-none d-lg-flex align-items-center gap-2 text-muted small">
+        <i class="bi bi-lightbulb text-warning"></i>
+        <span>Draw over numbers to mask & replace. Drag & drop consigner to stamp.</span>
       </div>
     </div>
 
-    <!-- Paper Sheet Container -->
-    <div class="paper-sheet" id="paperSheet">
-      <canvas id="pdfCanvas"></canvas>
-      <canvas id="drawCanvas"></canvas>
+    <!-- Main Viewport / Desk -->
+    <div class="editor-viewport" id="viewport">
       
-      <!-- Direct In-Place Textarea Input (Opaque White) -->
-      <textarea id="liveInput" placeholder="Type replacement text here..."></textarea>
-      
-      <!-- Floating Action Buttons right below the editing textarea -->
-      <div id="liveInputActions">
-        <button type="button" class="btn btn-primary btn-sm py-0 px-2 fw-semibold d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); commitLiveText();">
-          <i class="bi bi-check-lg"></i> Save Edit
-        </button>
-        <button type="button" class="btn btn-light btn-sm py-0 px-2 border d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); cancelLiveText();">
-          <i class="bi bi-x-lg"></i> Cancel
-        </button>
+      <!-- Modern Elegant Dropzone Empty State -->
+      <div class="empty-hero" id="emptyHero" style="display:none;">
+        <div class="empty-dropzone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <div class="dropzone-icon-bubble">
+            <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+          </div>
+          <h4 class="fw-bold text-white mb-2">Upload Export PDF Document</h4>
+          <p class="text-white-50 small empty-desc">
+            Drag & drop your export document here, or click to browse. Easily whiteout sensitive values, stamp verified consigner particulars, and edit text with 100% solid masking.
+          </p>
+          <button type="button" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="bi bi-folder2-open"></i> Browse PDF File
+          </button>
+          <div class="text-white-50 small mt-3 dropzone-hint">
+            Supports: Customs EDI Shipping Bills, Commercial Invoices, Bills of Lading, Packing Lists
+          </div>
+        </div>
       </div>
+
+      <!-- Paper Sheet Container -->
+      <div class="paper-sheet" id="paperSheet">
+        <canvas id="pdfCanvas"></canvas>
+        <canvas id="drawCanvas"></canvas>
+        
+        <!-- Direct In-Place Textarea Input (Opaque White) -->
+        <textarea id="liveInput" placeholder="Type replacement text here..."></textarea>
+        
+        <!-- Floating Action Buttons right below the editing textarea -->
+        <div id="liveInputActions">
+          <button type="button" class="btn btn-primary btn-sm py-0 px-2 fw-semibold d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); commitLiveText();">
+            <i class="bi bi-check-lg"></i> Save Edit
+          </button>
+          <button type="button" class="btn btn-light btn-sm py-0 px-2 border d-flex align-items-center gap-1 btn-live-action" onmousedown="event.preventDefault(); cancelLiveText();">
+            <i class="bi bi-x-lg"></i> Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Dock -->
+      <div class="floating-dock" id="floatingDock">
+        <button class="dock-btn" id="btnPrev" onclick="navPage(-1)" disabled title="Previous Page">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="dock-text" id="dockPageText">Page 1 / 1</span>
+        <button class="dock-btn" id="btnNext" onclick="navPage(1)" disabled title="Next Page">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+
+        <div class="dock-divider"></div>
+
+        <button class="dock-btn" onclick="zoomChange(-0.15)" title="Zoom Out">
+          <i class="bi bi-zoom-out"></i>
+        </button>
+        <span class="dock-text" id="dockZoomText">100%</span>
+        <button class="dock-btn" onclick="zoomChange(0.15)" title="Zoom In">
+          <i class="bi bi-zoom-in"></i>
+        </button>
+
+        <div class="dock-divider"></div>
+
+        <button class="dock-btn" onclick="undo()" title="Undo (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
+        <button class="dock-btn" onclick="redo()" title="Redo (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
+      </div>
+
     </div>
-
-    <!-- Floating Dock -->
-    <div class="floating-dock" id="floatingDock">
-      <button class="dock-btn" id="btnPrev" onclick="navPage(-1)" disabled title="Previous Page">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <span class="dock-text" id="dockPageText">Page 1 / 1</span>
-      <button class="dock-btn" id="btnNext" onclick="navPage(1)" disabled title="Next Page">
-        <i class="bi bi-chevron-right"></i>
-      </button>
-
-      <div class="dock-divider"></div>
-
-      <button class="dock-btn" onclick="zoomChange(-0.15)" title="Zoom Out">
-        <i class="bi bi-zoom-out"></i>
-      </button>
-      <span class="dock-text" id="dockZoomText">100%</span>
-      <button class="dock-btn" onclick="zoomChange(0.15)" title="Zoom In">
-        <i class="bi bi-zoom-in"></i>
-      </button>
-
-      <div class="dock-divider"></div>
-
-      <button class="dock-btn" onclick="undo()" title="Undo (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
-      <button class="dock-btn" onclick="redo()" title="Redo (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
-    </div>
-
-  </main>
-</div>
+  </div>
+</main>
 @endsection
 
 @push('scripts')

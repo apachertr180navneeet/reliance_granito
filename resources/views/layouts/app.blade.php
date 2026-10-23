@@ -39,13 +39,13 @@
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard & Tower</span>
                 </a>
-                <a href="{{ route('pdf-editor.index') }}" class="nav-link {{ request()->routeIs('pdf-editor.*') ? 'active' : '' }}">
-                    <i class="bi bi-file-earmark-diff text-primary"></i>
-                    <span>PDF Visual Editor</span>
-                </a>
                 <a href="{{ route('consigners.index') }}" class="nav-link {{ request()->routeIs('consigners.*') ? 'active' : '' }}">
                     <i class="bi bi-building-up text-primary"></i>
                     <span>Consigners (Consignor)</span>
+                </a>
+                <a href="{{ route('pdf-editor.index') }}" class="nav-link {{ request()->routeIs('pdf-editor.*') ? 'active' : '' }}">
+                    <i class="bi bi-file-earmark-diff text-primary"></i>
+                    <span>PDF Visual Editor</span>
                 </a>
                 <a href="{{ route('logout') }}" class="nav-link text-danger nav-link-signout">
                     <i class="bi bi-box-arrow-right text-danger"></i>
@@ -143,6 +143,7 @@
 
         function toggleSidebar() {
             sidebar?.classList.toggle('show');
+            sidebar?.classList.toggle('open');
             sidebarBackdrop?.classList.toggle('show');
         }
 

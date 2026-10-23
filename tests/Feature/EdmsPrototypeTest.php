@@ -211,4 +211,37 @@ class EdmsPrototypeTest extends TestCase
             'edits_count' => 1,
         ]);
     }
+
+    /**
+     * Test header, sidebar, and footer are common across all authenticated pages.
+     */
+    public function test_common_header_sidebar_and_footer_are_present_on_all_pages(): void
+    {
+        $user = User::first();
+        $pages = ['/dashboard', '/consigners', '/pdf-editor'];
+
+        foreach ($pages as $url) {
+            $response = $this->actingAs($user)->get($url);
+            $response->assertStatus(200);
+
+            // Assert common sidebar elements
+            $response->assertSee('app-sidebar');
+            $response->assertSee('Reliance Granito');
+            $response->assertSee('Dashboard & Tower', false);
+            $response->assertSee('Consigners (Consignor)');
+            $response->assertSee('PDF Visual Editor');
+
+            // Assert common header elements
+            $response->assertSee('top-navbar');
+            $response->assertSee('Jodhpur Export Office & Morbi Ceramic Facility', false);
+            $response->assertSee('user-profile-badge');
+
+            // Assert common footer elements
+            $response->assertSee('app-footer');
+            $response->assertSee('Reliance Granito Private Limited');
+            $response->assertSee('Export Documentation Management System (EDMS)');
+            $response->assertSee('Powered by');
+            $response->assertSee('Laravel 12 & MySQL', false);
+        }
+    }
 }

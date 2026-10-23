@@ -19,13 +19,13 @@ $activeNav = $activeNav ?? 'dashboard';
       <i class="bi bi-speedometer2"></i>
       <span>Dashboard & Tower</span>
     </a>
-    <a href="pdf-editor.php" class="nav-link <?= $activeNav === 'pdf-editor' ? 'active' : '' ?>">
-      <i class="bi bi-file-earmark-diff text-primary"></i>
-      <span>PDF Visual Editor</span>
-    </a>
     <a href="consigners.php" class="nav-link <?= $activeNav === 'consigners' ? 'active' : '' ?>">
       <i class="bi bi-building-up text-primary"></i>
       <span>Consigners (Consignor)</span>
+    </a>
+    <a href="pdf-editor.php" class="nav-link <?= $activeNav === 'pdf-editor' ? 'active' : '' ?>">
+      <i class="bi bi-file-earmark-diff text-primary"></i>
+      <span>PDF Visual Editor</span>
     </a>
     <a href="login.php" class="nav-link text-danger nav-link-signout">
       <i class="bi bi-box-arrow-right text-danger"></i>

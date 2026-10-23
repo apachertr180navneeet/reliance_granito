@@ -1714,40 +1714,45 @@ body:has(#pdfStudioApp) .app-footer {
 }
 
 /* ==========================================================================
-   MINIMALIST VISUAL PDF EDITOR (.editor-app)
+   VISUAL PDF EDITOR STUDIO STYLING & COMMON SHELL
    ========================================================================== */
-body.pdf-editor-active {
-  overflow: hidden !important;
-}
-
-body.pdf-editor-active .main-wrapper {
-  overflow: hidden !important;
-  height: 100vh !important;
-}
-
-body.pdf-editor-active .app-footer {
-  display: none !important;
+.editor-studio-card {
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .editor-app {
   display: flex !important;
   flex-direction: column !important;
-  height: calc(100vh - 70px) !important;
   width: 100% !important;
-  background: #0F172A !important;
-  overflow: hidden !important;
+  background: transparent !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Common App Footer */
+.app-footer {
+  margin-top: auto;
+  background-color: #FFFFFF;
+  border-top: 1px solid var(--border-subtle);
+  padding: 16px 32px;
+  color: #64748B;
+  font-size: 0.82rem;
+  z-index: 50;
+  width: 100%;
 }
 
 /* Modern High-End Navigation Ribbon */
 .editor-header {
-  height: 60px;
+  min-height: 58px;
   background: #FFFFFF;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
+  padding: 10px 18px;
   z-index: 50;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
@@ -2049,7 +2054,6 @@ body.pdf-editor-active .app-footer {
 
 /* Canvas Viewport Environment */
 .editor-viewport {
-  flex: 1;
   position: relative;
   overflow: auto;
   display: flex;
@@ -2057,6 +2061,9 @@ body.pdf-editor-active .app-footer {
   align-items: flex-start;
   padding: 40px 20px 100px 20px;
   background: radial-gradient(circle, #1E293B 10%, #0F172A 90%);
+  min-height: 650px;
+  height: 720px;
+  border-radius: 0 0 12px 12px;
 }
 
 .paper-sheet {
@@ -2363,6 +2370,7 @@ body.sidebar-open .sidebar-backdrop {
     box-shadow: none !important;
   }
 
+  .app-sidebar.show,
   .app-sidebar.open {
     transform: translateX(0) !important;
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.45) !important;
@@ -2389,7 +2397,7 @@ body.sidebar-open .sidebar-backdrop {
 
   /* Visual PDF Editor Mobile Styles */
   .editor-app {
-    height: calc(100vh - 60px) !important;
+    height: auto !important;
   }
 
   .editor-header {
