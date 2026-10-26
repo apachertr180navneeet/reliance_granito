@@ -988,7 +988,9 @@
         }
 
         try {
-            const response = await fetch(`/consigners/${id}/status`, {
+            const statusUrl = `{{ url('consigners') }}/${id}/status`;
+
+            const response = await fetch(statusUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': window.csrfToken,
@@ -1089,7 +1091,9 @@
             formData.append('_method', 'DELETE');
             formData.append('_token', window.csrfToken);
 
-            const response = await fetch(`/consigners/${pendingDeleteId}`, {
+            const deleteUrl = `{{ url('consigners') }}/${pendingDeleteId}/delete`;
+
+            const response = await fetch(deleteUrl, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': window.csrfToken,
@@ -1107,7 +1111,7 @@
                 throw new Error(`Server returned status ${response.status}`);
             }
 
-            if (response.ok && result.success) {
+            if (result && result.success) {
                 // 1. Hide confirmation modal immediately
                 const modalEl = document.getElementById('consignerDeleteModal');
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);

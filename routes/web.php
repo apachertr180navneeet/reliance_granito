@@ -36,12 +36,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [ConsignerController::class, 'store'])->name('store');
         Route::get('/export', [ConsignerController::class, 'export'])->name('export');
         Route::post('/reset-demo', [ConsignerController::class, 'resetDemo'])->name('reset-demo');
-        Route::get('/{consigner}', [ConsignerController::class, 'show'])->name('show');
-        Route::get('/{consigner}/edit', [ConsignerController::class, 'edit'])->name('edit');
-        Route::match(['put', 'post'], '/{consigner}', [ConsignerController::class, 'update'])->name('update');
-        Route::match(['patch', 'post'], '/{consigner}/status', [ConsignerController::class, 'toggleStatus'])->name('toggle-status');
-        Route::match(['delete', 'post'], '/{consigner}', [ConsignerController::class, 'destroy'])->name('destroy');
-        Route::match(['delete', 'post'], '/{consigner}/delete', [ConsignerController::class, 'destroy'])->name('delete-alt');
+        Route::get('/{id}', [ConsignerController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ConsignerController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ConsignerController::class, 'update'])->name('update');
+        Route::match(['patch', 'post'], '/{id}/status', [ConsignerController::class, 'toggleStatus'])->name('toggle-status');
+        Route::match(['delete', 'post'], '/{id}/delete', [ConsignerController::class, 'destroy'])->name('delete-action');
+        Route::match(['delete', 'post'], '/{id}', function (Request $request, string|int $id) {
+            if ($request->input('_method') === 'PUT' || $request->input('_method') === 'PATCH') {
+                return app(ConsignerController::class)->update($request, $id);
+            }
+
+            return app(ConsignerController::class)->destroy($request, $id);
+        })->name('destroy');
     });
 
     // PDF Visual Editor & Masker
@@ -60,9 +66,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/settings', [InvoiceSettingController::class, 'update'])->name('settings.update');
         Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
         Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-        Route::match(['put', 'post'], '/{invoice}', [InvoiceController::class, 'update'])->name('update');
-        Route::match(['delete', 'post'], '/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
         Route::match(['delete', 'post'], '/{invoice}/delete', [InvoiceController::class, 'destroy'])->name('delete-alt');
+        Route::match(['delete', 'post'], '/{invoice}', function (Request $request, Invoice $invoice) {
+            if ($request->input('_method') === 'PUT' || $request->input('_method') === 'PATCH') {
+                return app(InvoiceController::class)->update($request, $invoice);
+            }
+
+            return app(InvoiceController::class)->destroy($request, $invoice);
+        })->name('destroy');
     });
 });
 

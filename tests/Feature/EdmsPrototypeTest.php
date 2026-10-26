@@ -352,4 +352,66 @@ class EdmsPrototypeTest extends TestCase
             'iec_branch' => '1',
         ]);
     }
+
+    /**
+     * Test consigner deletion via POST /consigners/{id} endpoint with JSON response.
+     */
+    public function test_consigner_can_be_deleted_via_post_to_consigners_id(): void
+    {
+        $user = User::first();
+        $consigner = Consigner::create([
+            'name' => 'Temporary Test Consigner for POST Delete',
+            'iec' => 'TEMP9999P',
+            'gstin' => '24TEMP9999P1Z1',
+            'registered_address' => 'Temp Address',
+            'status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($user)->post("/consigners/{$consigner->id}", [
+            '_method' => 'DELETE',
+        ], ['Accept' => 'application/json']);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $this->assertDatabaseMissing('consigners', ['id' => $consigner->id]);
+    }
+
+    /**
+     * Test consigner deletion via dedicated POST /consigners/{id}/delete endpoint.
+     */
+    public function test_consigner_can_be_deleted_via_delete_action_route(): void
+    {
+        $user = User::first();
+        $consigner = Consigner::create([
+            'name' => 'Temporary Test Consigner for Action Delete',
+            'iec' => 'TEMP8888P',
+            'gstin' => '24TEMP8888P1Z1',
+            'registered_address' => 'Temp Address 2',
+            'status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($user)->post("/consigners/{$consigner->id}/delete", [], ['Accept' => 'application/json']);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $this->assertDatabaseMissing('consigners', ['id' => $consigner->id]);
+    }
+
+    /**
+     * Test deleting a consigner that does not exist returns success without 404 crash.
+     */
+    public function test_deleting_missing_consigner_returns_graceful_json_success(): void
+    {
+        $user = User::first();
+        $response = $this->actingAs($user)->post('/consigners/999999', [], ['Accept' => 'application/json']);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+    }
 }

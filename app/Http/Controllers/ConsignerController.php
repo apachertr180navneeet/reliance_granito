@@ -128,16 +128,19 @@ class ConsignerController extends Controller
     /**
      * Display the specified consigner.
      */
-    public function show(Consigner $consigner): JsonResponse
+    public function show(string|int|Consigner $consigner): JsonResponse
     {
-        return response()->json($consigner);
+        $consignerModel = $consigner instanceof Consigner ? $consigner : Consigner::findOrFail($consigner);
+
+        return response()->json($consignerModel);
     }
 
     /**
      * Show the form for editing the specified consigner.
      */
-    public function edit(Consigner $consigner): View
+    public function edit(string|int|Consigner $consigner): View
     {
+        $consigner = $consigner instanceof Consigner ? $consigner : Consigner::findOrFail($consigner);
         $settings = InvoiceSetting::getSettings();
 
         $exporter = [
@@ -245,8 +248,10 @@ class ConsignerController extends Controller
     /**
      * Update the specified consigner in storage.
      */
-    public function update(Request $request, Consigner $consigner): JsonResponse|RedirectResponse
+    public function update(Request $request, string|int|Consigner $consigner): JsonResponse|RedirectResponse
     {
+        $consigner = $consigner instanceof Consigner ? $consigner : Consigner::findOrFail($consigner);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'entity_type' => ['nullable', 'string', 'max:100'],
@@ -323,8 +328,16 @@ class ConsignerController extends Controller
     {
         $consignerModel = $consigner instanceof Consigner ? $consigner : Consigner::find($consigner);
 
+        $isJson = $request->wantsJson()
+            || $request->ajax()
+            || $request->expectsJson()
+            || $request->isJson()
+            || str_contains((string) $request->header('Accept'), 'json')
+            || $request->hasHeader('X-CSRF-TOKEN')
+            || $request->hasHeader('X-HTTP-Method-Override');
+
         if (! $consignerModel) {
-            if ($request->wantsJson() || $request->ajax()) {
+            if ($isJson) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Consigner record already removed.',
@@ -340,12 +353,13 @@ class ConsignerController extends Controller
         $id = $consignerModel->id;
         $consignerModel->delete();
 
-        if ($request->wantsJson() || $request->ajax()) {
+        if ($isJson) {
             return response()->json([
                 'success' => true,
                 'message' => "Consigner {$name} deleted successfully.",
                 'id' => $id,
                 'total' => Consigner::count(),
+                'active' => Consigner::where('status', 'Active')->count(),
             ]);
         }
 

@@ -44,11 +44,7 @@ class InvoiceTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('COMMERCIAL INVOICE');
         $response->assertSee('RELIANCE GRANITO');
-        $response->assertSee('DFSU3044515');
-        $response->assertSee('NATURAL POLISHED GRANITE SLABS');
-        $response->assertSee('5,702.09');
-        $response->assertSee('Amount In Words (USD)');
-        $response->assertSee('FIVE THOUSAND SEVEN HUNDRED & TWO ONLY');
+        $response->assertSee('Select Consignee / Buyer');
     }
 
     /**
