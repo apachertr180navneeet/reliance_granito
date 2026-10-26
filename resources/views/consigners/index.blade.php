@@ -989,16 +989,26 @@
 
         try {
             const response = await fetch(`/consigners/${id}/status`, {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': window.csrfToken,
+                    'X-HTTP-Method-Override': 'PATCH',
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ status: nextStatus })
+                body: JSON.stringify({ 
+                    status: nextStatus,
+                    _method: 'PATCH'
+                })
             });
 
-            const result = await response.json();
+            let result;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                result = await response.json();
+            } else {
+                throw new Error(`Server returned status ${response.status}`);
+            }
 
             if (response.ok && result.success) {
                 const updatedStatus = result.status;
@@ -1033,7 +1043,7 @@
                     showToast(result.message || `Status updated to ${updatedStatus}.`, 'success');
                 }
             } else {
-                throw new Error(result.message || 'Failed to update status');
+                throw new Error(result?.message || 'Failed to update status');
             }
         } catch (err) {
             console.error('Status toggle error:', err);
@@ -1075,15 +1085,27 @@
         }
 
         try {
+            const formData = new FormData();
+            formData.append('_method', 'DELETE');
+            formData.append('_token', window.csrfToken);
+
             const response = await fetch(`/consigners/${pendingDeleteId}`, {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': window.csrfToken,
+                    'X-HTTP-Method-Override': 'DELETE',
                     'Accept': 'application/json'
-                }
+                },
+                body: formData
             });
 
-            const result = await response.json();
+            let result;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                result = await response.json();
+            } else {
+                throw new Error(`Server returned status ${response.status}`);
+            }
 
             if (response.ok && result.success) {
                 // 1. Hide confirmation modal immediately

@@ -286,20 +286,29 @@ class ConsignerController extends Controller
     /**
      * Toggle or update consigner status via AJAX.
      */
-    public function toggleStatus(Request $request, Consigner $consigner): JsonResponse
+    public function toggleStatus(Request $request, string|int|Consigner $consigner): JsonResponse
     {
-        $newStatus = $request->input('status');
-        if (! in_array($newStatus, ['Active', 'Inactive'])) {
-            $newStatus = $consigner->status === 'Active' ? 'Inactive' : 'Active';
+        $consignerModel = $consigner instanceof Consigner ? $consigner : Consigner::find($consigner);
+
+        if (! $consignerModel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Consigner record not found or already removed.',
+            ], 404);
         }
 
-        $consigner->update(['status' => $newStatus]);
+        $newStatus = $request->input('status');
+        if (! in_array($newStatus, ['Active', 'Inactive'])) {
+            $newStatus = $consignerModel->status === 'Active' ? 'Inactive' : 'Active';
+        }
+
+        $consignerModel->update(['status' => $newStatus]);
 
         return response()->json([
             'success' => true,
             'message' => "Consigner status updated to {$newStatus}.",
             'status' => $newStatus,
-            'data' => $consigner,
+            'data' => $consignerModel,
             'stats' => [
                 'total' => Consigner::count(),
                 'active' => Consigner::where('status', 'Active')->count(),
@@ -310,11 +319,26 @@ class ConsignerController extends Controller
     /**
      * Remove the specified consigner from storage.
      */
-    public function destroy(Request $request, Consigner $consigner): JsonResponse|RedirectResponse
+    public function destroy(Request $request, string|int|Consigner $consigner): JsonResponse|RedirectResponse
     {
-        $name = $consigner->name;
-        $id = $consigner->id;
-        $consigner->delete();
+        $consignerModel = $consigner instanceof Consigner ? $consigner : Consigner::find($consigner);
+
+        if (! $consignerModel) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Consigner record already removed.',
+                    'id' => is_numeric($consigner) ? (int) $consigner : null,
+                    'total' => Consigner::count(),
+                ]);
+            }
+
+            return redirect()->route('consigners.index')->with('success', 'Consigner record was already removed.');
+        }
+
+        $name = $consignerModel->name;
+        $id = $consignerModel->id;
+        $consignerModel->delete();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([

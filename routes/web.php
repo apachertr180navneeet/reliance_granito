@@ -38,9 +38,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/reset-demo', [ConsignerController::class, 'resetDemo'])->name('reset-demo');
         Route::get('/{consigner}', [ConsignerController::class, 'show'])->name('show');
         Route::get('/{consigner}/edit', [ConsignerController::class, 'edit'])->name('edit');
-        Route::put('/{consigner}', [ConsignerController::class, 'update'])->name('update');
-        Route::patch('/{consigner}/status', [ConsignerController::class, 'toggleStatus'])->name('toggle-status');
-        Route::delete('/{consigner}', [ConsignerController::class, 'destroy'])->name('destroy');
+        Route::match(['put', 'post'], '/{consigner}', [ConsignerController::class, 'update'])->name('update');
+        Route::match(['patch', 'post'], '/{consigner}/status', [ConsignerController::class, 'toggleStatus'])->name('toggle-status');
+        Route::match(['delete', 'post'], '/{consigner}', [ConsignerController::class, 'destroy'])->name('destroy');
+        Route::match(['delete', 'post'], '/{consigner}/delete', [ConsignerController::class, 'destroy'])->name('delete-alt');
     });
 
     // PDF Visual Editor & Masker
@@ -59,8 +60,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/settings', [InvoiceSettingController::class, 'update'])->name('settings.update');
         Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
         Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
-        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
-        Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+        Route::match(['put', 'post'], '/{invoice}', [InvoiceController::class, 'update'])->name('update');
+        Route::match(['delete', 'post'], '/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+        Route::match(['delete', 'post'], '/{invoice}/delete', [InvoiceController::class, 'destroy'])->name('delete-alt');
     });
 });
 
