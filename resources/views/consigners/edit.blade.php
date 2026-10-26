@@ -392,7 +392,7 @@
             <div class="p-3">
               <button type="submit" class="btn btn-primary w-100 fw-semibold py-2.5 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3">
                 <i class="bi bi-check-lg fs-5"></i>
-                <span>Update Consigner</span>
+                <span>Update Consigner in MySQL</span>
               </button>
               
               <div class="d-flex gap-2">

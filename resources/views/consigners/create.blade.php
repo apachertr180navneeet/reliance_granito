@@ -16,7 +16,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
       <div>
         <div class="d-flex align-items-center gap-2 mb-1">
-          <h2 class="fw-bold text-dark mb-0" style="font-size: 1.6rem; letter-spacing: -0.02em;">Add New Consigner</h2>
+          <h2 class="fw-bold text-dark mb-0" style="font-size: 1.6rem; letter-spacing: -0.02em;">Add New Consigner Entity</h2>
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2.5 py-1" style="font-size: 0.76rem;">
             New Exporter Entity
           </span>
@@ -68,7 +68,7 @@
               <i class="bi bi-buildings"></i>
             </div>
             <div>
-              <div class="form-header-title">Company Legal Identity & Entity Classification</div>
+              <div class="form-header-title">Firm & Exporter Legal Particulars</div>
               <div class="form-header-desc">Registered firm identity matching DGFT IEC certificate and Customs Shipping Bills</div>
             </div>
           </div>
@@ -377,7 +377,7 @@
             <div class="p-3">
               <button type="submit" class="btn btn-primary w-100 fw-semibold py-2.5 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3">
                 <i class="bi bi-check-lg fs-5"></i>
-                <span>Save Consigner</span>
+                <span>Save Consigner to MySQL</span>
               </button>
               <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary w-100 py-2 rounded-3" style="font-size: 0.88rem;">
                 <i class="bi bi-x-lg me-1"></i> Cancel & Discard

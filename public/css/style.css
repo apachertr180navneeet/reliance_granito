@@ -2032,7 +2032,8 @@ body:has(#pdfStudioApp) .app-footer {
   font-size: 0.8rem;
 }
 
-.format-bar.show {
+.format-bar.show,
+.format-bar.active {
   display: flex;
 }
 
@@ -2059,21 +2060,40 @@ body:has(#pdfStudioApp) .app-footer {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 20px 100px 20px;
-  background: radial-gradient(circle, #1E293B 10%, #0F172A 90%);
-  min-height: 650px;
-  height: 720px;
+  padding: 30px 20px 120px 20px;
+  background: radial-gradient(circle at 50% 30%, #1E293B 0%, #0B1120 100%);
+  min-height: 640px;
+  height: calc(100vh - 250px);
   border-radius: 0 0 12px 12px;
 }
 
 .paper-sheet {
   position: relative;
   background: #FFFFFF;
-  box-shadow: 0 25px 60px -15px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.1);
+  box-shadow: 0 25px 60px -15px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.12);
   border-radius: 4px;
   overflow: hidden;
   user-select: none;
   display: none;
+  margin-bottom: 80px; /* guarantees document bottom never overlaps floating dock */
+}
+
+.pdf-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  border-radius: 0 0 12px 12px;
+  transition: opacity 0.2s ease;
 }
 
 #pdfCanvas {

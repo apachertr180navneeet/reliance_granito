@@ -4,47 +4,53 @@
 <main class="content-area p-3 p-lg-4" id="pdfEditorMain">
   
   <!-- Page Header & Action Bar -->
-  <div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card border-0 shadow-sm mb-3" style="border-radius:12px; background: #FFFFFF; border: 1px solid #E2E8F0;">
     <div class="card-body p-3 p-md-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-2 py-1" style="font-size:0.75rem;">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase px-2.5 py-1" style="font-size:0.75rem;">
               <i class="bi bi-file-earmark-diff me-1"></i>PDF Visual Editor
             </span>
-            <span class="badge bg-success-subtle text-success fw-bold px-2 py-1" style="font-size:0.75rem;">
+            <span class="badge bg-success-subtle text-success fw-bold px-2.5 py-1" style="font-size:0.75rem;">
               <i class="bi bi-database-check me-1"></i>MySQL Synced
             </span>
-            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge" id="saveBadge">Clean</span>
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle doc-save-badge px-2.5 py-1" id="saveBadge">{{ $selectedDoc ? 'Clean' : 'Standby' }}</span>
           </div>
-          <h3 class="fw-bold text-dark mb-1">Export Document PDF Visual Editor & Masker</h3>
-          <p class="text-muted small mb-0" id="docStatusLabel">Loading authentic document from MySQL...</p>
+          <h3 class="fw-bold text-dark mb-1 fs-4">Export Document PDF Visual Editor & Masker</h3>
+          <p class="text-muted small mb-0" id="docStatusLabel">{{ $selectedDoc ? 'Loading authentic document from MySQL...' : 'No document loaded • Choose from catalog or upload a PDF' }}</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
-          <!-- Document Switcher Dropdown (MySQL Backed) -->
-          <div class="dropdown">
-            <button class="btn btn-outline-dark dropdown-toggle doc-pill d-flex align-items-center gap-2 font-monospace shadow-sm px-3" type="button" data-bs-toggle="dropdown" id="docNameLabel">
-              <i class="bi bi-file-earmark-pdf text-danger"></i>
-              <span>{{ $selectedDoc->name ?? 'Select Export PDF' }}</span>
+          <!-- Document Switcher Dropdown (MySQL Backed, Dynamic Loading) -->
+          <div class="dropdown" id="docSwitcherContainer">
+            <button class="btn btn-outline-dark dropdown-toggle doc-pill d-flex align-items-center gap-2 font-monospace shadow-sm px-3 py-2" type="button" data-bs-toggle="dropdown" id="docNameLabel" aria-expanded="false" title="Switch or choose export PDF">
+              <i class="bi bi-file-earmark-pdf text-danger fs-6"></i>
+              <span id="currentDocTitle" class="text-truncate" style="max-width: 220px;">{{ $selectedDoc->name ?? 'Choose Export PDF...' }}</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="min-width: 320px;">
-              <li><h6 class="dropdown-header text-uppercase">Sample Export Documents (MySQL)</h6></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg py-2" style="min-width: 340px; max-height: 420px; overflow-y: auto;" id="docDropdownList">
+              <li><h6 class="dropdown-header text-uppercase fw-bold text-muted" style="font-size:0.7rem; letter-spacing:0.05em;">Sample Export Documents (MySQL)</h6></li>
               @foreach($documents as $doc)
               <li>
-                <a class="dropdown-item d-flex align-items-center justify-content-between py-2 {{ ($selectedDoc && $selectedDoc->id === $doc->id) ? 'active' : '' }}" 
-                   href="{{ route('pdf-editor.index', ['doc' => $doc->name]) }}">
-                  <div>
-                    <div class="fw-semibold text-truncate" style="max-width: 200px;">{{ $doc->title }}</div>
-                    <div class="small opacity-75 font-monospace">{{ $doc->name }}</div>
+                <a class="dropdown-item d-flex align-items-center justify-content-between py-2 px-3 doc-switch-link {{ ($selectedDoc && $selectedDoc->id === $doc->id) ? 'active' : '' }}" 
+                   href="javascript:void(0)"
+                   data-doc-name="{{ $doc->name }}"
+                   data-doc-url="{{ route('documents.stream', ['filename' => $doc->name]) }}"
+                   onclick="switchDocument('{{ $doc->name }}', '{{ route('documents.stream', ['filename' => $doc->name]) }}'); return false;">
+                  <div class="pe-2 text-truncate">
+                    <div class="fw-semibold text-truncate" style="max-width: 210px;">{{ $doc->title }}</div>
+                    <div class="small opacity-75 font-monospace text-truncate" style="max-width: 210px;">{{ $doc->name }}</div>
                   </div>
-                  <span class="badge bg-secondary-subtle text-secondary small">{{ number_format($doc->file_size / 1024, 0) }}KB</span>
+                  <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                    <span class="badge bg-secondary-subtle text-secondary small">{{ number_format($doc->file_size / 1024, 0) }}KB</span>
+                    <i class="bi bi-check2 text-primary fs-6 doc-check-icon {{ ($selectedDoc && $selectedDoc->id === $doc->id) ? '' : 'd-none' }}"></i>
+                  </div>
                 </a>
               </li>
               @endforeach
               <li><hr class="dropdown-divider"></li>
               <li>
-                <a class="dropdown-item d-flex align-items-center gap-2 text-primary" href="javascript:void(0)" onclick="document.getElementById('fileInput').click()">
+                <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="javascript:void(0)" onclick="document.getElementById('fileInput').click()">
                   <i class="bi bi-upload"></i> Upload Custom PDF File...
                 </a>
               </li>
@@ -54,14 +60,20 @@
           <!-- Hidden File Upload Input -->
           <input type="file" id="fileInput" accept="application/pdf" class="file-input-hidden" onchange="handleFile(event)">
           
+          <!-- Instant Reload Current PDF Button -->
+          <button class="btn btn-light border d-flex align-items-center gap-2 shadow-sm px-3 py-2 text-secondary" id="btnReload" onclick="reloadCurrentPdf()" {{ $selectedDoc ? '' : 'disabled' }} title="Reload authentic PDF from disk / database">
+            <i class="bi bi-arrow-clockwise text-primary"></i>
+            <span class="d-none d-sm-inline">Reload PDF</span>
+          </button>
+
           <!-- Upload PDF Button -->
-          <button class="btn btn-light border d-flex align-items-center gap-2 shadow-sm px-3" onclick="document.getElementById('fileInput').click()" title="Upload a local PDF file">
+          <button class="btn btn-light border d-flex align-items-center gap-2 shadow-sm px-3 py-2" onclick="document.getElementById('fileInput').click()" title="Upload a local PDF file">
             <i class="bi bi-upload text-primary"></i>
-            <span>Upload PDF</span>
+            <span class="d-none d-sm-inline">Upload PDF</span>
           </button>
 
           <!-- Save & Export Clean PDF Button -->
-          <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-3" id="btnDownload" onclick="downloadPdf()" disabled title="Save edits to MySQL and download vector PDF">
+          <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-3 py-2 fw-semibold" id="btnDownload" onclick="downloadPdf()" disabled title="Save edits to MySQL and download vector PDF">
             <i class="bi bi-floppy2-fill"></i>
             <span>Save / Export PDF</span>
           </button>
@@ -81,11 +93,14 @@
           <button type="button" class="tool-btn active" id="btnToolSelect" onclick="setTool('select')" title="Select / Move / Resize (V)">
             <i class="bi bi-cursor-fill"></i> <span>Select</span>
           </button>
-          <button type="button" class="tool-btn" id="btnToolWhiteout" onclick="setTool('whiteout')" title="Draw Solid Whiteout Mask (W)">
-            <i class="bi bi-square-fill text-warning"></i> <span>Whiteout</span>
+          <button type="button" class="tool-btn" id="btnToolTextTransparent" onclick="setTool('text_transparent')" title="Add Transparent Text directly onto PDF without background mask (X)">
+            <i class="bi bi-type text-info"></i> <span>Transparent Text</span>
           </button>
           <button type="button" class="tool-btn" id="btnToolText" onclick="setTool('text')" title="White Mask + Replacement Text (T)">
-            <i class="bi bi-fonts text-primary"></i> <span>Replace Text</span>
+            <i class="bi bi-fonts text-primary"></i> <span>Mask & Replace</span>
+          </button>
+          <button type="button" class="tool-btn" id="btnToolWhiteout" onclick="setTool('whiteout')" title="Draw Solid Whiteout Mask (W)">
+            <i class="bi bi-square-fill text-warning"></i> <span>Whiteout</span>
           </button>
           <button type="button" class="tool-btn" id="btnToolRedact" onclick="setTool('redact')" title="Solid Black Redaction (R)">
             <i class="bi bi-square-fill text-dark"></i> <span>Redact</span>
@@ -139,43 +154,68 @@
 
         <!-- Contextual Formatting Bar -->
         <div class="format-bar" id="formatBar">
-          <button type="button" class="btn btn-sm btn-light border py-0 px-2 fw-semibold" id="btnToggleBackground" onclick="toggleBackgroundMask()" title="Toggle Transparent vs Solid White Mask">
-            <i class="bi bi-circle me-1 text-primary" id="iconBackgroundMask"></i><span id="labelBackgroundMask">Transparent</span>
-          </button>
+          <div class="btn-group btn-group-sm me-1" role="group" aria-label="Text Background Mode">
+            <button type="button" class="btn btn-sm btn-info text-white fw-bold py-0 px-2" id="btnBgTransparent" onclick="setBackgroundMask(true)" title="100% Transparent Text (No background block)">
+              <i class="bi bi-circle me-1"></i>Transparent
+            </button>
+            <button type="button" class="btn btn-sm btn-light border py-0 px-2 text-muted" id="btnBgWhiteMask" onclick="setBackgroundMask(false)" title="Solid White Mask Box (Covers underlying document text)">
+              <i class="bi bi-check-circle-fill me-1 text-success"></i>White Mask
+            </button>
+          </div>
           <span class="fw-bold text-primary ms-1 format-label-size">SIZE:</span>
           <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(-1)" title="Decrease Size">-</button>
           <span id="fontSizeDisplay" class="fw-semibold text-dark px-1 format-font-val">10pt</span>
           <button class="btn btn-sm btn-light border py-0 px-2" onclick="stepFontSize(1)" title="Increase Size">+</button>
           <button class="btn btn-sm btn-light border py-0 px-2" id="btnBoldToggle" onclick="toggleBold()" title="Toggle Bold"><b>B</b></button>
-          <button class="btn btn-sm btn-light border py-0 px-2" onclick="fitSelected()" title="Auto-fit white mask box to text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit Box</button>
+          <button class="btn btn-sm btn-light border py-0 px-2" onclick="fitSelected()" title="Auto-fit box to text"><i class="bi bi-arrows-angle-expand me-1"></i>Fit Box</button>
           <button class="btn btn-sm btn-success py-0 px-2 fw-semibold ms-1" onclick="deselectAll()" title="Done with this edit"><i class="bi bi-check2 me-1"></i>Done</button>
           <button class="btn btn-sm btn-outline-danger py-0 px-2 ms-1" onclick="deleteSelected()" title="Delete Selected"><i class="bi bi-trash"></i></button>
         </div>
       </div>
 
-      <!-- Right: Operational Tips -->
-      <div class="d-none d-lg-flex align-items-center gap-2 text-muted small">
-        <i class="bi bi-lightbulb text-warning"></i>
-        <span>Draw over numbers to mask & replace. Drag & drop consigner to stamp.</span>
+      <!-- Right: Operational Tips & Quick Actions -->
+      <div class="d-flex align-items-center gap-3">
+        <button type="button" class="btn btn-sm btn-light border text-muted d-flex align-items-center gap-1.5 py-1 px-2.5" onclick="resetDocumentEdits()" title="Clear unsaved annotations on current page">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          <span class="d-none d-md-inline">Reset Edits</span>
+        </button>
+        <div class="d-none d-xl-flex align-items-center gap-2 text-muted small">
+          <i class="bi bi-lightbulb text-warning"></i>
+          <span>Draw over numbers to mask & replace. Drag consigner to stamp.</span>
+        </div>
       </div>
     </div>
 
     <!-- Main Viewport / Desk -->
     <div class="editor-viewport" id="viewport">
       
+      <!-- Sleek Loading Overlay -->
+      <div class="pdf-loading-overlay" id="pdfLoadingOverlay" style="display:none;">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="fw-bold fs-5 mb-1 text-white" id="loadingOverlayTitle">Loading PDF Document...</div>
+        <div class="text-white-50 small" id="loadingOverlaySub">Streaming authentic document from MySQL backend</div>
+      </div>
+
       <!-- Modern Elegant Dropzone Empty State -->
-      <div class="empty-hero" id="emptyHero" style="display:none;">
+      <div class="empty-hero" id="emptyHero" style="{{ $selectedDoc ? 'display:none;' : 'display:flex;' }}">
         <div class="empty-dropzone" onclick="document.getElementById('fileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
           <div class="dropzone-icon-bubble">
             <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
           </div>
-          <h4 class="fw-bold text-white mb-2">Upload Export PDF Document</h4>
+          <h4 class="fw-bold text-white mb-2">Upload or Select Export PDF</h4>
           <p class="text-white-50 small empty-desc">
-            Drag & drop your export document here, or click to browse. Easily whiteout sensitive values, stamp verified consigner particulars, and edit text with 100% solid masking.
+            Drag & drop your export document here, or choose from the catalog above. Easily whiteout sensitive values, stamp verified consigner particulars, and edit text with 100% solid masking.
           </p>
-          <button type="button" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-semibold d-inline-flex align-items-center gap-2">
-            <i class="bi bi-folder2-open"></i> Browse PDF File
-          </button>
+          <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 mt-2">
+            <button type="button" class="btn btn-primary btn-sm px-4 py-2 shadow-sm fw-semibold d-inline-flex align-items-center gap-2" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">
+              <i class="bi bi-folder2-open"></i> Browse Local PDF
+            </button>
+            <button type="button" class="btn btn-outline-light btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" onclick="event.stopPropagation(); openDocDropdown();">
+              <i class="bi bi-collection me-1"></i> Choose from MySQL Catalog
+            </button>
+          </div>
           <div class="text-white-50 small mt-3 dropzone-hint">
             Supports: Customs EDI Shipping Bills, Commercial Invoices, Bills of Lading, Packing Lists
           </div>
@@ -183,7 +223,7 @@
       </div>
 
       <!-- Paper Sheet Container -->
-      <div class="paper-sheet" id="paperSheet">
+      <div class="paper-sheet" id="paperSheet" style="{{ $selectedDoc ? 'display:block;' : 'display:none;' }}">
         <canvas id="pdfCanvas"></canvas>
         <canvas id="drawCanvas"></canvas>
         
@@ -202,7 +242,7 @@
       </div>
 
       <!-- Floating Dock -->
-      <div class="floating-dock" id="floatingDock">
+      <div class="floating-dock" id="floatingDock" style="{{ $selectedDoc ? 'display:flex;' : 'display:none;' }}">
         <button class="dock-btn" id="btnPrev" onclick="navPage(-1)" disabled title="Previous Page">
           <i class="bi bi-chevron-left"></i>
         </button>
@@ -220,11 +260,15 @@
         <button class="dock-btn" onclick="zoomChange(0.15)" title="Zoom In">
           <i class="bi bi-zoom-in"></i>
         </button>
+        <button class="dock-btn" onclick="fitToWidth()" title="Fit to Width">
+          <i class="bi bi-arrows-expand"></i>
+        </button>
 
         <div class="dock-divider"></div>
 
         <button class="dock-btn" onclick="undo()" title="Undo (Ctrl+Z)"><i class="bi bi-arrow-counterclockwise"></i></button>
         <button class="dock-btn" onclick="redo()" title="Redo (Ctrl+Y)"><i class="bi bi-arrow-clockwise"></i></button>
+        <button class="dock-btn text-warning" onclick="reloadCurrentPdf()" title="Reload PDF from Server"><i class="bi bi-arrow-repeat"></i></button>
       </div>
 
     </div>
@@ -249,13 +293,13 @@
  */
 
 const MYSQL_CONSIGNERS = @json($consigners);
-const INITIAL_DOC_NAME = "{{ $selectedDoc->name ?? '1469 SB ORIGINAL.PDF' }}";
+const INITIAL_DOC_NAME = "{{ $selectedDoc->name ?? '' }}";
 const INITIAL_DOC_URL = "{{ $selectedDoc ? route('documents.stream', ['filename' => $selectedDoc->name]) : '' }}";
 
 const App = {
   pdfDoc: null,
   rawBytes: null,
-  fileName: INITIAL_DOC_NAME,
+  fileName: INITIAL_DOC_NAME || "",
   numPages: 0,
   page: 1,
   scale: 1.0,
@@ -291,23 +335,43 @@ const ui = {
   btnPrev: document.getElementById("btnPrev"),
   btnNext: document.getElementById("btnNext"),
   btnDownload: document.getElementById("btnDownload"),
+  btnReload: document.getElementById("btnReload"),
   docNameLabel: document.getElementById("docNameLabel"),
+  currentDocTitle: document.getElementById("currentDocTitle"),
   docStatusLabel: document.getElementById("docStatusLabel"),
   saveBadge: document.getElementById("saveBadge"),
   formatBar: document.getElementById("formatBar"),
   fontSizeDisplay: document.getElementById("fontSizeDisplay"),
   btnBoldToggle: document.getElementById("btnBoldToggle"),
-  viewport: document.getElementById("viewport")
+  viewport: document.getElementById("viewport"),
+  pdfLoadingOverlay: document.getElementById("pdfLoadingOverlay"),
+  loadingOverlayTitle: document.getElementById("loadingOverlayTitle"),
+  loadingOverlaySub: document.getElementById("loadingOverlaySub")
 };
+
+function showLoading(title = "Loading PDF Document...", sub = "Streaming authentic document from MySQL backend") {
+  if (ui.pdfLoadingOverlay) {
+    if (ui.loadingOverlayTitle) ui.loadingOverlayTitle.textContent = title;
+    if (ui.loadingOverlaySub) ui.loadingOverlaySub.textContent = sub;
+    ui.pdfLoadingOverlay.style.display = "flex";
+  }
+}
+
+function hideLoading() {
+  if (ui.pdfLoadingOverlay) {
+    ui.pdfLoadingOverlay.style.display = "none";
+  }
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   setupCanvasEvents();
   setupKeyboardEvents();
   initConsignersDragListeners();
 
-  // Load initial document from MySQL catalog
-  if (INITIAL_DOC_URL) {
-    ui.docStatusLabel.textContent = "Streaming " + INITIAL_DOC_NAME + " from MySQL...";
+  // Load initial document ONLY if explicitly requested via ?doc=... URL
+  if (INITIAL_DOC_URL && INITIAL_DOC_NAME) {
+    showLoading(`Streaming ${INITIAL_DOC_NAME}...`, "Retrieving authentic export docket from MySQL");
+    ui.docStatusLabel.textContent = `Streaming ${INITIAL_DOC_NAME} from MySQL...`;
     try {
       const response = await fetch(INITIAL_DOC_URL);
       if (response.ok) {
@@ -315,14 +379,186 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loadPdfBytes(buffer, INITIAL_DOC_NAME);
         await loadSavedEditsFromDatabase(INITIAL_DOC_NAME);
       } else {
-        ui.emptyHero.style.display = "flex";
+        showEmptyWorkspace();
       }
     } catch (e) {
       console.warn("Could not load initial document:", e);
-      ui.emptyHero.style.display = "flex";
+      showEmptyWorkspace();
+    } finally {
+      hideLoading();
     }
   } else {
+    // Start empty by default without any preloaded PDF
+    showEmptyWorkspace();
+  }
+});
+
+// Reset editor to clean empty workspace state
+function showEmptyWorkspace() {
+  App.pdfDoc = null;
+  App.rawBytes = null;
+  App.fileName = "";
+  App.annotations = {};
+  App.history = [];
+  App.historyIdx = -1;
+  App.selectedId = null;
+
+  if (ui.emptyHero) ui.emptyHero.style.display = "flex";
+  if (ui.paperSheet) ui.paperSheet.style.display = "none";
+  if (ui.floatingDock) ui.floatingDock.style.display = "none";
+  if (ui.btnDownload) ui.btnDownload.disabled = true;
+  if (ui.btnReload) ui.btnReload.disabled = true;
+  if (ui.currentDocTitle) ui.currentDocTitle.textContent = "Choose Export PDF...";
+  if (ui.docStatusLabel) ui.docStatusLabel.textContent = "No document loaded • Choose from catalog or upload a PDF";
+
+  // Deselect all active classes in dropdown
+  document.querySelectorAll("#docDropdownList .doc-switch-link").forEach(link => {
+    link.classList.remove("active");
+    const checkIcon = link.querySelector(".doc-check-icon");
+    if (checkIcon) checkIcon.classList.add("d-none");
+  });
+
+  updateSaveBadge(false);
+}
+
+// Open document dropdown menu programmatically
+function openDocDropdown() {
+  const dropdownBtn = document.getElementById("docNameLabel");
+  if (dropdownBtn) {
+    const bsDrop = bootstrap.Dropdown.getOrCreateInstance(dropdownBtn);
+    bsDrop.show();
+  }
+}
+
+// Dynamic In-App Document Switching (No full-page flicker)
+async function switchDocument(docName, streamUrl) {
+  if (App.fileName === docName && App.pdfDoc) {
+    return;
+  }
+  showLoading(`Streaming ${docName}...`, "Retrieving authentic export docket from MySQL");
+  ui.docStatusLabel.textContent = `Streaming ${docName} from MySQL...`;
+  if (ui.currentDocTitle) {
+    ui.currentDocTitle.textContent = docName;
+  }
+
+  // Update active check in dropdown
+  document.querySelectorAll("#docDropdownList .doc-switch-link").forEach(link => {
+    const isTarget = link.getAttribute("data-doc-name") === docName;
+    link.classList.toggle("active", isTarget);
+    const checkIcon = link.querySelector(".doc-check-icon");
+    if (checkIcon) {
+      checkIcon.classList.toggle("d-none", !isTarget);
+    }
+  });
+
+  try {
+    const response = await fetch(streamUrl);
+    if (!response.ok) {
+      throw new Error(`Server returned HTTP ${response.status}`);
+    }
+    const buffer = await response.arrayBuffer();
+    await loadPdfBytes(buffer, docName);
+    await loadSavedEditsFromDatabase(docName);
+
+    // Update browser URL without reloading page
+    const newUrl = `${window.location.pathname}?doc=${encodeURIComponent(docName)}`;
+    window.history.pushState({ doc: docName, url: streamUrl }, "", newUrl);
+
+    if (window.showToast) {
+      showToast(`Loaded ${docName} successfully`, "info");
+    }
+  } catch (err) {
+    console.error("Error switching document:", err);
+    hideLoading();
+    alert(`Could not load document: ${err.message}`);
     ui.emptyHero.style.display = "flex";
+  } finally {
+    hideLoading();
+  }
+}
+
+// Reload authentic PDF from disk / MySQL (with cache busting)
+async function reloadCurrentPdf() {
+  const docName = App.fileName || INITIAL_DOC_NAME;
+  if (!docName) {
+    openDocDropdown();
+    if (window.showToast) {
+      showToast("Please choose an export document from the catalog or upload a PDF first", "info");
+    }
+    return;
+  }
+  const reloadUrl = `/docs/${encodeURIComponent(docName)}?t=${Date.now()}`;
+  showLoading(`Reloading ${docName}...`, "Refreshing authentic PDF from disk / database");
+  ui.docStatusLabel.textContent = `Reloading ${docName}...`;
+
+  try {
+    const response = await fetch(reloadUrl);
+    if (!response.ok) {
+      throw new Error(`Server returned HTTP ${response.status}`);
+    }
+    const buffer = await response.arrayBuffer();
+    await loadPdfBytes(buffer, docName);
+    await loadSavedEditsFromDatabase(docName);
+    if (window.showToast) {
+      showToast(`Reloaded ${docName} from MySQL!`, "success");
+    }
+  } catch (err) {
+    console.error("Could not reload PDF:", err);
+    alert(`Failed to reload PDF: ${err.message}`);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Reset edits on the current document
+function resetDocumentEdits() {
+  if (!App.pdfDoc) {
+    if (window.showToast) {
+      showToast("Please open a document first before editing", "info");
+    }
+    return;
+  }
+  const currentCount = Object.values(App.annotations).flat().length;
+  if (currentCount === 0) {
+    if (window.showToast) {
+      showToast("No active edits to reset on this document", "info");
+    }
+    return;
+  }
+  if (!confirm("Are you sure you want to revert all masks and annotations on this document?")) {
+    return;
+  }
+  App.annotations = {};
+  App.selectedId = null;
+  saveSnapshot();
+  updateSaveBadge(false);
+  redraw();
+  syncFormatBar(null);
+  if (window.showToast) {
+    showToast("Reverted annotations to clean document", "info");
+  }
+}
+
+// Fit document to viewport width
+async function fitToWidth() {
+  if (!App.pdfDoc) return;
+  const page = await App.pdfDoc.getPage(App.page);
+  const unscaled = page.getViewport({ scale: 1.0 });
+  const containerWidth = ui.viewport.clientWidth - 80;
+  App.scale = Math.max(0.4, Math.min(2.0, containerWidth / unscaled.width));
+  deselectAll();
+  await renderPage();
+  updateDock();
+}
+
+// Handle Browser Back / Forward buttons
+window.addEventListener("popstate", (e) => {
+  const params = new URLSearchParams(window.location.search);
+  const doc = params.get("doc");
+  if (doc && doc !== App.fileName) {
+    switchDocument(doc, `/docs/${encodeURIComponent(doc)}`);
+  } else if (!doc && App.pdfDoc) {
+    showEmptyWorkspace();
   }
 });
 
@@ -407,6 +643,7 @@ function handleFile(e) {
 }
 
 async function loadPdfBytes(arrayBuffer, name) {
+  showLoading(`Parsing ${name}...`, "Processing vector PDF pages with PDF.js");
   App.rawBytes = arrayBuffer.slice(0);
   App.fileName = name;
   App.annotations = {};
@@ -414,30 +651,41 @@ async function loadPdfBytes(arrayBuffer, name) {
   App.historyIdx = -1;
   App.selectedId = null;
 
-  ui.docNameLabel.textContent = name;
+  if (ui.currentDocTitle) {
+    ui.currentDocTitle.textContent = name;
+  }
   ui.docStatusLabel.textContent = "Parsing PDF...";
 
-  const task = pdfjsLib.getDocument({ data: arrayBuffer });
-  App.pdfDoc = await task.promise;
-  App.numPages = App.pdfDoc.numPages;
-  App.page = 1;
+  try {
+    const task = pdfjsLib.getDocument({ data: arrayBuffer });
+    App.pdfDoc = await task.promise;
+    App.numPages = App.pdfDoc.numPages;
+    App.page = 1;
 
-  if (window.innerWidth < 768) {
-    App.scale = Math.max(0.45, Math.min(1.0, (window.innerWidth - 32) / 600));
-  } else {
-    App.scale = 1.0;
+    if (window.innerWidth < 768) {
+      App.scale = Math.max(0.45, Math.min(1.0, (window.innerWidth - 32) / 600));
+    } else {
+      App.scale = 1.0;
+    }
+
+    ui.emptyHero.style.display = "none";
+    ui.paperSheet.style.display = "block";
+    ui.floatingDock.style.display = "flex";
+    ui.btnDownload.disabled = false;
+    ui.btnReload.disabled = false;
+    ui.docStatusLabel.textContent = `${name} • ${App.numPages} Page${App.numPages > 1 ? 's' : ''} • Ready for Masking`;
+
+    saveSnapshot();
+    updateSaveBadge(false);
+    await renderPage();
+    updateDock();
+  } catch (err) {
+    console.error("PDF Parsing error:", err);
+    alert("Could not render PDF: " + err.message);
+    ui.emptyHero.style.display = "flex";
+  } finally {
+    hideLoading();
   }
-
-  ui.emptyHero.style.display = "none";
-  ui.paperSheet.style.display = "block";
-  ui.floatingDock.style.display = "flex";
-  ui.btnDownload.disabled = false;
-  ui.docStatusLabel.textContent = `${App.numPages} Page${App.numPages > 1 ? 's' : ''} &bull; Ready for Masking`;
-
-  saveSnapshot();
-  updateSaveBadge(false);
-  await renderPage();
-  updateDock();
 }
 
 async function renderPage() {
@@ -487,6 +735,11 @@ function redraw() {
   const items = getPageItems();
 
   items.forEach(item => {
+    // Hide text from canvas while being actively edited in liveInput textarea to prevent ghosting
+    if (item.id === App.editingId) {
+      return;
+    }
+
     const rx = item.x * w;
     const ry = item.y * h;
     const rw = item.w * w;
@@ -564,8 +817,9 @@ function setTool(toolName) {
   
   const idMap = {
     select: "btnToolSelect",
-    whiteout: "btnToolWhiteout",
+    text_transparent: "btnToolTextTransparent",
     text: "btnToolText",
+    whiteout: "btnToolWhiteout",
     redact: "btnToolRedact"
   };
   const activeBtn = document.getElementById(idMap[toolName]);
@@ -623,28 +877,27 @@ function fitSelected() {
   }
 }
 
-function toggleBackgroundMask() {
+function setBackgroundMask(isTransparent) {
   const items = getPageItems();
   const selected = items.find(it => it.id === App.selectedId);
   if (!selected || selected.type !== "text") return;
 
-  if (selected.isTransparent) {
-    selected.isTransparent = false;
-    selected.backgroundColor = "#FFFFFF";
-    document.getElementById("labelBackgroundMask").textContent = "White Mask";
-    document.getElementById("iconBackgroundMask").className = "bi bi-check-circle-fill me-1 text-success";
-    showToast("Background switched to 100% Solid White Mask", "info");
-  } else {
-    selected.isTransparent = true;
-    selected.backgroundColor = "transparent";
-    document.getElementById("labelBackgroundMask").textContent = "Transparent";
-    document.getElementById("iconBackgroundMask").className = "bi bi-circle me-1 text-primary";
-    showToast("Background switched to Transparent", "info");
-  }
-
+  selected.isTransparent = !!isTransparent;
+  selected.backgroundColor = isTransparent ? "transparent" : "#FFFFFF";
+  syncFormatBar(selected);
   saveSnapshot();
   updateSaveBadge(true);
   redraw();
+  if (window.showToast) {
+    showToast(isTransparent ? "Background set to Transparent (no mask box)" : "Background set to Solid White Mask", "info");
+  }
+}
+
+function toggleBackgroundMask() {
+  const items = getPageItems();
+  const selected = items.find(it => it.id === App.selectedId);
+  if (!selected || selected.type !== "text") return;
+  setBackgroundMask(!selected.isTransparent);
 }
 
 function syncFormatBar(item) {
@@ -662,14 +915,16 @@ function syncFormatBar(item) {
     ui.btnBoldToggle.classList.add("btn-light");
   }
 
-  const labelBg = document.getElementById("labelBackgroundMask");
-  const iconBg = document.getElementById("iconBackgroundMask");
-  if (item.isTransparent) {
-    labelBg.textContent = "Transparent";
-    iconBg.className = "bi bi-circle me-1 text-primary";
-  } else {
-    labelBg.textContent = "White Mask";
-    iconBg.className = "bi bi-check-circle-fill me-1 text-success";
+  const btnTransp = document.getElementById("btnBgTransparent");
+  const btnWhite = document.getElementById("btnBgWhiteMask");
+  if (btnTransp && btnWhite) {
+    if (item.isTransparent) {
+      btnTransp.className = "btn btn-sm btn-info text-white fw-bold py-0 px-2";
+      btnWhite.className = "btn btn-sm btn-light border py-0 px-2 text-muted";
+    } else {
+      btnTransp.className = "btn btn-sm btn-light border py-0 px-2 text-muted";
+      btnWhite.className = "btn btn-sm btn-success text-white fw-bold py-0 px-2";
+    }
   }
 }
 
@@ -811,25 +1066,28 @@ function onMouseDown(e) {
     } else {
       deselectAll();
     }
-  } else if (App.tool === "whiteout" || App.tool === "text" || App.tool === "redact") {
+  } else if (App.tool === "whiteout" || App.tool === "text" || App.tool === "text_transparent" || App.tool === "redact") {
     App.isDrawing = true;
     App.startX = x;
     App.startY = y;
 
+    const isTransp = (App.tool === "text_transparent");
     const newItem = {
       id: "ann_" + Date.now(),
-      type: App.tool,
+      type: "text",
       x: x,
       y: y,
       w: 0.001,
       h: 0.001,
-      text: App.tool === "text" ? "Type replacement here" : "",
+      text: (App.tool === "whiteout" || App.tool === "redact") ? "" : "Type text here",
       fontSize: 10,
       isBold: false,
       color: "#0F172A",
-      backgroundColor: "#FFFFFF",
-      isTransparent: false
+      backgroundColor: isTransp ? "transparent" : (App.tool === "redact" ? "#000000" : "#FFFFFF"),
+      isTransparent: isTransp
     };
+    if (App.tool === "whiteout") newItem.type = "whiteout";
+    if (App.tool === "redact") newItem.type = "redact";
 
     getPageItems().push(newItem);
     App.selectedId = newItem.id;
@@ -913,16 +1171,25 @@ function openLiveInput(item) {
   const unscaled = ui.drawCanvas.getBoundingClientRect();
   const rx = item.x * unscaled.width;
   const ry = item.y * unscaled.height;
-  const rw = Math.max(120, item.w * unscaled.width);
+  const rw = Math.max(130, item.w * unscaled.width);
   const rh = Math.max(34, item.h * unscaled.height);
 
   const inp = ui.liveInput;
-  inp.value = item.text || "";
+  inp.value = (item.text === "Type text here" || item.text === "Type replacement here") ? "" : (item.text || "");
+  inp.placeholder = item.isTransparent ? "Type transparent text..." : "Type replacement text...";
   inp.style.display = "block";
   inp.style.left = `${rx}px`;
   inp.style.top = `${ry}px`;
   inp.style.width = `${rw}px`;
   inp.style.height = `${rh}px`;
+
+  if (item.isTransparent) {
+    inp.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+    inp.style.borderColor = "#0EA5E9";
+  } else {
+    inp.style.backgroundColor = "#FFFFFF";
+    inp.style.borderColor = "#2563EB";
+  }
 
   const fontSize = (item.fontSize || 10) * App.scale;
   inp.style.fontSize = `${fontSize}px`;
@@ -933,6 +1200,8 @@ function openLiveInput(item) {
   actions.style.display = "flex";
   actions.style.left = `${rx}px`;
   actions.style.top = `${ry + rh + 4}px`;
+
+  redraw();
 
   inp.focus();
   inp.select();
@@ -992,6 +1261,8 @@ function setupKeyboardEvents() {
         e.preventDefault();
         deleteSelected();
       }
+    } else if (e.key === "x" || e.key === "X") {
+      setTool("text_transparent");
     } else if (e.key === "v" || e.key === "V") {
       setTool("select");
     } else if (e.key === "w" || e.key === "W") {
@@ -1133,7 +1404,7 @@ function applyConsignerStamp(consignerId, targetX = null, targetY = null) {
   saveSnapshot();
   updateSaveBadge(true);
   redraw();
-  ui.docStatusLabel.textContent = `Stamped ${c.name} &bull; Drag to position`;
+  ui.docStatusLabel.textContent = `Stamped ${c.name} • Drag to position`;
 }
 
 // Save edits to MySQL database

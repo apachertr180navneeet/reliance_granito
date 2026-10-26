@@ -25,8 +25,10 @@ class PdfEditorController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        $selectedDocName = $request->query('doc', '1469 SB ORIGINAL.PDF');
-        $selectedDoc = $documents->firstWhere('name', $selectedDocName) ?? $documents->first();
+        $selectedDocName = $request->query('doc');
+        $selectedDoc = $selectedDocName
+            ? $documents->first(fn ($doc) => strcasecmp($doc->name, $selectedDocName) === 0)
+            : null;
 
         return view('pdf-editor', [
             'documents' => $documents,
