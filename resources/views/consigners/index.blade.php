@@ -1,5 +1,438 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+/* ==========================================================================
+   CONSIGNERS MASTER - PREMIUM MODERN SAAS TABLE & TOOLBAR STYLES
+   ========================================================================== */
+.consigners-card {
+  border-radius: 12px !important;
+  border: 1px solid #E2E8F0 !important;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  overflow: hidden;
+}
+
+/* Toolbar */
+.consigners-toolbar-wrapper {
+  padding: 14px 20px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.search-input-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-box .search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  font-size: 0.88rem;
+  pointer-events: none;
+}
+
+.search-input-box .search-input {
+  width: 100%;
+  height: 38px;
+  padding-left: 36px;
+  padding-right: 32px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  font-size: 0.83rem;
+  color: #0F172A;
+  transition: all 0.15s ease;
+}
+
+.search-input-box .search-input:focus {
+  background-color: #FFFFFF;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  outline: none;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.search-clear-btn:hover {
+  color: #475569;
+}
+
+.toolbar-select {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  font-size: 0.82rem;
+  color: #1E293B;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.toolbar-select:focus {
+  background-color: #FFFFFF;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  outline: none;
+}
+
+.records-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 0.77rem;
+  color: #64748B;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.records-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #3B82F6;
+}
+
+/* Modern Enterprise Table */
+#consignersTable {
+  margin-bottom: 0 !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+#consignersTable thead th {
+  background-color: #F8FAFC !important;
+  color: #64748B !important;
+  font-size: 0.71rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #E2E8F0 !important;
+  border-top: none !important;
+  padding: 12px 18px;
+  white-space: nowrap;
+}
+
+#consignersTable tbody td {
+  padding: 13px 18px;
+  border-bottom: 1px solid #F1F5F9 !important;
+  border-top: none !important;
+  background-color: #FFFFFF !important;
+  vertical-align: middle;
+}
+
+#consignersTable tbody tr {
+  transition: background-color 0.12s ease-in-out;
+}
+
+#consignersTable tbody tr:hover td {
+  background-color: #F8FAFC !important;
+}
+
+/* Avatar Box */
+.company-avatar-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+
+.company-avatar-box.morbi {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.company-avatar-box.jodhpur {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+}
+
+/* Title & Subline */
+.consigner-company-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0F172A;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.consigner-company-title:hover {
+  color: #2563EB;
+}
+
+.consigner-code-pill {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.67rem;
+  font-weight: 600;
+  background-color: #F1F5F9;
+  color: #475569;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #E2E8F0;
+}
+
+.consigner-entity-type {
+  font-size: 0.74rem;
+  color: #64748B;
+}
+
+/* Compliance Badges */
+.compliance-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-compliance-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  color: #64748B;
+  background-color: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.compliance-value {
+  font-size: 0.78rem;
+  color: #1E293B;
+  letter-spacing: 0.02em;
+}
+
+.btn-copy-code {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 2px;
+  color: #94A3B8;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  transition: color 0.15s ease;
+}
+
+.btn-copy-code:hover {
+  color: #2563EB;
+}
+
+/* Hub Badges */
+.hub-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hub-badge.hub-morbi {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.hub-badge.hub-jodhpur {
+  background-color: #F0F9FF;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+
+.consigner-address-line {
+  color: #64748B;
+  font-size: 0.74rem;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+.consigner-bank-line {
+  color: #64748B;
+  font-size: 0.74rem;
+  max-width: 190px;
+}
+
+/* Status Pill (Interactive AJAX) */
+.btn-status-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.15s ease;
+}
+
+.btn-status-toggle:hover {
+  transform: scale(1.03);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.status-pill-active {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.status-pill-inactive {
+  background-color: #F8FAFC;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.status-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-indicator-dot.active {
+  background-color: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.status-indicator-dot.inactive {
+  background-color: #94A3B8;
+}
+
+/* Modern Action Buttons */
+.table-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-table-action {
+  height: 31px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid #E2E8F0;
+  background-color: #FFFFFF;
+  color: #334155;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.btn-table-action:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+
+.btn-action-primary {
+  color: #1D4ED8;
+  border-color: #DBEAFE;
+  background-color: #EFF6FF;
+}
+
+.btn-action-primary:hover {
+  background-color: #DBEAFE;
+  border-color: #BFDBFE;
+  color: #1E40AF;
+}
+
+.btn-table-action.btn-action-icon {
+  width: 31px;
+  padding: 0;
+  color: #64748B;
+}
+
+.btn-table-action.btn-action-icon:hover {
+  color: #0F172A;
+}
+
+.dropdown-menu-modern {
+  border-radius: 10px !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  padding: 6px !important;
+  font-size: 0.82rem !important;
+}
+
+.dropdown-menu-modern .dropdown-item {
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #334155;
+  font-weight: 500;
+  transition: all 0.12s ease;
+}
+
+.dropdown-menu-modern .dropdown-item:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.dropdown-menu-modern .dropdown-item.text-danger:hover {
+  background-color: #FEF2F2;
+  color: #DC2626 !important;
+}
+
+.empty-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+@endpush
+
 @section('content')
 <main class="content-area p-3 p-lg-4" id="consignersApp">
   
@@ -33,7 +466,7 @@
           <i class="bi bi-download text-muted"></i>
           <span>Export</span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="font-size: 0.82rem; border-radius: 8px;">
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border dropdown-menu-modern" style="min-width: 160px;">
           <li>
             <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="{{ route('consigners.export', ['format' => 'csv']) }}">
               <i class="bi bi-file-earmark-spreadsheet text-success"></i>
@@ -59,22 +492,20 @@
   </div>
 
   <!-- Main Unified Consigners Data Card -->
-  <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0 !important;">
+  <div class="card consigners-card mb-4">
     
-    <!-- Integrated Search & Filter Toolbar (Full Width) -->
-    <div class="p-3 px-4 border-bottom bg-white" style="background-color: #FFFFFF !important;">
-      <form action="{{ route('consigners.index') }}" method="GET" id="consignersFilterForm" class="row g-2 align-items-center mb-0 w-100" style="width: 100% !important;">
+    <!-- Integrated Search & Filter Toolbar -->
+    <div class="consigners-toolbar-wrapper">
+      <form action="{{ route('consigners.index') }}" method="GET" id="consignersFilterForm" class="row g-2 align-items-center mb-0 w-100">
         <input type="hidden" name="per_page" id="perPageInput" value="{{ $filters['per_page'] ?? 10 }}">
 
-        <!-- Search Input -->
+        <!-- Search Input with Integrated Icon -->
         <div class="col-12 col-md-5 col-lg-5">
-          <div class="input-group">
-            <span class="input-group-text bg-light text-muted border-end-0 ps-2.5" style="border-color: #E2E8F0;">
-              <i class="bi bi-search text-secondary"></i>
-            </span>
-            <input type="text" class="form-control bg-light border-start-0 ps-1" name="search" id="searchConsignerInput" value="{{ request('search') }}" placeholder="Search company, IEC, GSTIN, location, AD code..." style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+          <div class="search-input-box">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" class="search-input" name="search" id="searchConsignerInput" value="{{ request('search') }}" placeholder="Search company, IEC, GSTIN, city, AD code...">
             @if(request('search'))
-              <a href="{{ route('consigners.index', array_merge(request()->except('search', 'page'), ['page' => 1])) }}" class="input-group-text bg-light border-start-0 text-muted" style="border-color: #E2E8F0;" title="Clear Search">
+              <a href="{{ route('consigners.index', array_merge(request()->except('search', 'page'), ['page' => 1])) }}" class="search-clear-btn" title="Clear Search">
                 <i class="bi bi-x-circle-fill"></i>
               </a>
             @endif
@@ -83,7 +514,7 @@
 
         <!-- Manufacturing Hubs Filter -->
         <div class="col-6 col-md-3 col-lg-3">
-          <select class="form-select bg-light" name="region" id="filterRegionSelect" onchange="this.form.submit()" style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+          <select class="form-select toolbar-select" name="region" id="filterRegionSelect" onchange="this.form.submit()">
             <option value="ALL" {{ request('region') === 'ALL' || !request('region') ? 'selected' : '' }}>All Manufacturing Hubs</option>
             <option value="Morbi" {{ request('region') === 'Morbi' ? 'selected' : '' }}>Morbi Facility (Gujarat)</option>
             <option value="Jodhpur" {{ request('region') === 'Jodhpur' ? 'selected' : '' }}>Jodhpur Facility (Rajasthan)</option>
@@ -92,7 +523,7 @@
 
         <!-- Status Filter -->
         <div class="col-6 col-md-2 col-lg-2">
-          <select class="form-select bg-light" name="status" id="filterStatusSelect" onchange="this.form.submit()" style="font-size: 0.84rem; height: 38px; border-color: #E2E8F0;">
+          <select class="form-select toolbar-select" name="status" id="filterStatusSelect" onchange="this.form.submit()">
             <option value="ALL" {{ request('status') === 'ALL' || !request('status') ? 'selected' : '' }}>All Statuses</option>
             <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active Only</option>
             <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive Only</option>
@@ -102,14 +533,15 @@
         <!-- Reset Button or Records Badge -->
         <div class="col-12 col-md-2 col-lg-2 text-md-end">
           @if(request('search') || (request('region') && request('region') !== 'ALL') || (request('status') && request('status') !== 'ALL'))
-            <a href="{{ route('consigners.index') }}" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center gap-1.5 w-100" title="Reset all search filters" style="height: 38px; font-size: 0.82rem; font-weight: 500;">
+            <a href="{{ route('consigners.index') }}" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center gap-1.5 w-100" title="Reset all search filters" style="height: 38px; font-size: 0.82rem; font-weight: 500; border-radius: 8px;">
               <i class="bi bi-arrow-counterclockwise"></i>
-              <span>Reset Filters</span>
+              <span>Reset</span>
             </a>
           @else
-            <div class="d-none d-md-flex align-items-center justify-content-end text-muted small pe-1" style="height: 38px; font-size: 0.78rem;">
-              <span class="badge bg-light text-secondary border px-2.5 py-1.5 rounded-2">
-                <strong class="text-dark">{{ $consigners->total() }}</strong> records found
+            <div class="d-none d-md-flex align-items-center justify-content-end text-muted pe-1" style="height: 38px;">
+              <span class="records-badge-pill">
+                <span class="records-dot"></span>
+                <span><strong class="text-dark">{{ $consigners->total() }}</strong> records</span>
               </span>
             </div>
           @endif
@@ -119,15 +551,15 @@
 
     <!-- Clean Enterprise Data Table -->
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0" id="consignersTable">
-        <thead class="table-light text-uppercase small" style="font-size:0.75rem; letter-spacing:0.04em;">
+      <table class="table align-middle mb-0" id="consignersTable">
+        <thead>
           <tr>
-            <th class="ps-4 py-3" style="width: 32%;">Exporter / Legal Entity</th>
-            <th class="py-3" style="width: 18%;">Compliance (IEC & GSTIN)</th>
-            <th class="py-3" style="width: 22%;">Factory / Works Location</th>
-            <th class="py-3" style="width: 14%;">AD Code & Bank</th>
-            <th class="py-3 text-center" style="width: 6%;">Status</th>
-            <th class="pe-4 py-3 text-end" style="width: 8%;">Actions</th>
+            <th class="ps-4" style="width: 30%;">Exporter / Legal Entity</th>
+            <th style="width: 18%;">Compliance (IEC & GSTIN)</th>
+            <th style="width: 24%;">Manufacturing Hub & Works</th>
+            <th style="width: 14%;">AD Code & Bank</th>
+            <th class="text-center" style="width: 6%;">Status</th>
+            <th class="pe-4 text-end" style="width: 8%;">Actions</th>
           </tr>
         </thead>
         <tbody id="consignersTableBody">
@@ -136,150 +568,154 @@
               $isMorbi = ($c->region === 'Morbi' || (str_contains($c->factory_address ?? '', 'Morbi')));
               $words = preg_split('/\s+/', trim($c->name));
               $initials = count($words) === 1 ? strtoupper(substr($words[0], 0, 2)) : strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
-              $avatarBgClass = $isMorbi ? 'bg-amber-soft' : 'bg-sky-soft';
             @endphp
             <tr id="consigner-row-{{ $c->id }}" class="consigner-data-row">
               <!-- Exporter Name & Details -->
-              <td class="ps-4 py-3">
+              <td class="ps-4">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="company-avatar-box {{ $isMorbi ? 'morbi' : 'jodhpur' }} flex-shrink-0">
+                  <div class="company-avatar-box {{ $isMorbi ? 'morbi' : 'jodhpur' }}">
                     {{ $initials }}
                   </div>
                   <div class="overflow-hidden">
-                    <div class="fw-bold text-dark text-truncate d-flex align-items-center gap-1" style="font-size: 0.89rem;">
-                      <span role="button" onclick="viewConsignerDetails({{ $c->id }})" class="text-dark text-decoration-none" style="cursor: pointer;" title="{{ $c->name }}">{{ $c->name }}</span>
-                      <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem;" title="ICEGATE Certified Exporter"></i>
+                    <div class="d-flex align-items-center gap-1">
+                      <a href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})" class="consigner-company-title text-truncate" title="{{ $c->name }}">{{ $c->name }}</a>
+                      <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.78rem;" title="ICEGATE Certified Exporter"></i>
                     </div>
-                    <div class="text-muted small d-flex align-items-center gap-2 mt-0.5" style="font-size: 0.74rem;">
-                      <span class="badge bg-light text-secondary border font-monospace py-0.5 px-1.5" style="font-size: 0.68rem;">{{ $c->consigner_code ?? ('EXP-' . $c->id) }}</span>
-                      <span>{{ $c->entity_type ?? 'Manufacturer Exporter' }}</span>
+                    <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                      <span class="consigner-code-pill">{{ $c->consigner_code ?? ('EXP-' . str_pad($c->id, 3, '0', STR_PAD_LEFT)) }}</span>
+                      <span class="text-muted opacity-50 small mx-0.5">&bull;</span>
+                      <span class="consigner-entity-type text-truncate">{{ $c->entity_type ?? 'Manufacturer Exporter' }}</span>
                     </div>
                   </div>
                 </div>
               </td>
 
-              <!-- IEC & GSTIN -->
-              <td class="py-3">
+              <!-- Compliance (IEC & GSTIN) -->
+              <td>
                 <div class="d-flex flex-column gap-1">
-                  <div class="d-flex align-items-center gap-1.5">
-                    <span class="text-muted small" style="font-size: 0.72rem;">IEC:</span>
-                    <span class="font-monospace fw-bold text-dark small">{{ $c->iec }}</span>
-                    <button type="button" class="btn btn-link p-0 text-muted" onclick="copyToClipboard('{{ $c->iec }}', this)" title="Copy IEC Code" style="font-size: 0.7rem; line-height: 1;">
+                  <div class="compliance-row">
+                    <span class="badge-compliance-label">IEC</span>
+                    <span class="compliance-value font-monospace fw-semibold">{{ $c->iec }}</span>
+                    <button type="button" class="btn-copy-code" onclick="copyToClipboard('{{ $c->iec }}', this)" title="Copy IEC Code">
                       <i class="bi bi-copy"></i>
                     </button>
                   </div>
-                  <div>
-                    <span class="text-muted small" style="font-size: 0.72rem;">GST:</span>
-                    <span class="font-monospace text-primary small" style="font-size: 0.76rem;">{{ $c->gstin }}</span>
+                  <div class="compliance-row">
+                    <span class="badge-compliance-label">GST</span>
+                    <span class="compliance-value font-monospace" style="font-size: 0.76rem;">{{ $c->gstin }}</span>
                   </div>
                 </div>
               </td>
 
               <!-- Works & Location -->
-              <td class="py-3">
+              <td>
                 <div class="mb-1">
                   @if($isMorbi)
-                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle py-0.5 px-2" style="font-size: 0.7rem;"><i class="bi bi-geo-alt-fill text-warning me-1"></i>Morbi Facility (GJ)</span>
+                    <span class="hub-badge hub-morbi"><i class="bi bi-geo-alt-fill"></i>Morbi Hub (GJ)</span>
                   @else
-                    <span class="badge bg-info-subtle text-dark border border-info-subtle py-0.5 px-2" style="font-size: 0.7rem;"><i class="bi bi-building text-info me-1"></i>Jodhpur Hub (RJ)</span>
+                    <span class="hub-badge hub-jodhpur"><i class="bi bi-building"></i>Jodhpur Hub (RJ)</span>
                   @endif
                 </div>
-                <div class="text-muted small text-truncate" style="max-width: 260px; font-size: 0.75rem;" title="{{ $c->registered_address }}">
-                  <i class="bi bi-geo-alt text-muted me-1"></i>{{ $c->registered_address }}
+                <div class="consigner-address-line" title="{{ $c->registered_address }}">
+                  <i class="bi bi-geo-alt me-1 text-muted"></i>{{ $c->registered_address }}
                 </div>
               </td>
 
               <!-- Bank & AD Code -->
-              <td class="py-3">
-                <div class="small">
-                  <span class="text-muted" style="font-size: 0.72rem;">AD Code:</span>
-                  <span class="font-monospace fw-bold text-dark">{{ $c->ad_code ?? 'Pending' }}</span>
+              <td>
+                <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                  <span class="text-muted" style="font-size: 0.72rem; font-weight: 500;">AD Code:</span>
+                  <span class="font-monospace fw-semibold text-dark" style="font-size: 0.82rem;">{{ $c->ad_code ?? 'Pending' }}</span>
                 </div>
-                <div class="text-muted small text-truncate mt-0.5" style="max-width: 190px; font-size: 0.74rem;" title="{{ $c->forex_bank ?? '' }}">
-                  <i class="bi bi-bank text-secondary me-1" style="font-size: 0.7rem;"></i>{{ $c->forex_bank ?? 'Authorized Dealer' }}
+                <div class="consigner-bank-line text-truncate d-flex align-items-center gap-1" title="{{ $c->forex_bank ?? 'Authorized Dealer' }}">
+                  <i class="bi bi-bank text-muted" style="font-size: 0.72rem;"></i>
+                  <span>{{ $c->forex_bank ?? 'Authorized Dealer' }}</span>
                 </div>
               </td>
 
               <!-- Status (Interactive AJAX Toggle) -->
-              <td class="py-3 text-center" id="status-cell-{{ $c->id }}">
+              <td class="text-center" id="status-cell-{{ $c->id }}">
                 <button type="button" 
-                        class="btn p-0 border-0 bg-transparent text-decoration-none shadow-none" 
+                        class="btn-status-toggle" 
                         id="status-btn-{{ $c->id }}" 
                         onclick="toggleConsignerStatus({{ $c->id }}, '{{ $c->status }}')" 
                         title="Click to toggle status (Active / Inactive)">
                   @if($c->status === 'Active')
-                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-{{ $c->id }}" style="font-size: 0.72rem; cursor: pointer;">
-                      <i class="bi bi-check-circle-fill me-1"></i>Active
+                    <span class="status-pill status-pill-active" id="status-badge-{{ $c->id }}">
+                      <span class="status-indicator-dot active"></span> Active
                     </span>
                   @else
-                    <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-{{ $c->id }}" style="font-size: 0.72rem; cursor: pointer;">
-                      <i class="bi bi-dash-circle me-1"></i>Inactive
+                    <span class="status-pill status-pill-inactive" id="status-badge-{{ $c->id }}">
+                      <span class="status-indicator-dot inactive"></span> Inactive
                     </span>
                   @endif
                 </button>
               </td>
 
               <!-- Action Buttons -->
-              <td class="pe-4 py-3 text-end">
-                <div class="btn-group btn-group-sm" role="group">
-                  <a href="{{ route('consigners.edit', $c->id) }}" class="btn btn-outline-primary" title="Edit Consigner">
-                    <i class="bi bi-pencil me-1"></i> Edit
+              <td class="pe-4 text-end">
+                <div class="table-actions-group justify-content-end">
+                  <a href="{{ route('consigners.edit', $c->id) }}" class="btn-table-action btn-action-primary" title="Edit Consigner">
+                    <i class="bi bi-pencil"></i>
+                    <span>Edit</span>
                   </a>
-                  <button type="button" class="btn btn-outline-secondary" onclick="stampInPdfEditor({{ $c->id }})" title="Stamp on PDF">
-                    <i class="bi bi-file-earmark-diff"></i>
+                  <button type="button" class="btn-table-action btn-action-icon" onclick="stampInPdfEditor({{ $c->id }})" title="Stamp on PDF">
+                    <i class="bi bi-file-earmark-diff text-success"></i>
                   </button>
-                  <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="visually-hidden">More Actions</span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="border-radius: 8px; font-size: 0.82rem;">
-                    <li>
-                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})">
-                        <i class="bi bi-eye text-primary"></i>
-                        <span>View Full Profile</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" id="status-dropdown-btn-{{ $c->id }}" onclick="toggleConsignerStatus({{ $c->id }}, '{{ $c->status }}')">
-                        <i class="bi bi-arrow-repeat text-warning"></i>
-                        <span>Toggle Status</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="{{ route('consigners.edit', $c->id) }}">
-                        <i class="bi bi-pencil-square text-dark"></i>
-                        <span>Edit Particulars</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="stampInPdfEditor({{ $c->id }})">
-                        <i class="bi bi-file-earmark-diff text-success"></i>
-                        <span>Stamp on PDF</span>
-                      </a>
-                    </li>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li>
-                      <a class="dropdown-item py-1.5 text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="openDeleteConsignerModal({{ $c->id }})">
-                        <i class="bi bi-trash3 text-danger"></i>
-                        <span>Delete Consigner</span>
-                      </a>
-                    </li>
-                  </ul>
+                  <div class="dropdown d-inline-block">
+                    <button type="button" class="btn-table-action btn-action-icon" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                      <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 dropdown-menu-modern" style="min-width: 175px;">
+                      <li>
+                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="viewConsignerDetails({{ $c->id }})">
+                          <i class="bi bi-eye text-primary"></i>
+                          <span>View Profile</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" id="status-dropdown-btn-{{ $c->id }}" onclick="toggleConsignerStatus({{ $c->id }}, '{{ $c->status }}')">
+                          <i class="bi bi-arrow-repeat text-warning"></i>
+                          <span>Toggle Status</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="{{ route('consigners.edit', $c->id) }}">
+                          <i class="bi bi-pencil-square text-dark"></i>
+                          <span>Edit Particulars</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item py-1.5 d-flex align-items-center gap-2" href="javascript:void(0)" onclick="stampInPdfEditor({{ $c->id }})">
+                          <i class="bi bi-file-earmark-diff text-success"></i>
+                          <span>Stamp on PDF</span>
+                        </a>
+                      </li>
+                      <li><hr class="dropdown-divider my-1"></li>
+                      <li>
+                        <a class="dropdown-item py-1.5 text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="openDeleteConsignerModal({{ $c->id }})">
+                          <i class="bi bi-trash3 text-danger"></i>
+                          <span>Delete Consigner</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </td>
             </tr>
           @empty
             <tr id="emptyConsignersRow">
-              <td colspan="6" class="text-center py-4">
-                <div class="text-muted mb-2">
-                  <i class="bi bi-search fs-3 text-secondary"></i>
+              <td colspan="6" class="text-center py-5">
+                <div class="empty-icon-box mx-auto mb-3">
+                  <i class="bi bi-building-slash fs-3 text-muted"></i>
                 </div>
                 <h6 class="fw-bold text-dark mb-1">No Consigners Found</h6>
-                <p class="text-muted small mb-2">No records match your search or filter criteria.</p>
+                <p class="text-muted small mb-3">No master records match your search or filter criteria.</p>
                 <div class="d-flex justify-content-center gap-2">
-                  <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary btn-sm px-2.5 py-1">
+                  <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary btn-sm px-3 py-1.5" style="border-radius: 7px;">
                     Reset Filters
                   </a>
-                  <a href="{{ route('consigners.create') }}" class="btn btn-primary btn-sm px-2.5 py-1">
+                  <a href="{{ route('consigners.create') }}" class="btn btn-primary btn-sm px-3 py-1.5" style="border-radius: 7px;">
                     Add Consigner
                   </a>
                 </div>
@@ -292,15 +728,15 @@
 
     <!-- Card Footer with Clean Server-Side Pagination -->
     @if($consigners->total() > 0)
-    <div class="card-footer bg-white border-top py-2.5 px-4 d-flex flex-wrap align-items-center justify-content-between gap-2" id="consignersTableFooter">
-      <div class="text-muted small">
-        Showing <span class="fw-bold text-dark" id="paginationFirstItem">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-bold text-dark" id="paginationLastItem">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-bold text-dark" id="paginationTotalCount">{{ $consigners->total() }}</span> consigners
+    <div class="card-footer bg-white border-top py-3 px-4 d-flex flex-wrap align-items-center justify-content-between gap-2" id="consignersTableFooter" style="border-top: 1px solid #F1F5F9 !important;">
+      <div class="text-muted small" style="font-size: 0.82rem;">
+        Showing <span class="fw-semibold text-dark" id="paginationFirstItem">{{ $consigners->firstItem() ?? 0 }}</span> &ndash; <span class="fw-semibold text-dark" id="paginationLastItem">{{ $consigners->lastItem() ?? 0 }}</span> of <span class="fw-semibold text-dark" id="paginationTotalCount">{{ $consigners->total() }}</span> consigners
       </div>
       
       <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center gap-1.5">
           <label for="perPageSelector" class="text-muted small mb-0" style="font-size: 0.78rem;">Rows:</label>
-          <select id="perPageSelector" class="form-select form-select-sm py-1 px-2" style="width: 70px; font-size: 0.78rem;" onchange="changePerPage(this.value)">
+          <select id="perPageSelector" class="form-select form-select-sm py-1 px-2" style="width: 70px; font-size: 0.78rem; border-radius: 7px; border-color: #E2E8F0;" onchange="changePerPage(this.value)">
             <option value="5" {{ $consigners->perPage() == 5 ? 'selected' : '' }}>5</option>
             <option value="10" {{ $consigners->perPage() == 10 ? 'selected' : '' }}>10</option>
             <option value="25" {{ $consigners->perPage() == 25 ? 'selected' : '' }}>25</option>
@@ -576,14 +1012,14 @@
                     btn.setAttribute('onclick', `toggleConsignerStatus(${id}, '${updatedStatus}')`);
                     if (updatedStatus === 'Active') {
                         btn.innerHTML = `
-                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
-                                <i class="bi bi-check-circle-fill me-1"></i>Active
+                            <span class="status-pill status-pill-active" id="status-badge-${id}">
+                                <span class="status-indicator-dot active"></span> Active
                             </span>
                         `;
                     } else {
                         btn.innerHTML = `
-                            <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
-                                <i class="bi bi-dash-circle me-1"></i>Inactive
+                            <span class="status-pill status-pill-inactive" id="status-badge-${id}">
+                                <span class="status-indicator-dot inactive"></span> Inactive
                             </span>
                         `;
                     }
@@ -605,14 +1041,14 @@
             if (btn) {
                 if (currentStatus === 'Active') {
                     btn.innerHTML = `
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-semibold status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
-                            <i class="bi bi-check-circle-fill me-1"></i>Active
+                        <span class="status-pill status-pill-active" id="status-badge-${id}">
+                            <span class="status-indicator-dot active"></span> Active
                         </span>
                     `;
                 } else {
                     btn.innerHTML = `
-                        <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 status-pill-badge" id="status-badge-${id}" style="font-size: 0.72rem; cursor: pointer;">
-                            <i class="bi bi-dash-circle me-1"></i>Inactive
+                        <span class="status-pill status-pill-inactive" id="status-badge-${id}">
+                            <span class="status-indicator-dot inactive"></span> Inactive
                         </span>
                     `;
                 }
