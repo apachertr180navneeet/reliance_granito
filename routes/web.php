@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConsignerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\InvoiceSettingController;
 use App\Http\Controllers\PdfEditorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +48,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PdfEditorController::class, 'index'])->name('index');
         Route::post('/save', [PdfEditorController::class, 'saveEdits'])->name('save');
         Route::get('/edits/{documentName}', [PdfEditorController::class, 'loadEdits'])->name('load-edits');
+    });
+
+    // Commercial Export Invoices
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/create', [InvoiceController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceController::class, 'store'])->name('store');
+        Route::get('/settings', [InvoiceSettingController::class, 'edit'])->name('settings');
+        Route::post('/settings', [InvoiceSettingController::class, 'update'])->name('settings.update');
+        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+        Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
+        Route::delete('/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
     });
 });
 

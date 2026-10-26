@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Consigner;
+use App\Models\InvoiceSetting;
 use Database\Seeders\ConsignerSeeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -137,7 +138,108 @@ class ConsignerController extends Controller
      */
     public function edit(Consigner $consigner): View
     {
-        return view('consigners.edit', compact('consigner'));
+        $settings = InvoiceSetting::getSettings();
+
+        $exporter = [
+            'name' => $settings->company_name,
+            'tagline' => $settings->tagline,
+            'address' => $settings->address,
+            'phone' => $settings->phone,
+            'email' => $settings->email,
+            'website' => $settings->website,
+            'iec' => $settings->iec,
+            'gstin' => $settings->gstin,
+            'pan' => $settings->pan,
+            'arn' => $settings->lut_arn,
+            'lut_rule' => $settings->lut_rule,
+        ];
+
+        $invoice = [
+            'invoice_number' => $settings->invoice_prefix,
+            'invoice_date' => now()->format('d.m.Y'),
+            'lut_no' => $settings->lut_rule,
+            'container_number' => 'DFSU3044515',
+            'trailer_number' => 'TN02BB9434',
+            'buyer_po' => '-',
+            'pre_carriage_by' => $settings->pre_carriage_by,
+            'place_of_receipt' => $settings->place_of_receipt,
+            'country_of_origin' => $settings->country_of_origin,
+            'country_of_destination' => $settings->default_final_destination,
+            'vessel_flight_no' => 'MSC RAVEL V.1469W',
+            'port_of_loading' => $settings->default_port_of_loading,
+            'port_of_discharge' => $settings->default_port_of_discharge,
+            'final_destination' => $settings->default_final_destination,
+            'payment_terms' => $settings->default_payment_terms,
+            'origin_clause' => $settings->origin_clause,
+            'declaration' => $settings->declaration,
+            'no_of_containers' => 1,
+            'package_summary' => '20 FCL ( 1 )',
+            'gross_weight' => '26500 KGS',
+            'net_weight' => '25500 KGS',
+            'currency' => $settings->currency,
+        ];
+
+        $items = [
+            [
+                'item_no' => 1,
+                'marks_numbers' => '20 FCL ( 1 )',
+                'container_no' => 'DFSU3044515',
+                'trailer_no' => 'TN02BB9434',
+                'description' => "NATURAL POLISHED GRANITE SLABS\nSIZE: Thick 18 mm x (90 - 210 cm x (60 - 100 cm))",
+                'hsn_code' => '68022390',
+                'quantity' => 430.350,
+                'uom' => 'SQM.',
+                'rate' => 13.250,
+                'amount' => 5702.09,
+            ],
+        ];
+
+        $totalQuantity = array_sum(array_column($items, 'quantity'));
+        $totalAmount = array_sum(array_column($items, 'amount'));
+        $roundedAmount = round($totalAmount);
+        $amountInWords = 'FIVE THOUSAND SEVEN HUNDRED & TWO RUPEES ONLY';
+
+        $bank = [
+            'name' => $settings->bank_name,
+            'branch' => $settings->bank_branch,
+            'account_no' => $settings->bank_account_no,
+            'swift_code' => $settings->bank_swift_code,
+            'ad_code' => $consigner->ad_code ?: $settings->bank_ad_code,
+            'address' => $settings->bank_address,
+        ];
+
+        $certifications = [
+            'rcmc_fieo_no' => $settings->rcmc_fieo_no,
+            'repc_no' => $settings->repc_no,
+            'iso_certification' => $settings->iso_certification,
+            'export_house_star' => $settings->export_house_star,
+            'signatory_company' => $settings->signatory_company,
+            'signatory_name' => $settings->signatory_name,
+            'signatory_title' => $settings->signatory_title,
+        ];
+
+        $buyerOther = [
+            'name' => 'GSGWEBSOFT',
+            'address' => 'Plot no. 16 hanuman nagar',
+            'tax_code' => 'Rajasthan',
+            'phone' => '46541564156',
+            'email' => 'navneetgehlot03061993@gmail.com',
+        ];
+
+        return view('consigners.edit', compact(
+            'consigner',
+            'exporter',
+            'invoice',
+            'buyerOther',
+            'items',
+            'totalQuantity',
+            'totalAmount',
+            'roundedAmount',
+            'amountInWords',
+            'bank',
+            'certifications',
+            'settings'
+        ));
     }
 
     /**

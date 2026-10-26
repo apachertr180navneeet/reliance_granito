@@ -47,6 +47,14 @@
                     <i class="bi bi-file-earmark-diff text-primary"></i>
                     <span>PDF Visual Editor</span>
                 </a>
+                <a href="{{ route('invoices.index') }}" class="nav-link {{ request()->routeIs('invoices.*') && !request()->routeIs('invoices.settings') ? 'active' : '' }}">
+                    <i class="bi bi-receipt-cutoff text-primary"></i>
+                    <span>Commercial Invoices</span>
+                </a>
+                <a href="{{ route('invoices.settings') }}" class="nav-link {{ request()->routeIs('invoices.settings') ? 'active' : '' }}">
+                    <i class="bi bi-sliders text-primary"></i>
+                    <span>Invoice Settings</span>
+                </a>
                 <a href="{{ route('logout') }}" class="nav-link text-danger nav-link-signout">
                     <i class="bi bi-box-arrow-right text-danger"></i>
                     <span>Sign Out / Lock</span>

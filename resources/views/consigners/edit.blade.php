@@ -29,7 +29,11 @@
         </p>
       </div>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ route('invoices.create', ['consigner_id' => $consigner->id]) }}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" style="font-size: 0.88rem; font-weight: 600;">
+          <i class="bi bi-receipt-cutoff"></i>
+          <span>Create Commercial Invoice</span>
+        </a>
         <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3" style="font-size: 0.88rem; font-weight: 500;">
           <i class="bi bi-arrow-left"></i>
           <span>Back to List</span>
@@ -316,6 +320,50 @@
                 @enderror
               </div>
             </div>
+        </div>
+
+        <!-- Section 6: Create Commercial Invoice Table (Variables Passed) -->
+        <div class="consigner-form-card mb-4" id="commercialInvoiceSection">
+          <div class="consigner-form-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+              <div class="form-header-icon indigo">
+                <i class="bi bi-receipt-cutoff"></i>
+              </div>
+              <div>
+                <div class="form-header-title d-flex align-items-center gap-2">
+                  <span>Commercial Invoice Table</span>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace" style="font-size:0.7rem;">Table Variables Passed</span>
+                </div>
+                <div class="form-header-desc">Export Commercial Invoice generated using table format with variables mapped from this consigner</div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <a href="{{ route('invoices.create', ['consigner_id' => $consigner->id]) }}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 shadow-sm fw-semibold">
+                <i class="bi bi-box-arrow-up-right"></i>
+                <span>Open Full Invoice Generator</span>
+              </a>
+            </div>
+          </div>
+          <div class="p-3 p-lg-4 bg-light overflow-auto">
+            <div class="mb-3 d-flex align-items-center justify-content-between small text-muted flex-wrap gap-2">
+              <span><i class="bi bi-info-circle text-primary me-1"></i> Changes in the form above sync live into the table variables below.</span>
+              <span class="font-monospace fw-bold text-dark">Invoice: {{ $invoice['invoice_number'] ?? '680 / 26-27' }}</span>
+            </div>
+            
+            <x-commercial-invoice-table 
+              :exporter="$exporter"
+              :invoice="$invoice"
+              :consigner="$consigner"
+              :buyerOther="$buyerOther"
+              :items="$items"
+              :totalQuantity="$totalQuantity"
+              :totalAmount="$totalAmount"
+              :roundedAmount="$roundedAmount"
+              :amountInWords="$amountInWords"
+              :bank="$bank"
+              :certifications="$certifications"
+              :settings="$settings"
+            />
           </div>
         </div>
 
@@ -479,6 +527,24 @@
     document.getElementById('previewAdCode').textContent = adCode;
     document.getElementById('previewAddress').innerHTML = `<i class="bi bi-geo-alt text-primary me-1"></i>${address}`;
     document.getElementById('previewBank').innerHTML = `<i class="bi bi-bank text-secondary me-1"></i>${bank}`;
+
+    // Also sync variables into the Commercial Invoice table if present
+    const tableConsigneeName = document.getElementById('consigneeNameDisplay');
+    if (tableConsigneeName) tableConsigneeName.textContent = name;
+    
+    const tableAddress = document.getElementById('consigneeAddressDisplay');
+    if (tableAddress) tableAddress.innerHTML = `<strong>ADD:</strong> ${address}`;
+
+    const tableTax = document.getElementById('consigneeTaxDisplay');
+    if (tableTax) tableTax.textContent = gstin;
+
+    const phoneInput = document.getElementById('contact_phone');
+    const tablePhone = document.getElementById('consigneePhoneDisplay');
+    if (tablePhone && phoneInput) tablePhone.textContent = phoneInput.value.trim() || '-';
+
+    const emailInput = document.getElementById('contact_email');
+    const tableEmail = document.getElementById('consigneeEmailDisplay');
+    if (tableEmail && emailInput) tableEmail.textContent = emailInput.value.trim() || '-';
 
     // Avatar & region styling
     const avatar = document.getElementById('previewAvatar');
