@@ -346,44 +346,44 @@
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Pre-Carriage by</label>
-                <input type="text" name="pre_carriage_by" class="form-control form-control-sm font-monospace" id="inputPreCarriage" value="{{ $invoice['pre_carriage_by'] ?? 'TRUCK' }}" oninput="syncVariable('preCarriageDisplay', this.value)">
+                <input type="text" name="pre_carriage_by" class="form-control form-control-sm font-monospace" id="inputPreCarriage" value="{{ $invoice['pre_carriage_by'] ?? '' }}" oninput="syncVariable('preCarriageDisplay', this.value)">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Place of Receipt</label>
-                <input type="text" name="place_of_receipt" class="form-control form-control-sm font-monospace" id="inputPlaceReceipt" value="{{ $invoice['place_of_receipt'] ?? 'CHENNAI PORT' }}" oninput="syncVariable('receiptPlaceDisplay', this.value)">
+                <input type="text" name="place_of_receipt" class="form-control form-control-sm font-monospace" id="inputPlaceReceipt" value="{{ $invoice['place_of_receipt'] ?? '' }}" oninput="syncVariable('receiptPlaceDisplay', this.value)">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Country of Origin</label>
-                <input type="text" name="country_of_origin" class="form-control form-control-sm font-monospace" id="inputCountryOrigin" value="{{ $invoice['country_of_origin'] ?? 'INDIA' }}" oninput="syncVariable('countryOriginDisplay', this.value)">
+                <input type="text" name="country_of_origin" class="form-control form-control-sm font-monospace" id="inputCountryOrigin" value="{{ $invoice['country_of_origin'] ?? '' }}" oninput="syncVariable('countryOriginDisplay', this.value)">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Country Final Dest.</label>
-                <input type="text" name="country_of_destination" class="form-control form-control-sm font-monospace" id="inputCountryDest" value="{{ $invoice['country_of_destination'] ?? 'CATLAI PORT, VIETNAM' }}" oninput="syncVariable('countryDestDisplay', this.value)">
+                <input type="text" name="country_of_destination" class="form-control form-control-sm font-monospace" id="inputCountryDest" value="{{ $invoice['country_of_destination'] ?? '' }}" oninput="syncVariable('countryDestDisplay', this.value)">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Vessel / Flight No.</label>
-                <input type="text" name="vessel_flight_no" class="form-control form-control-sm font-monospace" id="inputVesselFlight" value="{{ $invoice['vessel_flight_no'] ?? 'MSC RAVEL V.1469W' }}" oninput="syncVariable('vesselFlightDisplay', this.value)">
+                <input type="text" name="vessel_flight_no" class="form-control form-control-sm font-monospace" id="inputVesselFlight" value="{{ $invoice['vessel_flight_no'] ?? '' }}" oninput="syncVariable('vesselFlightDisplay', this.value)">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Port of Loading</label>
-                <input type="text" name="port_of_loading" class="form-control form-control-sm font-monospace" id="inputPortLoading" value="{{ $invoice['port_of_loading'] ?? 'CHENNAI PORT' }}" oninput="syncVariable('portLoadingDisplay', this.value)">
+                <input type="text" name="port_of_loading" class="form-control form-control-sm font-monospace" id="inputPortLoading" value="{{ $invoice['port_of_loading'] ?? '' }}" oninput="syncVariable('portLoadingDisplay', this.value)">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Port of Discharge</label>
-                <input type="text" name="port_of_discharge" class="form-control form-control-sm font-monospace" id="inputPortDischarge" value="{{ $invoice['port_of_discharge'] ?? 'CATLAI PORT, VIETNAM' }}" oninput="syncVariable('portDischargeDisplay', this.value)">
+                <input type="text" name="port_of_discharge" class="form-control form-control-sm font-monospace" id="inputPortDischarge" value="{{ $invoice['port_of_discharge'] ?? '' }}" oninput="syncVariable('portDischargeDisplay', this.value)">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Final Destination</label>
-                <input type="text" name="final_destination" class="form-control form-control-sm font-monospace" id="inputFinalDest" value="{{ $invoice['final_destination'] ?? 'CATLAI PORT, VIETNAM' }}" oninput="syncVariable('finalDestinationDisplay', this.value)">
+                <input type="text" name="final_destination" class="form-control form-control-sm font-monospace" id="inputFinalDest" value="{{ $invoice['final_destination'] ?? '' }}" oninput="syncVariable('finalDestinationDisplay', this.value)">
               </div>
             </div>
 
@@ -433,7 +433,8 @@
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Container Type</label>
                 <select name="container_type" id="inputContainerType" class="form-select form-select-sm font-monospace fw-semibold" onchange="syncVariable('containerTypeDisplay', this.value)">
-                  <option value="20 FCL" {{ ($invoice['container_type'] ?? '20 FCL') === '20 FCL' ? 'selected' : '' }}>20 FCL</option>
+                  <option value="" {{ empty($invoice['container_type']) ? 'selected' : '' }}></option>
+                  <option value="20 FCL" {{ ($invoice['container_type'] ?? '') === '20 FCL' ? 'selected' : '' }}>20 FCL</option>
                   <option value="40 FCL" {{ ($invoice['container_type'] ?? '') === '40 FCL' ? 'selected' : '' }}>40 FCL</option>
                   <option value="20' Heavy Duty" {{ ($invoice['container_type'] ?? '') === "20' Heavy Duty" ? 'selected' : '' }}>20' Heavy Duty</option>
                   <option value="40' High Cube" {{ ($invoice['container_type'] ?? '') === "40' High Cube" ? 'selected' : '' }}>40' High Cube</option>
@@ -441,7 +442,7 @@
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">No. of Containers</label>
-                <input type="number" min="1" name="no_of_containers" id="inputNoOfContainers" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['no_of_containers'] ?? 1 }}" oninput="onNoOfContainersChange(this.value)">
+                <input type="number" min="1" name="no_of_containers" id="inputNoOfContainers" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['no_of_containers'] ?? '' }}" oninput="onNoOfContainersChange(this.value)">
               </div>
             </div>
 
@@ -449,11 +450,11 @@
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Gross Weight (G.WT KG)</label>
-                <input type="number" step="0.01" name="gross_weight" id="inputGrossWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['gross_weight'] ?? 26500 }}" oninput="syncVariable('grossWeightDisplay', this.value + ' KGS')">
+                <input type="number" step="0.01" name="gross_weight" id="inputGrossWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['gross_weight'] ?? '' }}" oninput="syncVariable('grossWeightDisplay', this.value ? this.value + ' KGS' : '')">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Net Weight (N.WT KG)</label>
-                <input type="number" step="0.01" name="net_weight" id="inputNetWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['net_weight'] ?? 25500 }}" oninput="syncVariable('netWeightDisplay', this.value + ' KGS')">
+                <input type="number" step="0.01" name="net_weight" id="inputNetWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['net_weight'] ?? '' }}" oninput="syncVariable('netWeightDisplay', this.value ? this.value + ' KGS' : '')">
               </div>
             </div>
 
@@ -461,7 +462,7 @@
             <div class="row g-2 mb-1">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5" title="ISO Certification Details">ISO Certification</label>
-                <input type="text" name="iso_certification" id="inputIsoCert" class="form-control form-control-sm font-monospace" value="{{ $invoice['iso_certification'] ?? 'ISO 9001:2015 IC/9534879/24' }}" oninput="syncVariable('isoCertDisplay', this.value)">
+                <input type="text" name="iso_certification" id="inputIsoCert" class="form-control form-control-sm font-monospace" value="{{ $invoice['iso_certification'] ?? '' }}" oninput="syncVariable('isoCertDisplay', this.value)">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">LUT / Export Rule</label>
@@ -523,41 +524,43 @@
 
     <!-- Right Column: The Full Commercial Invoice Table Sheet -->
     <div class="col-xl-8">
-      <div class="card border-0 shadow-sm" style="border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
-        
-        <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom d-print-none">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-table text-primary"></i>
-            <span class="fw-bold text-dark">Commercial Invoice (Live Synchronized Preview)</span>
+      <div class="invoice-preview-sticky">
+        <div class="card border-0 shadow-sm invoice-preview-card" style="border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
+          
+          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom flex-shrink-0 d-print-none">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-table text-primary"></i>
+              <span class="fw-bold text-dark">Commercial Invoice (Live Synchronized Preview)</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <a href="{{ route('invoices.packing-list', $invoiceModel) }}" class="btn btn-sm btn-outline-info py-1 px-2.5">
+                <i class="bi bi-box2 me-1"></i> Packing List
+              </a>
+              <button type="button" class="btn btn-sm btn-light border py-1 px-2.5" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Print / Save PDF
+              </button>
+            </div>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('invoices.packing-list', $invoiceModel) }}" class="btn btn-sm btn-outline-info py-1 px-2.5">
-              <i class="bi bi-box2 me-1"></i> Packing List
-            </a>
-            <button type="button" class="btn btn-sm btn-light border py-1 px-2.5" onclick="window.print()">
-              <i class="bi bi-printer me-1"></i> Print / Save PDF
-            </button>
+
+          <div class="card-body p-2 p-md-3 bg-light overflow-auto invoice-preview-body">
+            <!-- Include Reusable Commercial Invoice Table Component Passing Variables -->
+            <x-commercial-invoice-table 
+              :exporter="$exporter"
+              :invoice="$invoice"
+              :consigner="$selectedConsigner"
+              :buyerOther="$buyerOther"
+              :items="$items"
+              :totalQuantity="$totalQuantity"
+              :totalAmount="$totalAmount"
+              :roundedAmount="$roundedAmount"
+              :amountInWords="$amountInWords"
+              :bank="$bank"
+              :certifications="$certifications"
+              :settings="$settings"
+            />
           </div>
-        </div>
 
-        <div class="card-body p-2 p-md-3 bg-light overflow-auto">
-          <!-- Include Reusable Commercial Invoice Table Component Passing Variables -->
-          <x-commercial-invoice-table 
-            :exporter="$exporter"
-            :invoice="$invoice"
-            :consigner="$selectedConsigner"
-            :buyerOther="$buyerOther"
-            :items="$items"
-            :totalQuantity="$totalQuantity"
-            :totalAmount="$totalAmount"
-            :roundedAmount="$roundedAmount"
-            :amountInWords="$amountInWords"
-            :bank="$bank"
-            :certifications="$certifications"
-            :settings="$settings"
-          />
         </div>
-
       </div>
     </div>
   </div>
@@ -617,7 +620,40 @@
   box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
 }
 
+/* Live Synchronized Preview Sticky & Scroll Behavior */
+@media (min-width: 1200px) {
+  .invoice-preview-sticky {
+    position: sticky;
+    top: 1.25rem;
+    z-index: 10;
+  }
+  .invoice-preview-card {
+    max-height: calc(100vh - 2.5rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .invoice-preview-body {
+    overflow-y: auto !important;
+    flex-grow: 1;
+  }
+}
+
 @media print {
+  .invoice-preview-sticky {
+    position: static !important;
+  }
+  .invoice-preview-card {
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .invoice-preview-body {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
   .app-sidebar, 
   .app-header, 
   .app-footer, 
@@ -674,11 +710,11 @@
 // Loaded Items from Database
 let invoiceItems = {!! json_encode(!empty($items) ? $items : [
   [
-    'marks_numbers' => '20 FCL ( 1 )',
+    'marks_numbers' => '',
     'container_no' => $invoice['container_number'] ?? '',
     'trailer_no' => $invoice['trailer_number'] ?? '',
     'description' => '',
-    'hsn_code' => '68022390',
+    'hsn_code' => '',
     'quantity' => '',
     'rate' => '',
     'amount' => 0
@@ -824,20 +860,8 @@ function updateInvoiceNoHeader() {
 }
 
 function onNoOfContainersChange(val) {
-  const n = parseInt(val) || 1;
+  const n = parseInt(val) || "";
   syncVariable("noOfContainersDisplay", n);
-  
-  // Suggest weights according to number of containers
-  const gInput = document.getElementById("inputGrossWeight");
-  const nInput = document.getElementById("inputNetWeight");
-  if (gInput) {
-    gInput.value = (26500 * n);
-    syncVariable("grossWeightDisplay", (26500 * n) + " KGS");
-  }
-  if (nInput) {
-    nInput.value = (25500 * n);
-    syncVariable("netWeightDisplay", (25500 * n) + " KGS");
-  }
 }
 
 function autoSyncContainersCount() {
@@ -845,19 +869,15 @@ function autoSyncContainersCount() {
     .map(it => (it.container_no || '').trim())
     .filter(Boolean);
 
-  let count = 1;
   if (containerNumbers.length > 0) {
     const unique = new Set(containerNumbers);
-    count = Math.max(unique.size, invoiceItems.length);
-  } else {
-    count = Math.max(1, invoiceItems.length);
+    const count = unique.size;
+    const input = document.getElementById("inputNoOfContainers");
+    if (input && !input.value) {
+      input.value = count;
+      onNoOfContainersChange(count);
+    }
   }
-
-  const input = document.getElementById("inputNoOfContainers");
-  if (input) {
-    input.value = count;
-  }
-  onNoOfContainersChange(count);
 }
 
 function onContainerChange(val) {
@@ -1051,7 +1071,7 @@ function renderItemsForm() {
         </div>
         <div class="col-5">
           <label class="form-label small fw-semibold text-muted mb-0.5">HSN Code</label>
-          <input type="text" class="form-control form-control-sm font-monospace" value="${escapeHtml(item.hsn_code || '68022390')}" oninput="updateItemField(${idx}, 'hsn_code', this.value, false)">
+          <input type="text" class="form-control form-control-sm font-monospace" placeholder="e.g. 68022390" value="${escapeHtml(item.hsn_code || '')}" oninput="updateItemField(${idx}, 'hsn_code', this.value, false)">
         </div>
       </div>
 
@@ -1112,11 +1132,11 @@ function addNewItem() {
   const prevItem = invoiceItems[invoiceItems.length - 1] || {};
   
   invoiceItems.push({
-    marks_numbers: "20 FCL ( " + nextIdx + " )",
+    marks_numbers: "",
     container_no: "",
     trailer_no: "",
     description: "",
-    hsn_code: prevItem.hsn_code || "68022390",
+    hsn_code: prevItem.hsn_code || "",
     quantity: "",
     rate: prevItem.rate || "",
     amount: 0
@@ -1177,7 +1197,7 @@ function renderItemsTable() {
           <div class="fw-bold text-uppercase">${formattedDesc}</div>
         </td>
         <td class="p-1.5 text-center align-top font-monospace item-hsn" style="border-right: 1px solid #000;">
-          ${escapeHtml(item.hsn_code || '68022390')}
+          ${escapeHtml(item.hsn_code || '')}
         </td>
         <td class="p-1.5 text-end align-top fw-bold font-monospace item-qty" style="border-right: 1px solid #000;">
           ${qty > 0 ? qty.toFixed(3) : ''}

@@ -23,11 +23,11 @@
   $currCode = $curr === 'USD' ? 'USD' : 'INR';
   $consigneeMode = $invoice['consignee_mode'] ?? 'consigner';
   $isToOrder = ($consigneeMode === 'to_the_order' || strtoupper($invoice['consignee_name'] ?? '') === 'TO THE ORDER');
-  $noOfContainers = (int)($invoice['no_of_containers'] ?? 1);
-  $grossWt = $invoice['gross_weight'] ?? (26500 * max(1, $noOfContainers));
-  $netWt = $invoice['net_weight'] ?? (25500 * max(1, $noOfContainers));
-  $isoCert = $invoice['iso_certification'] ?? ($certifications['iso_certification'] ?? ($settings->iso_certification ?? 'ISO 9001:2015 IC/9534879/24'));
-  $lutRule = $invoice['lut_no'] ?? ($exporter['lut_rule'] ?? ($settings->lut_rule ?? ''));
+  $noOfContainers = !empty($invoice['no_of_containers']) ? (int)$invoice['no_of_containers'] : '';
+  $grossWt = $invoice['gross_weight'] ?? '';
+  $netWt = $invoice['net_weight'] ?? '';
+  $isoCert = $invoice['iso_certification'] ?? '';
+  $lutRule = $invoice['lut_no'] ?? '';
   $notifyParties = is_array($invoice['notify_parties'] ?? null) ? $invoice['notify_parties'] : [];
 
   $rawPaymentTerms = $invoice['payment_terms'] ?? '';
@@ -241,7 +241,7 @@
               <tr>
                 <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
                   <div class="fw-bold" style="font-size: 9px;">Country of Origin of goods</div>
-                  <div class="fw-semibold" id="countryOriginDisplay">{{ $invoice['country_of_origin'] ?? 'INDIA' }}</div>
+                  <div class="fw-semibold" id="countryOriginDisplay">{{ $invoice['country_of_origin'] ?? '' }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold" style="font-size: 9px;">Country of Final Destination</div>
@@ -332,7 +332,7 @@
             <div class="fw-bold text-uppercase">{!! nl2br(e($it['description'] ?? '')) !!}</div>
           </td>
           <td class="p-1.5 text-center align-top font-monospace item-hsn" style="border-right: 1px solid #000;">
-            {{ $it['hsn_code'] ?? '68022390' }}
+            {{ $it['hsn_code'] ?? '' }}
           </td>
           <td class="p-1.5 text-end align-top fw-bold font-monospace item-qty" style="border-right: 1px solid #000;">
             {{ !empty($it['quantity']) ? number_format($it['quantity'], 3) : '' }}
@@ -397,12 +397,10 @@
         </tr>
 
         <!-- Amount In Words Row -->
-        <tr style="border-bottom: 1.5px solid #000; font-size: 10.5px;">
-          <td colspan="2" class="p-1.5 fw-bold" style="border-right: 1px solid #000; width: 23%;">
-            Amount In Words (<span class="currency-code">{{ $currCode }}</span>)
-          </td>
-          <td colspan="5" class="p-1.5 fw-black text-uppercase" id="amountInWordsDisplay" style="font-weight: 900; letter-spacing: 0.03em;">
-            {{ $amountInWords ?? '' }}
+        <tr style="border-bottom: 1.5px solid #000; font-size: 10px;">
+          <td colspan="7" class="py-1 px-2 fw-bold" style="line-height: 1.35; background: #fff;">
+            <span>Amount In Words (<span class="currency-code">{{ $currCode }}</span>):</span>
+            <span class="fw-bold text-uppercase ms-1" id="amountInWordsDisplay" style="font-weight: 800; letter-spacing: 0.02em;">{{ $amountInWords ?? '' }}</span>
           </td>
         </tr>
       </tbody>
@@ -437,15 +435,15 @@
                 <td class="p-2 text-center align-middle" style="width: 35%; border-right: 1px solid #000; background: #fafafa;">
                   <div class="fw-bold" style="font-size: 9px;">NO OF CONTAINER</div>
                   <div class="fw-bold fs-5 mt-1" id="noOfContainersDisplay">{{ $noOfContainers }}</div>
-                  <div class="small text-muted font-monospace" id="containerTypeDisplay">{{ $invoice['container_type'] ?? '20 FCL' }}</div>
+                  <div class="small text-muted font-monospace" id="containerTypeDisplay">{{ $invoice['container_type'] ?? '' }}</div>
                 </td>
                 <td class="p-2 align-middle font-monospace" style="width: 65%;">
                   <div class="fw-bold mb-1" style="font-size: 10px;">Weight in Kgs :</div>
                   <div class="d-flex justify-content-between mb-0.5">
-                    <span>G.WT :</span> <span class="fw-bold" id="grossWeightDisplay">{{ is_numeric($grossWt) ? number_format($grossWt, 0, '.', '') : $grossWt }} KGS</span>
+                    <span>G.WT :</span> <span class="fw-bold" id="grossWeightDisplay">{{ !empty($grossWt) ? (is_numeric($grossWt) ? number_format($grossWt, 0, '.', '') . ' KGS' : $grossWt) : '' }}</span>
                   </div>
                   <div class="d-flex justify-content-between">
-                    <span>N.WT :</span> <span class="fw-bold" id="netWeightDisplay">{{ is_numeric($netWt) ? number_format($netWt, 0, '.', '') : $netWt }} KGS</span>
+                    <span>N.WT :</span> <span class="fw-bold" id="netWeightDisplay">{{ !empty($netWt) ? (is_numeric($netWt) ? number_format($netWt, 0, '.', '') . ' KGS' : $netWt) : '' }}</span>
                   </div>
                 </td>
               </tr>

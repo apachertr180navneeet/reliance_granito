@@ -89,7 +89,7 @@
         </div>
         <div class="col-6 col-md-3">
           <div class="small text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Port Destination</div>
-          <div class="fs-6 fw-bold text-dark text-truncate">{{ $invoice['port_of_discharge'] ?? 'CATLAI PORT, VIETNAM' }}</div>
+          <div class="fs-6 fw-bold text-dark text-truncate">{{ $invoice['port_of_discharge'] ?? '-' }}</div>
         </div>
       </div>
     </div>

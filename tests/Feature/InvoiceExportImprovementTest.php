@@ -665,4 +665,35 @@ class InvoiceExportImprovementTest extends TestCase
         $createIgst->assertStatus(200);
         $createIgst->assertSee('80% AT PORT & 20% AFTER CHECKING');
     }
+
+    /**
+     * Test M — Shipping Logistics, Containers, Weights & Items sections are blank by default.
+     */
+    public function test_m_creation_sections_are_blank_by_default(): void
+    {
+        $response = $this->actingAs($this->user)->get(route('invoices.create'));
+        $response->assertStatus(200);
+
+        // Shipping Logistics & Ports are blank
+        $response->assertSee('name="pre_carriage_by" class="form-control form-control-sm font-monospace" id="inputPreCarriage" value=""', false);
+        $response->assertSee('name="place_of_receipt" class="form-control form-control-sm font-monospace" id="inputPlaceReceipt" value=""', false);
+        $response->assertSee('name="country_of_origin" class="form-control form-control-sm font-monospace" id="inputCountryOrigin" value=""', false);
+        $response->assertSee('name="country_of_destination" class="form-control form-control-sm font-monospace" id="inputCountryDest" value=""', false);
+        $response->assertSee('name="vessel_flight_no" class="form-control form-control-sm font-monospace" id="inputVesselFlight" value=""', false);
+        $response->assertSee('name="port_of_loading" class="form-control form-control-sm font-monospace" id="inputPortLoading" value=""', false);
+        $response->assertSee('name="port_of_discharge" class="form-control form-control-sm font-monospace" id="inputPortDischarge" value=""', false);
+        $response->assertSee('name="final_destination" class="form-control form-control-sm font-monospace" id="inputFinalDest" value=""', false);
+
+        // Identifiers, Containers & Weights are blank
+        $response->assertSee('<option value="" selected></option>', false);
+        $response->assertSee('name="no_of_containers" id="inputNoOfContainers" class="form-control form-control-sm font-monospace fw-bold" value=""', false);
+        $response->assertSee('name="gross_weight" id="inputGrossWeight" class="form-control form-control-sm font-monospace fw-bold" value=""', false);
+        $response->assertSee('name="net_weight" id="inputNetWeight" class="form-control form-control-sm font-monospace fw-bold" value=""', false);
+        $response->assertSee('name="iso_certification" id="inputIsoCert" class="form-control form-control-sm font-monospace" value=""', false);
+        $response->assertSee('name="lut_no" id="inputLutRule" class="form-control form-control-sm font-monospace" value=""', false);
+
+        // Initial items Marks & Pkgs and HSN Code are blank
+        $response->assertSee('marks_numbers: ""', false);
+        $response->assertSee('hsn_code: ""', false);
+    }
 }

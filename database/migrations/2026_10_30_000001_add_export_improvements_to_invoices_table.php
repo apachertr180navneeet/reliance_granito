@@ -34,10 +34,10 @@ return new class extends Migration
 
             $table->json('notify_parties')->nullable()->after('buyer_email');
 
-            $table->string('container_type', 50)->default('20 FCL')->after('trailer_number');
-            $table->unsignedInteger('no_of_containers')->default(1)->after('container_type');
-            $table->decimal('gross_weight', 12, 2)->default(26500.00)->after('no_of_containers');
-            $table->decimal('net_weight', 12, 2)->default(25500.00)->after('gross_weight');
+            $table->string('container_type', 50)->nullable()->after('trailer_number');
+            $table->unsignedInteger('no_of_containers')->nullable()->after('container_type');
+            $table->decimal('gross_weight', 12, 2)->nullable()->after('no_of_containers');
+            $table->decimal('net_weight', 12, 2)->nullable()->after('gross_weight');
             $table->unsignedInteger('total_packages')->default(0)->after('net_weight');
             $table->string('package_type', 100)->default('Wooden Bundles / Pallets')->after('total_packages');
             $table->string('region', 50)->default('Morbi')->after('package_type');

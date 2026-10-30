@@ -17,10 +17,10 @@
   $curr = strtoupper($invoice['currency'] ?? 'USD');
   $consigneeMode = $invoice['consignee_mode'] ?? 'consigner';
   $isToOrder = ($consigneeMode === 'to_the_order' || strtoupper($invoice['consignee_name'] ?? '') === 'TO THE ORDER');
-  $noOfContainers = (int)($invoice['no_of_containers'] ?? 1);
-  $grossWt = $invoice['gross_weight'] ?? (26500 * max(1, $noOfContainers));
-  $netWt = $invoice['net_weight'] ?? (25500 * max(1, $noOfContainers));
-  $isoCert = $invoice['iso_certification'] ?? ($certifications['iso_certification'] ?? ($settings->iso_certification ?? 'ISO 9001:2015 IC/9534879/24'));
+  $noOfContainers = !empty($invoice['no_of_containers']) ? (int)$invoice['no_of_containers'] : '';
+  $grossWt = $invoice['gross_weight'] ?? '';
+  $netWt = $invoice['net_weight'] ?? '';
+  $isoCert = $invoice['iso_certification'] ?? '';
   $notifyParties = is_array($invoice['notify_parties'] ?? null) ? $invoice['notify_parties'] : [];
   $pkgType = $invoice['package_type'] ?? 'Wooden Bundles / Pallets';
 
@@ -49,20 +49,20 @@
       // Item proportional weight or manual weight
       $itemNet = isset($it['net_weight']) && (float)$it['net_weight'] > 0 
           ? (float)$it['net_weight'] 
-          : ($itemCount > 0 ? round(($netWt / $itemCount), 2) : $netWt);
+          : ($itemCount > 0 && is_numeric($netWt) ? round(((float)$netWt / $itemCount), 2) : 0);
       $itemGross = isset($it['gross_weight']) && (float)$it['gross_weight'] > 0 
           ? (float)$it['gross_weight'] 
-          : ($itemCount > 0 ? round(($grossWt / $itemCount), 2) : $grossWt);
+          : ($itemCount > 0 && is_numeric($grossWt) ? round(((float)$grossWt / $itemCount), 2) : 0);
 
       $computedNetWt += $itemNet;
       $computedGrossWt += $itemGross;
 
       $packingRows[] = [
-          'marks_numbers' => $it['marks_numbers'] ?? ('20 FCL ( ' . ($idx + 1) . ' )'),
+          'marks_numbers' => $it['marks_numbers'] ?? '',
           'container_no' => $it['container_no'] ?? ($invoice['container_number'] ?? ''),
           'trailer_no' => $it['trailer_no'] ?? ($invoice['trailer_number'] ?? ''),
           'description' => $it['description'] ?? '',
-          'hsn_code' => $it['hsn_code'] ?? '68022390',
+          'hsn_code' => $it['hsn_code'] ?? '',
           'packages' => $pkgs > 0 ? $pkgs : '-',
           'quantity' => $qty,
           'net_weight' => $itemNet,
@@ -259,11 +259,11 @@
               <tr>
                 <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
                   <div class="fw-bold" style="font-size: 9px;">Pre-Carriage by</div>
-                  <div class="fw-semibold">{{ $invoice['pre_carriage_by'] ?? 'TRUCK' }}</div>
+                  <div class="fw-semibold">{{ $invoice['pre_carriage_by'] ?? '' }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold" style="font-size: 9px;">Place of Receipt by Pre-Carrier</div>
-                  <div class="fw-semibold">{{ $invoice['place_of_receipt'] ?? 'CHENNAI PORT' }}</div>
+                  <div class="fw-semibold">{{ $invoice['place_of_receipt'] ?? '' }}</div>
                 </td>
               </tr>
             </table>
@@ -275,11 +275,11 @@
               <tr>
                 <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
                   <div class="fw-bold" style="font-size: 9px;">Country of Origin of goods</div>
-                  <div class="fw-semibold">{{ $invoice['country_of_origin'] ?? 'INDIA' }}</div>
+                  <div class="fw-semibold">{{ $invoice['country_of_origin'] ?? '' }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold" style="font-size: 9px;">Country of Final Destination</div>
-                  <div class="fw-semibold">{{ $invoice['country_of_destination'] ?? 'VIETNAM' }}</div>
+                  <div class="fw-semibold">{{ $invoice['country_of_destination'] ?? '' }}</div>
                 </td>
               </tr>
             </table>
@@ -294,21 +294,21 @@
               <tr style="border-bottom: 1px solid #000;">
                 <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
                   <div class="fw-bold" style="font-size: 9px;">Vessel / Flight No.</div>
-                  <div class="fw-semibold">{{ $invoice['vessel_flight_no'] ?? '-' }}</div>
+                  <div class="fw-semibold">{{ $invoice['vessel_flight_no'] ?? '' }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold" style="font-size: 9px;">Port of Loading</div>
-                  <div class="fw-semibold">{{ $invoice['port_of_loading'] ?? 'CHENNAI PORT' }}</div>
+                  <div class="fw-semibold">{{ $invoice['port_of_loading'] ?? '' }}</div>
                 </td>
               </tr>
               <tr>
                 <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
                   <div class="fw-bold" style="font-size: 9px;">Port of Discharge</div>
-                  <div class="fw-semibold">{{ $invoice['port_of_discharge'] ?? 'CATLAI PORT, VIETNAM' }}</div>
+                  <div class="fw-semibold">{{ $invoice['port_of_discharge'] ?? '' }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold" style="font-size: 9px;">Final Destination</div>
-                  <div class="fw-semibold">{{ $invoice['final_destination'] ?? 'CATLAI PORT, VIETNAM' }}</div>
+                  <div class="fw-semibold">{{ $invoice['final_destination'] ?? '' }}</div>
                 </td>
               </tr>
             </table>
@@ -318,7 +318,7 @@
           <td class="p-2 align-middle text-center" style="width: 50%; background: #fafafa;">
             <div class="fw-bold mb-1" style="font-size: 10px;">Container Particulars</div>
             <div class="fw-bold text-dark font-monospace" style="font-size: 11px;">
-              {{ $noOfContainers }} &times; {{ $invoice['container_type'] ?? '20 FCL' }}
+              {{ !empty($noOfContainers) ? $noOfContainers . ' × ' : '' }}{{ $invoice['container_type'] ?? '' }}
             </div>
             <div class="small text-muted font-monospace mt-0.5">
               Trailer: {{ $invoice['trailer_number'] ?? '-' }}
@@ -421,11 +421,11 @@
           <!-- Left: Consignment Specs (50%) -->
           <td class="p-2 align-top" style="width: 50%; border-right: 1.5px solid #000;">
             <div class="fw-bold mb-1">CONSIGNMENT SPECIFICATIONS:</div>
-            <div><strong>Total Containers:</strong> {{ $noOfContainers }} &times; {{ $invoice['container_type'] ?? '20 FCL' }}</div>
+            <div><strong>Total Containers:</strong> {{ !empty($noOfContainers) ? $noOfContainers . ' × ' : '' }}{{ $invoice['container_type'] ?? '' }}</div>
             <div><strong>Primary Container No:</strong> <span class="font-monospace fw-bold">{{ $invoice['container_number'] ?? '-' }}</span></div>
             <div><strong>Trailer / Vehicle:</strong> <span class="font-monospace fw-bold">{{ $invoice['trailer_number'] ?? '-' }}</span></div>
-            <div><strong>Port of Loading:</strong> {{ $invoice['port_of_loading'] ?? 'CHENNAI PORT' }}</div>
-            <div><strong>Port of Discharge:</strong> {{ $invoice['port_of_discharge'] ?? 'CATLAI PORT, VIETNAM' }}</div>
+            <div><strong>Port of Loading:</strong> {{ $invoice['port_of_loading'] ?? '' }}</div>
+            <div><strong>Port of Discharge:</strong> {{ $invoice['port_of_discharge'] ?? '' }}</div>
           </td>
 
           <!-- Right: Certified Weights Breakdown (50%) -->
