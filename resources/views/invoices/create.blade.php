@@ -4,7 +4,7 @@
 <main class="content-area p-3 p-lg-4" id="invoiceCreateApp">
 
   <!-- Breadcrumb & Page Header -->
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 d-print-none">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 d-print-none">
     <div>
       <nav aria-label="breadcrumb" class="mb-1">
         <ol class="breadcrumb mb-0 small">
@@ -14,35 +14,35 @@
         </ol>
       </nav>
       <div class="d-flex align-items-center gap-2">
-        <h2 class="fw-bold text-dark mb-0" style="font-size: 1.6rem; letter-spacing: -0.02em;">Create Commercial Export Invoice</h2>
+        <h2 class="fw-bold text-dark mb-0" style="font-size: 1.5rem; letter-spacing: -0.02em;">Create Commercial Export Invoice</h2>
         <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1" style="font-size: 0.78rem;">
-          <i class="bi bi-file-earmark-plus me-1"></i> New Blank Docket
+          <i class="bi bi-file-earmark-plus me-1"></i> New Docket
         </span>
       </div>
       <p class="text-muted small mb-0 mt-1">
-        Add consignee, shipment particulars, logistics details, and multiple product line items. All changes update the document sheet in real-time.
+        Fill export docket details. All changes synchronize to the commercial invoice preview in real-time.
       </p>
     </div>
 
     <div class="d-flex align-items-center gap-2 flex-wrap">
-      <a href="{{ route('invoices.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2">
+      <a href="{{ route('invoices.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1.5 px-3 py-2">
         <i class="bi bi-arrow-left"></i>
         <span>All Invoices</span>
       </a>
 
-      <a href="{{ route('invoices.settings') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2">
+      <a href="{{ route('invoices.settings') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1.5 px-3 py-2">
         <i class="bi bi-sliders"></i>
         <span>Settings</span>
       </a>
 
-      <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2" onclick="window.print()">
+      <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1.5 px-3 py-2" onclick="window.print()">
         <i class="bi bi-printer"></i>
         <span>Print Preview</span>
       </button>
 
-      <button type="submit" form="invoiceForm" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3.5 py-2 shadow-sm fw-semibold">
+      <button type="submit" form="invoiceForm" class="btn btn-primary d-inline-flex align-items-center gap-1.5 px-3.5 py-2 shadow-sm fw-semibold">
         <i class="bi bi-floppy2-fill"></i>
-        <span>Save & Create Invoice</span>
+        <span>Save &amp; Create Invoice</span>
       </button>
     </div>
   </div>
@@ -61,8 +61,17 @@
 
   <div class="row g-4">
     <!-- Left Column: Variable Controls Form (d-print-none) -->
-    <div class="col-xl-4 d-print-none">
+    <div class="col-lg-5 col-xl-5 d-print-none">
       
+      <!-- Quick Section Jump Navigation Bar -->
+      <div class="section-nav-bar d-flex align-items-center gap-1 p-1.5 mb-3 bg-white rounded-3 border shadow-sm sticky-top" style="top: 10px; z-index: 15;">
+        <a href="#sec-scheme" class="btn btn-sm btn-light border-0 py-1 px-2.5 small fw-semibold text-muted text-nowrap sec-nav-link active">1. Details &amp; Scheme</a>
+        <a href="#sec-parties" class="btn btn-sm btn-light border-0 py-1 px-2.5 small fw-semibold text-muted text-nowrap sec-nav-link">2. Parties</a>
+        <a href="#sec-shipping" class="btn btn-sm btn-light border-0 py-1 px-2.5 small fw-semibold text-muted text-nowrap sec-nav-link">3. Shipping</a>
+        <a href="#sec-containers" class="btn btn-sm btn-light border-0 py-1 px-2.5 small fw-semibold text-muted text-nowrap sec-nav-link">4. Containers</a>
+        <a href="#sec-items" class="btn btn-sm btn-light border-0 py-1 px-2.5 small fw-semibold text-muted text-nowrap sec-nav-link">5. Line Items</a>
+      </div>
+
       <form id="invoiceForm" action="{{ route('invoices.store') }}" method="POST" onsubmit="return prepareInvoiceSubmission()">
         @csrf
         <!-- Hidden Serialized Inputs for Controller Processing -->
@@ -75,25 +84,49 @@
         <input type="hidden" name="taxable_value_inr" id="hiddenTaxableValueInr">
         <input type="hidden" name="igst_amount_inr" id="hiddenIgstAmountInr">
 
-        <!-- 0. Format, Delivery Terms & Currency Scheme -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom">
+        <!-- 1. Invoice Identifiers, Format, Delivery Terms & Currency Scheme -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-scheme" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 d-flex align-items-center justify-content-between border-bottom">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">1</span>
               <i class="bi bi-file-earmark-check text-primary"></i>
-              <span>Invoice Format &amp; Scheme</span>
+              <span>Invoice Details &amp; Export Scheme</span>
             </div>
             <span class="badge bg-primary text-white" id="formatStatusBadge">LUT FORMAT</span>
           </div>
           <div class="card-body p-3">
             
+            <!-- Invoice Number, Date, PO -->
+            <div class="row g-2 mb-2.5">
+              <div class="col-7">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Invoice Number <span class="text-danger">*</span></label>
+                <input type="text" name="invoice_number" required class="form-control form-control-sm font-monospace fw-bold" id="inputInvNo" value="{{ $invoice['invoice_number'] ?? '' }}" placeholder="e.g. 681 / 26-27" oninput="updateInvoiceNoHeader()">
+              </div>
+              <div class="col-5">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Invoice Date <span class="text-danger">*</span></label>
+                <input type="text" name="invoice_date" required class="form-control form-control-sm font-monospace" id="inputInvDate" value="{{ $invoice['invoice_date'] ?? date('d.m.Y') }}" oninput="updateInvoiceNoHeader()">
+              </div>
+            </div>
+
+            <div class="mb-2.5">
+              <label class="form-label small fw-semibold text-muted mb-0.5">Buyer's Order / P.O. No.</label>
+              <input type="text" name="buyer_po" class="form-control form-control-sm font-monospace" id="inputBuyerPo" value="{{ $invoice['buyer_po'] ?? '-' }}" oninput="syncVariable('buyerPoDisplay', this.value)">
+            </div>
+
+            <hr class="my-2.5 text-muted opacity-25">
+
             <!-- Format Radio -->
             <label class="form-label small fw-semibold text-muted mb-1">Invoice Format</label>
-            <div class="btn-group w-100 mb-2" role="group">
+            <div class="btn-group w-100 mb-2.5" role="group">
               <input type="radio" class="btn-check" name="invoice_format" id="formatLut" value="LUT" {{ ($invoice['invoice_format'] ?? 'LUT') === 'LUT' ? 'checked' : '' }} onchange="onFormatChange('LUT')">
-              <label class="btn btn-outline-primary btn-sm py-1.5 fw-semibold" for="formatLut">LUT (Under Bond)</label>
+              <label class="btn btn-outline-primary btn-sm py-1.5 fw-semibold" for="formatLut">
+                <i class="bi bi-shield-check me-1"></i> LUT (Under Bond)
+              </label>
 
               <input type="radio" class="btn-check" name="invoice_format" id="formatIgst" value="IGST" {{ ($invoice['invoice_format'] ?? '') === 'IGST' ? 'checked' : '' }} onchange="onFormatChange('IGST')">
-              <label class="btn btn-outline-primary btn-sm py-1.5 fw-semibold" for="formatIgst">IGST (With Tax)</label>
+              <label class="btn btn-outline-primary btn-sm py-1.5 fw-semibold" for="formatIgst">
+                <i class="bi bi-receipt-cutoff me-1"></i> IGST (With Tax)
+              </label>
             </div>
 
             <!-- Delivery Terms & Currency -->
@@ -119,7 +152,7 @@
             <!-- IGST & Exchange Rate Box (Visible when IGST or Currency USD) -->
             <div id="igstFxSettingsBox" class="p-2.5 bg-light rounded border mb-1" style="{{ ($invoice['invoice_format'] ?? '') === 'IGST' ? '' : 'display: none;' }}">
               <div class="small fw-bold text-dark mb-1.5 d-flex align-items-center justify-content-between">
-                <span>IGST &amp; Exchange Rate Calculation</span>
+                <span><i class="bi bi-calculator me-1 text-warning"></i>IGST &amp; Exchange Rate Calculation</span>
                 <span class="badge bg-warning text-dark">Tax Applicable</span>
               </div>
               <div class="row g-2">
@@ -145,12 +178,13 @@
           </div>
         </div>
 
-        <!-- 1. Consignee / Buyer Selection Card -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom">
+        <!-- 2. Parties: Consignee & Buyer Selection Card -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-parties" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 d-flex align-items-center justify-content-between border-bottom">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
-              <i class="bi bi-building-up text-primary"></i>
-              <span>1. Consignee / Buyer</span>
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">2</span>
+              <i class="bi bi-people-fill text-primary"></i>
+              <span>Consignee, Buyer &amp; Notify Parties</span>
             </div>
             <div class="form-check form-switch mb-0">
               <input class="form-check-input" type="checkbox" id="toTheOrderToggle" onchange="toggleToTheOrder(this.checked)">
@@ -161,56 +195,61 @@
             <input type="hidden" name="consignee_mode" id="inputConsigneeMode" value="{{ $invoice['consignee_mode'] ?? 'consigner' }}">
 
             <div id="consignerMasterGroup">
-              <label class="form-label small fw-semibold text-muted mb-1">Select Consigner / Buyer Master</label>
-              <select class="form-select form-select-sm mb-2" id="consignerSelect" name="consigner_id" onchange="onConsignerChange(this.value)">
-                <option value="" {{ empty($selectedConsigner) ? 'selected' : '' }}>-- Select Consignee / Buyer --</option>
-                @foreach($consigners as $c)
-                  <option value="{{ $c->id }}" {{ $selectedConsigner && $selectedConsigner->id === $c->id ? 'selected' : '' }}
-                          data-name="{{ $c->name }}"
-                          data-address="{{ $c->registered_address ?? $c->factory_address }}"
-                          data-tax="{{ $c->gstin ?? $c->pan }}"
-                          data-phone="{{ $c->contact_phone }}"
-                          data-email="{{ $c->contact_email }}"
-                          data-iec="{{ $c->iec }}"
-                          data-region="{{ $c->region }}"
-                          data-adcode="{{ $c->ad_code }}">
-                    {{ $c->name }} ({{ $c->iec }})
-                  </option>
-                @endforeach
-              </select>
+              <div class="mb-2">
+                <label class="form-label small fw-semibold text-muted mb-1 d-flex align-items-center justify-content-between">
+                  <span>Select Consignee / Buyer Master</span>
+                  <span class="badge bg-light text-primary border" style="font-size: 0.68rem;">Auto-fills details</span>
+                </label>
+                <select class="form-select form-select-sm mb-2" id="consignerSelect" name="consigner_id" onchange="onConsignerChange(this.value)">
+                  <option value="" {{ empty($selectedConsigner) ? 'selected' : '' }}>-- Select Consignee / Buyer Master --</option>
+                  @foreach($consigners as $c)
+                    <option value="{{ $c->id }}" {{ $selectedConsigner && $selectedConsigner->id === $c->id ? 'selected' : '' }}
+                            data-name="{{ $c->name }}"
+                            data-address="{{ $c->registered_address ?? $c->factory_address }}"
+                            data-tax="{{ $c->gstin ?? $c->pan }}"
+                            data-phone="{{ $c->contact_phone }}"
+                            data-email="{{ $c->contact_email }}"
+                            data-iec="{{ $c->iec }}"
+                            data-region="{{ $c->region }}"
+                            data-adcode="{{ $c->ad_code }}">
+                      {{ $c->name }} ({{ $c->iec }})
+                    </option>
+                  @endforeach
+                </select>
+              </div>
 
               <div class="mb-2">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Consignee Name</label>
-                <input type="text" name="consignee_name" id="inputConsigneeName" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['consignee_name'] ?? '' }}" oninput="syncVariable('consigneeNameDisplay', this.value)">
+                <input type="text" name="consignee_name" id="inputConsigneeName" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['consignee_name'] ?? '' }}" oninput="syncVariable('consigneeNameDisplay', this.value)" placeholder="Consignee Business Name">
               </div>
 
               <div class="mb-2">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Consignee Address</label>
-                <textarea name="consignee_address" id="inputConsigneeAddress" class="form-control form-control-sm" rows="2" oninput="syncVariable('consigneeAddressDisplay', this.value ? 'ADD: ' + this.value : '')">{{ $invoice['consignee_address'] ?? '' }}</textarea>
+                <textarea name="consignee_address" id="inputConsigneeAddress" class="form-control form-control-sm" rows="2" placeholder="Full address" oninput="syncVariable('consigneeAddressDisplay', this.value ? 'ADD: ' + this.value : '')">{{ $invoice['consignee_address'] ?? '' }}</textarea>
               </div>
 
               <div class="row g-2 mb-2">
                 <div class="col-6">
                   <label class="form-label small fw-semibold text-muted mb-0.5">Tax Code / GSTIN</label>
-                  <input type="text" name="consignee_tax" id="inputConsigneeTax" class="form-control form-control-sm font-monospace" value="{{ $invoice['consignee_tax'] ?? '' }}" oninput="syncVariable('consigneeTaxDisplay', this.value)">
+                  <input type="text" name="consignee_tax" id="inputConsigneeTax" class="form-control form-control-sm font-monospace" value="{{ $invoice['consignee_tax'] ?? '' }}" placeholder="Tax Registration" oninput="syncVariable('consigneeTaxDisplay', this.value)">
                 </div>
                 <div class="col-6">
                   <label class="form-label small fw-semibold text-muted mb-0.5">Phone</label>
-                  <input type="text" name="consignee_phone" id="inputConsigneePhone" class="form-control form-control-sm font-monospace" value="{{ $invoice['consignee_phone'] ?? '' }}" oninput="syncVariable('consigneePhoneDisplay', this.value)">
+                  <input type="text" name="consignee_phone" id="inputConsigneePhone" class="form-control form-control-sm font-monospace" value="{{ $invoice['consignee_phone'] ?? '' }}" placeholder="Phone / Mobile" oninput="syncVariable('consigneePhoneDisplay', this.value)">
                 </div>
               </div>
 
-              <div class="mb-1">
+              <div class="mb-2">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Email</label>
-                <input type="email" name="consignee_email" id="inputConsigneeEmail" class="form-control form-control-sm" value="{{ $invoice['consignee_email'] ?? '' }}" oninput="syncVariable('consigneeEmailDisplay', this.value)">
+                <input type="email" name="consignee_email" id="inputConsigneeEmail" class="form-control form-control-sm" value="{{ $invoice['consignee_email'] ?? '' }}" placeholder="contact@example.com" oninput="syncVariable('consigneeEmailDisplay', this.value)">
               </div>
             </div>
 
-            <div id="toTheOrderAlert" class="alert alert-info py-2 px-3 small mb-0" style="display: none;">
-              <i class="bi bi-info-circle-fill me-1"></i> Consignee will display as <strong>TO THE ORDER</strong>. Overseas buyer details can be specified separately in Section 2.
+            <div id="toTheOrderAlert" class="alert alert-info py-2 px-3 small mb-2" style="display: none;">
+              <i class="bi bi-info-circle-fill me-1"></i> Consignee will display as <strong>TO THE ORDER</strong>. Overseas buyer details can be specified separately below.
             </div>
 
-            <div class="d-flex align-items-center justify-content-between small text-muted mt-2 pt-2 border-top">
+            <div class="d-flex align-items-center justify-content-between small text-muted pt-2 border-top mb-3">
               <span>IEC: <strong id="sidebarIec">{{ $selectedConsigner->iec ?? '-' }}</strong></span>
               <span>Region: 
                 <select name="region" id="inputRegion" class="form-select form-select-sm d-inline-block w-auto py-0 px-2 font-monospace" onchange="syncVariable('sidebarRegion', this.value)">
@@ -219,168 +258,191 @@
                 </select>
               </span>
             </div>
-          </div>
-        </div>
 
-        <!-- 2. Buyer (If other than Consignee) - Dynamic Adjusters & Edit Address -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom">
-            <div class="fw-bold text-dark d-flex align-items-center gap-2">
-              <i class="bi bi-person-badge text-primary"></i>
-              <span>2. Buyer (If other than Consignee)</span>
-            </div>
-            <div class="d-flex gap-1.5">
-              <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 small" style="font-size: 0.72rem;" onclick="toggleEditAddress()">
-                <i class="bi bi-pencil me-1"></i>Edit Address
-              </button>
-              <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2 small" style="font-size: 0.72rem;" onclick="copyConsigneeToBuyerOther()">
-                Copy Consignee
-              </button>
-            </div>
-          </div>
-          <div class="card-body p-3">
-            
-            <div class="mb-2">
-              <label class="form-label small fw-semibold text-muted mb-0.5">Buyer Company Name</label>
-              <input type="text" name="buyer_name" class="form-control form-control-sm font-monospace fw-bold" id="inputBuyerOtherName" value="{{ $buyerOther['name'] ?? '' }}" placeholder="Leave blank if same as Consignee" oninput="syncVariable('buyerOtherNameDisplay', this.value)">
-            </div>
-
-            <div class="mb-2">
+            <!-- Buyer Other Accordion / Collapsible (Optional) -->
+            @php
+              $hasBuyerOther = !empty($buyerOther['name']) || !empty($buyerOther['address']) || !empty($buyerOther['tax_code']);
+            @endphp
+            <div class="border rounded-2 p-2.5 bg-light-subtle mb-3">
               <div class="d-flex align-items-center justify-content-between">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Address (ADD)</label>
-                <span class="badge bg-light text-muted border" id="addressEditStatusBadge" style="font-size: 0.68rem;">Invoice Snapshot</span>
-              </div>
-              <textarea name="buyer_address" class="form-control form-control-sm" id="inputBuyerOtherAddress" rows="2" placeholder="Full address" oninput="syncVariable('buyerOtherAddressDisplay', this.value ? 'ADD: ' + this.value : '')">{{ $buyerOther['address'] ?? '' }}</textarea>
-            </div>
-
-            <div class="row g-2 mb-2">
-              <div class="col-6">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Tax Code</label>
-                <input type="text" name="buyer_tax" class="form-control form-control-sm font-monospace" id="inputBuyerOtherTax" value="{{ $buyerOther['tax_code'] ?? '' }}" placeholder="Tax Code / GSTIN" oninput="syncVariable('buyerOtherTaxDisplay', this.value)">
-              </div>
-              <div class="col-6">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Telephone (TEL)</label>
-                <input type="text" name="buyer_phone" class="form-control form-control-sm font-monospace" id="inputBuyerOtherPhone" value="{{ $buyerOther['phone'] ?? '' }}" placeholder="Phone / Mobile" oninput="syncVariable('buyerOtherPhoneDisplay', this.value)">
-              </div>
-            </div>
-
-            <div class="mb-1">
-              <label class="form-label small fw-semibold text-muted mb-0.5">Email Address</label>
-              <input type="email" name="buyer_email" class="form-control form-control-sm" id="inputBuyerOtherEmail" value="{{ $buyerOther['email'] ?? '' }}" placeholder="company@domain.com" oninput="syncVariable('buyerOtherEmailDisplay', this.value)">
-            </div>
-
-          </div>
-        </div>
-
-        <!-- 3. Notify Parties (Independent Selection 1-4) -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom">
-            <div class="fw-bold text-dark d-flex align-items-center gap-2">
-              <i class="bi bi-bell-fill text-primary"></i>
-              <span>3. Notify Parties (1 to 4)</span>
-            </div>
-            <span class="badge bg-secondary-subtle text-secondary">Optional</span>
-          </div>
-          <div class="card-body p-3">
-            <ul class="nav nav-pills nav-fill mb-2 notify-party-tabs" id="notifyTabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active py-1.5 px-2 small fw-semibold" id="np1-tab" data-bs-toggle="pill" data-bs-target="#np1" type="button" role="tab">Party 1</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link py-1.5 px-2 small fw-semibold" id="np2-tab" data-bs-toggle="pill" data-bs-target="#np2" type="button" role="tab">Party 2</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link py-1.5 px-2 small fw-semibold" id="np3-tab" data-bs-toggle="pill" data-bs-target="#np3" type="button" role="tab">Party 3</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link py-1.5 px-2 small fw-semibold" id="np4-tab" data-bs-toggle="pill" data-bs-target="#np4" type="button" role="tab">Party 4</button>
-              </li>
-            </ul>
-
-            <div class="tab-content" id="notifyTabsContent">
-              @for($i = 0; $i < 4; $i++)
-              <div class="tab-pane fade {{ $i === 0 ? 'show active' : '' }}" id="np{{ $i + 1 }}" role="tabpanel">
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold text-muted mb-0.5">Notify Party {{ $i + 1 }} Name</label>
-                  <input type="text" class="form-control form-control-sm font-monospace" placeholder="Company Name" id="np_name_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'name', this.value)">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" id="toggleBuyerOtherCheck" {{ $hasBuyerOther ? 'checked' : '' }} onchange="toggleBuyerOtherSection(this.checked)">
+                  <label class="form-check-label small fw-bold text-dark" for="toggleBuyerOtherCheck">
+                    <i class="bi bi-person-badge me-1 text-primary"></i> Buyer is different from Consignee
+                  </label>
                 </div>
-                <div class="mb-2">
-                  <label class="form-label small fw-semibold text-muted mb-0.5">Address</label>
-                  <textarea class="form-control form-control-sm" rows="2" placeholder="Full Address" id="np_address_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'address', this.value)"></textarea>
+                <div class="d-flex gap-1" id="buyerOtherActionButtons" style="{{ $hasBuyerOther ? '' : 'display: none;' }}">
+                  <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 small" style="font-size: 0.72rem;" onclick="toggleEditAddress()">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                  </button>
+                  <button type="button" class="btn btn-xs btn-outline-secondary py-0 px-2 small" style="font-size: 0.72rem;" onclick="copyConsigneeToBuyerOther()">
+                    Copy Consignee
+                  </button>
                 </div>
-                <div class="row g-2 mb-1">
+              </div>
+
+              <div id="buyerOtherFieldsContainer" class="mt-2.5 pt-2 border-top" style="{{ $hasBuyerOther ? '' : 'display: none;' }}">
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold text-muted mb-0.5">Buyer Company Name</label>
+                  <input type="text" name="buyer_name" class="form-control form-control-sm font-monospace fw-bold" id="inputBuyerOtherName" value="{{ $buyerOther['name'] ?? '' }}" placeholder="Leave blank if same as Consignee" oninput="syncVariable('buyerOtherNameDisplay', this.value)">
+                </div>
+
+                <div class="mb-2">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <label class="form-label small fw-semibold text-muted mb-0.5">Address (ADD)</label>
+                    <span class="badge bg-light text-muted border" id="addressEditStatusBadge" style="font-size: 0.68rem;">Invoice Snapshot</span>
+                  </div>
+                  <textarea name="buyer_address" class="form-control form-control-sm" id="inputBuyerOtherAddress" rows="2" placeholder="Full address" oninput="syncVariable('buyerOtherAddressDisplay', this.value ? 'ADD: ' + this.value : '')">{{ $buyerOther['address'] ?? '' }}</textarea>
+                </div>
+
+                <div class="row g-2 mb-2">
                   <div class="col-6">
                     <label class="form-label small fw-semibold text-muted mb-0.5">Tax Code</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" placeholder="Tax / Reg" id="np_tax_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'tax', this.value)">
+                    <input type="text" name="buyer_tax" class="form-control form-control-sm font-monospace" id="inputBuyerOtherTax" value="{{ $buyerOther['tax_code'] ?? '' }}" placeholder="Tax Code / GSTIN" oninput="syncVariable('buyerOtherTaxDisplay', this.value)">
                   </div>
                   <div class="col-6">
-                    <label class="form-label small fw-semibold text-muted mb-0.5">Phone</label>
-                    <input type="text" class="form-control form-control-sm font-monospace" placeholder="Phone" id="np_phone_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'phone', this.value)">
+                    <label class="form-label small fw-semibold text-muted mb-0.5">Telephone (TEL)</label>
+                    <input type="text" name="buyer_phone" class="form-control form-control-sm font-monospace" id="inputBuyerOtherPhone" value="{{ $buyerOther['phone'] ?? '' }}" placeholder="Phone / Mobile" oninput="syncVariable('buyerOtherPhoneDisplay', this.value)">
                   </div>
                 </div>
+
+                <div class="mb-1">
+                  <label class="form-label small fw-semibold text-muted mb-0.5">Email Address</label>
+                  <input type="email" name="buyer_email" class="form-control form-control-sm" id="inputBuyerOtherEmail" value="{{ $buyerOther['email'] ?? '' }}" placeholder="company@domain.com" oninput="syncVariable('buyerOtherEmailDisplay', this.value)">
+                </div>
               </div>
-              @endfor
+            </div>
+
+            <!-- Notify Parties Accordion (1-4) -->
+            <div class="border rounded-2 p-2.5 bg-light-subtle">
+              <a class="d-flex align-items-center justify-content-between text-decoration-none text-dark" data-bs-toggle="collapse" href="#notifyPartiesCollapse" role="button" aria-expanded="false" aria-controls="notifyPartiesCollapse">
+                <span class="small fw-bold d-flex align-items-center gap-1.5">
+                  <i class="bi bi-bell-fill text-muted"></i> Notify Parties (1 to 4)
+                  <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.68rem;">Optional</span>
+                </span>
+                <i class="bi bi-chevron-down text-muted small"></i>
+              </a>
+
+              <div class="collapse mt-2.5 pt-2 border-top" id="notifyPartiesCollapse">
+                <ul class="nav nav-pills nav-fill mb-2 notify-party-tabs" id="notifyTabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-1 px-2 small fw-semibold" id="np1-tab" data-bs-toggle="pill" data-bs-target="#np1" type="button" role="tab">Party 1</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link py-1 px-2 small fw-semibold" id="np2-tab" data-bs-toggle="pill" data-bs-target="#np2" type="button" role="tab">Party 2</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link py-1 px-2 small fw-semibold" id="np3-tab" data-bs-toggle="pill" data-bs-target="#np3" type="button" role="tab">Party 3</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link py-1 px-2 small fw-semibold" id="np4-tab" data-bs-toggle="pill" data-bs-target="#np4" type="button" role="tab">Party 4</button>
+                  </li>
+                </ul>
+
+                <div class="tab-content" id="notifyTabsContent">
+                  @for($i = 0; $i < 4; $i++)
+                  <div class="tab-pane fade {{ $i === 0 ? 'show active' : '' }}" id="np{{ $i + 1 }}" role="tabpanel">
+                    <div class="mb-2">
+                      <label class="form-label small fw-semibold text-muted mb-0.5">Notify Party {{ $i + 1 }} Name</label>
+                      <input type="text" class="form-control form-control-sm font-monospace" placeholder="Company Name" id="np_name_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'name', this.value)">
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label small fw-semibold text-muted mb-0.5">Address</label>
+                      <textarea class="form-control form-control-sm" rows="2" placeholder="Full Address" id="np_address_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'address', this.value)"></textarea>
+                    </div>
+                    <div class="row g-2 mb-1">
+                      <div class="col-6">
+                        <label class="form-label small fw-semibold text-muted mb-0.5">Tax Code</label>
+                        <input type="text" class="form-control form-control-sm font-monospace" placeholder="Tax / Reg" id="np_tax_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'tax', this.value)">
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small fw-semibold text-muted mb-0.5">Phone</label>
+                        <input type="text" class="form-control form-control-sm font-monospace" placeholder="Phone" id="np_phone_{{ $i }}" oninput="updateNotifyParty({{ $i }}, 'phone', this.value)">
+                      </div>
+                    </div>
+                  </div>
+                  @endfor
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
 
-        <!-- 4. Shipping Logistics & Ports (Bill Matching) -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 border-bottom">
+        <!-- 3. Shipping Logistics & Ports -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-shipping" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">3</span>
               <i class="bi bi-geo-alt-fill text-primary"></i>
-              <span>4. Shipping Logistics &amp; Ports</span>
+              <span>Shipping Logistics &amp; Ports</span>
             </div>
+            <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Optional / Bill Matching</span>
           </div>
           <div class="card-body p-3">
             
             <div class="row g-2 mb-2">
               <div class="col-6">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Pre-Carriage by</label>
-                <input type="text" name="pre_carriage_by" class="form-control form-control-sm font-monospace" id="inputPreCarriage" value="{{ $invoice['pre_carriage_by'] ?? '' }}" oninput="syncVariable('preCarriageDisplay', this.value)">
+                <div class="d-flex align-items-center justify-content-between mb-0.5">
+                  <label class="form-label small fw-semibold text-muted mb-0">Pre-Carriage by</label>
+                  <div class="quick-chip-group">
+                    <span class="quick-chip" onclick="quickFill('inputPreCarriage', 'TRUCK', 'preCarriageDisplay')">TRUCK</span>
+                    <span class="quick-chip" onclick="quickFill('inputPreCarriage', 'RAIL', 'preCarriageDisplay')">RAIL</span>
+                  </div>
+                </div>
+                <input type="text" name="pre_carriage_by" class="form-control form-control-sm font-monospace" id="inputPreCarriage" value="{{ $invoice['pre_carriage_by'] ?? '' }}" oninput="syncVariable('preCarriageDisplay', this.value)" placeholder="e.g. TRUCK">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Place of Receipt</label>
-                <input type="text" name="place_of_receipt" class="form-control form-control-sm font-monospace" id="inputPlaceReceipt" value="{{ $invoice['place_of_receipt'] ?? '' }}" oninput="syncVariable('receiptPlaceDisplay', this.value)">
+                <input type="text" name="place_of_receipt" class="form-control form-control-sm font-monospace" id="inputPlaceReceipt" value="{{ $invoice['place_of_receipt'] ?? '' }}" oninput="syncVariable('receiptPlaceDisplay', this.value)" placeholder="e.g. CHENNAI PORT">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Country of Origin</label>
-                <input type="text" name="country_of_origin" class="form-control form-control-sm font-monospace" id="inputCountryOrigin" value="{{ $invoice['country_of_origin'] ?? '' }}" oninput="syncVariable('countryOriginDisplay', this.value)">
+                <div class="d-flex align-items-center justify-content-between mb-0.5">
+                  <label class="form-label small fw-semibold text-muted mb-0">Country of Origin</label>
+                  <span class="quick-chip" onclick="quickFill('inputCountryOrigin', 'INDIA', 'countryOriginDisplay')">INDIA</span>
+                </div>
+                <input type="text" name="country_of_origin" class="form-control form-control-sm font-monospace" id="inputCountryOrigin" value="{{ $invoice['country_of_origin'] ?? '' }}" oninput="syncVariable('countryOriginDisplay', this.value)" placeholder="e.g. INDIA">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Country Final Dest.</label>
-                <input type="text" name="country_of_destination" class="form-control form-control-sm font-monospace" id="inputCountryDest" value="{{ $invoice['country_of_destination'] ?? '' }}" oninput="syncVariable('countryDestDisplay', this.value)">
+                <input type="text" name="country_of_destination" class="form-control form-control-sm font-monospace" id="inputCountryDest" value="{{ $invoice['country_of_destination'] ?? '' }}" oninput="syncVariable('countryDestDisplay', this.value)" placeholder="e.g. VIETNAM">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Vessel / Flight No.</label>
-                <input type="text" name="vessel_flight_no" class="form-control form-control-sm font-monospace" id="inputVesselFlight" value="{{ $invoice['vessel_flight_no'] ?? '' }}" oninput="syncVariable('vesselFlightDisplay', this.value)">
+                <input type="text" name="vessel_flight_no" class="form-control form-control-sm font-monospace" id="inputVesselFlight" value="{{ $invoice['vessel_flight_no'] ?? '' }}" oninput="syncVariable('vesselFlightDisplay', this.value)" placeholder="e.g. MSC RAVEL V.1469W">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Port of Loading</label>
-                <input type="text" name="port_of_loading" class="form-control form-control-sm font-monospace" id="inputPortLoading" value="{{ $invoice['port_of_loading'] ?? '' }}" oninput="syncVariable('portLoadingDisplay', this.value)">
+                <input type="text" name="port_of_loading" class="form-control form-control-sm font-monospace" id="inputPortLoading" value="{{ $invoice['port_of_loading'] ?? '' }}" oninput="syncVariable('portLoadingDisplay', this.value)" placeholder="e.g. CHENNAI PORT">
               </div>
             </div>
 
             <div class="row g-2 mb-2">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Port of Discharge</label>
-                <input type="text" name="port_of_discharge" class="form-control form-control-sm font-monospace" id="inputPortDischarge" value="{{ $invoice['port_of_discharge'] ?? '' }}" oninput="syncVariable('portDischargeDisplay', this.value)">
+                <input type="text" name="port_of_discharge" class="form-control form-control-sm font-monospace" id="inputPortDischarge" value="{{ $invoice['port_of_discharge'] ?? '' }}" oninput="syncVariable('portDischargeDisplay', this.value)" placeholder="e.g. CATLAI PORT">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Final Destination</label>
-                <input type="text" name="final_destination" class="form-control form-control-sm font-monospace" id="inputFinalDest" value="{{ $invoice['final_destination'] ?? '' }}" oninput="syncVariable('finalDestinationDisplay', this.value)">
+                <input type="text" name="final_destination" class="form-control form-control-sm font-monospace" id="inputFinalDest" value="{{ $invoice['final_destination'] ?? '' }}" oninput="syncVariable('finalDestinationDisplay', this.value)" placeholder="e.g. CATLAI PORT">
               </div>
             </div>
 
             <div class="mb-1">
-              <label class="form-label small fw-semibold text-muted mb-0.5">Terms of Delivery &amp; Payment</label>
+              <div class="d-flex align-items-center justify-content-between mb-0.5">
+                <label class="form-label small fw-semibold text-muted mb-0">Terms of Delivery &amp; Payment</label>
+                <div class="quick-chip-group">
+                  <span class="quick-chip" onclick="quickFill('inputPaymentTerms', '100% AGAINST SCAN B/L COPY', 'paymentTermsDisplay')">100% SCAN B/L</span>
+                  <span class="quick-chip" onclick="quickFill('inputPaymentTerms', '80% AT PORT &amp; 20% AFTER CHECKING', 'paymentTermsDisplay')">80% / 20%</span>
+                  <span class="quick-chip" onclick="quickFill('inputPaymentTerms', '100% LC AT SIGHT', 'paymentTermsDisplay')">100% LC</span>
+                </div>
+              </div>
               @php
                 $createIsIgst = (strtoupper($invoice['invoice_format'] ?? '') === 'IGST');
                 $defaultCreateTerms = $createIsIgst ? '80% AT PORT & 20% AFTER CHECKING' : '100% AGAINST SCAN B/L COPY';
@@ -392,38 +454,30 @@
           </div>
         </div>
 
-        <!-- 5. Invoice & Container Identifiers & Weights -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 border-bottom">
+        <!-- 4. Containers, Weights & Statutory Rules -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-containers" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">4</span>
               <i class="bi bi-truck text-primary"></i>
-              <span>5. Identifiers, Containers &amp; Weights</span>
+              <span>Containers, Weights &amp; Statutory Info</span>
             </div>
+            <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Optional / Real-time Sync</span>
           </div>
           <div class="card-body p-3">
             
-            <div class="row g-2 mb-2">
-              <div class="col-7">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Invoice Number</label>
-                <input type="text" name="invoice_number" required class="form-control form-control-sm font-monospace fw-bold" id="inputInvNo" value="{{ $invoice['invoice_number'] ?? '' }}" placeholder="e.g. 681 / 26-27" oninput="updateInvoiceNoHeader()">
-              </div>
-              <div class="col-5">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Invoice Date</label>
-                <input type="text" name="invoice_date" required class="form-control form-control-sm font-monospace" id="inputInvDate" value="{{ $invoice['invoice_date'] ?? date('d.m.Y') }}" oninput="updateInvoiceNoHeader()">
-              </div>
-            </div>
-
-            <div class="mb-2">
-              <label class="form-label small fw-semibold text-muted mb-0.5">Buyer's Order / P.O. No.</label>
-              <input type="text" name="buyer_po" class="form-control form-control-sm font-monospace" id="inputBuyerPo" value="{{ $invoice['buyer_po'] ?? '-' }}" oninput="syncVariable('buyerPoDisplay', this.value)">
-            </div>
-
             <input type="hidden" name="container_number" id="inputContainer" value="{{ $invoice['container_number'] ?? '' }}">
             <input type="hidden" name="trailer_number" id="inputTrailer" value="{{ $invoice['trailer_number'] ?? '' }}">
 
             <div class="row g-2 mb-2">
-              <div class="col-6">
-                <label class="form-label small fw-semibold text-muted mb-0.5">Container Type</label>
+              <div class="col-7">
+                <div class="d-flex align-items-center justify-content-between mb-0.5">
+                  <label class="form-label small fw-semibold text-muted mb-0">Container Type</label>
+                  <div class="quick-chip-group">
+                    <span class="quick-chip" onclick="quickFillSelect('inputContainerType', '20 FCL', 'containerTypeDisplay')">20 FCL</span>
+                    <span class="quick-chip" onclick="quickFillSelect('inputContainerType', '40 FCL', 'containerTypeDisplay')">40 FCL</span>
+                  </div>
+                </div>
                 <select name="container_type" id="inputContainerType" class="form-select form-select-sm font-monospace fw-semibold" onchange="syncVariable('containerTypeDisplay', this.value)">
                   <option value="" {{ empty($invoice['container_type']) ? 'selected' : '' }}></option>
                   <option value="20 FCL" {{ ($invoice['container_type'] ?? '') === '20 FCL' ? 'selected' : '' }}>20 FCL</option>
@@ -432,21 +486,27 @@
                   <option value="40' High Cube" {{ ($invoice['container_type'] ?? '') === "40' High Cube" ? 'selected' : '' }}>40' High Cube</option>
                 </select>
               </div>
-              <div class="col-6">
+              <div class="col-5">
                 <label class="form-label small fw-semibold text-muted mb-0.5">No. of Containers</label>
-                <input type="number" min="1" name="no_of_containers" id="inputNoOfContainers" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['no_of_containers'] ?? '' }}" oninput="onNoOfContainersChange(this.value)">
+                <input type="number" min="1" name="no_of_containers" id="inputNoOfContainers" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['no_of_containers'] ?? '' }}" oninput="onNoOfContainersChange(this.value)" placeholder="e.g. 1">
               </div>
             </div>
 
             <!-- Weights (G.W. & N.W.) -->
-            <div class="row g-2 mb-2">
+            <div class="row g-2 mb-2.5">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Gross Weight (G.WT KG)</label>
-                <input type="number" step="0.01" name="gross_weight" id="inputGrossWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['gross_weight'] ?? '' }}" oninput="syncVariable('grossWeightDisplay', this.value ? this.value + ' KGS' : '')">
+                <div class="input-group input-group-sm">
+                  <input type="number" step="0.01" name="gross_weight" id="inputGrossWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['gross_weight'] ?? '' }}" oninput="syncVariable('grossWeightDisplay', this.value ? this.value + ' KGS' : '')" placeholder="e.g. 26500">
+                  <span class="input-group-text small text-muted px-2">KG</span>
+                </div>
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">Net Weight (N.WT KG)</label>
-                <input type="number" step="0.01" name="net_weight" id="inputNetWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['net_weight'] ?? '' }}" oninput="syncVariable('netWeightDisplay', this.value ? this.value + ' KGS' : '')">
+                <div class="input-group input-group-sm">
+                  <input type="number" step="0.01" name="net_weight" id="inputNetWeight" class="form-control form-control-sm font-monospace fw-bold" value="{{ $invoice['net_weight'] ?? '' }}" oninput="syncVariable('netWeightDisplay', this.value ? this.value + ' KGS' : '')" placeholder="e.g. 25500">
+                  <span class="input-group-text small text-muted px-2">KG</span>
+                </div>
               </div>
             </div>
 
@@ -454,23 +514,24 @@
             <div class="row g-2 mb-1">
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5" title="ISO Certification Details">ISO Certification</label>
-                <input type="text" name="iso_certification" id="inputIsoCert" class="form-control form-control-sm font-monospace" value="{{ $invoice['iso_certification'] ?? '' }}" oninput="syncVariable('isoCertDisplay', this.value)">
+                <input type="text" name="iso_certification" id="inputIsoCert" class="form-control form-control-sm font-monospace" value="{{ $invoice['iso_certification'] ?? '' }}" oninput="syncVariable('isoCertDisplay', this.value)" placeholder="e.g. ISO 9001:2015">
               </div>
               <div class="col-6">
                 <label class="form-label small fw-semibold text-muted mb-0.5">LUT / Export Rule</label>
-                <input type="text" name="lut_no" id="inputLutRule" class="form-control form-control-sm font-monospace" value="{{ $invoice['lut_no'] ?? '' }}" oninput="syncVariable('lutRuleDisplay', this.value)">
+                <input type="text" name="lut_no" id="inputLutRule" class="form-control form-control-sm font-monospace" value="{{ $invoice['lut_no'] ?? '' }}" oninput="syncVariable('lutRuleDisplay', this.value)" placeholder="e.g. UNDER LUT NO - 06/LUT">
               </div>
             </div>
 
           </div>
         </div>
 
-        <!-- 6. Multiple Line Items Repeater (Goods Table) -->
-        <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; border: 1px solid #E2E8F0;">
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom">
+        <!-- 5. Multiple Line Items Repeater (Goods Table) -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-items" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 d-flex align-items-center justify-content-between border-bottom">
             <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">5</span>
               <i class="bi bi-box-seam text-primary"></i>
-              <span>6. Line Items (<span id="itemsCountBadge">1</span>)</span>
+              <span>Export Product Line Items (<span id="itemsCountBadge">1</span>)</span>
             </div>
             <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 py-1 px-2.5 shadow-sm fw-semibold" onclick="addNewItem()">
               <i class="bi bi-plus-lg"></i>
@@ -502,11 +563,15 @@
           </div>
         </div>
 
-        <!-- Submit Button in Left Sidebar -->
-        <div class="d-grid gap-2 mb-4">
-          <button type="submit" class="btn btn-primary py-2.5 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-2">
+        <!-- Floating / Sticky Action Footer in Left Sidebar -->
+        <div class="sticky-action-bar p-3 bg-white border rounded-3 shadow-sm mb-4 d-flex align-items-center justify-content-between gap-2">
+          <div>
+            <div class="small text-muted fw-semibold" style="font-size: 0.75rem;">LIVE INVOICE TOTAL</div>
+            <div class="fw-black font-monospace text-primary fs-5" id="stickyTotalAmount">$0.00</div>
+          </div>
+          <button type="submit" class="btn btn-primary py-2 px-3 fw-semibold shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-floppy2-fill"></i>
-            <span>Save &amp; Create Commercial Invoice</span>
+            <span>Save &amp; Create Invoice</span>
           </button>
         </div>
 
@@ -515,11 +580,11 @@
     </div>
 
     <!-- Right Column: The Full Commercial Invoice Table Sheet -->
-    <div class="col-xl-8">
+    <div class="col-lg-7 col-xl-7">
       <div class="invoice-preview-sticky">
         <div class="card border-0 shadow-sm invoice-preview-card" style="border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden;">
           
-          <div class="card-header bg-white py-3 px-3 d-flex align-items-center justify-content-between border-bottom flex-shrink-0 d-print-none">
+          <div class="card-header bg-white py-2.5 px-3 d-flex align-items-center justify-content-between border-bottom flex-shrink-0 d-print-none">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-table text-primary"></i>
               <span class="fw-bold text-dark">Commercial Invoice (Live Synchronized Preview)</span>
@@ -560,6 +625,56 @@
 </main>
 
 <style>
+/* Quick navigation pills */
+.section-nav-bar {
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+.section-nav-bar::-webkit-scrollbar {
+  height: 4px;
+}
+.section-nav-bar::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 4px;
+}
+.sec-nav-link {
+  transition: all 0.15s ease-in-out;
+  border-radius: 6px;
+}
+.sec-nav-link:hover {
+  background-color: #EEF2F6 !important;
+  color: #1E293B !important;
+}
+
+/* Quick Fill Chips */
+.quick-chip-group {
+  display: inline-flex;
+  gap: 4px;
+}
+.quick-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.12s ease-in-out;
+}
+.quick-chip:hover {
+  background-color: #2563EB;
+  border-color: #2563EB;
+  color: #FFFFFF;
+}
+
+/* Form section cards */
+.form-section-card {
+  scroll-margin-top: 60px;
+}
+
 /* Notify Party & Segmented Tabs */
 .notify-party-tabs {
   background-color: #F8FAFC !important;
@@ -613,14 +728,14 @@
 }
 
 /* Live Synchronized Preview Sticky & Scroll Behavior */
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
   .invoice-preview-sticky {
     position: sticky;
-    top: 1.25rem;
+    top: 1rem;
     z-index: 10;
   }
   .invoice-preview-card {
-    max-height: calc(100vh - 2.5rem);
+    max-height: calc(100vh - 2rem);
     display: flex;
     flex-direction: column;
   }
@@ -699,6 +814,49 @@
 </style>
 
 <script>
+// Quick fill helper
+function quickFill(inputId, value, syncId) {
+  const el = document.getElementById(inputId);
+  if (el) {
+    el.value = value;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  if (syncId) {
+    syncVariable(syncId, value);
+  }
+}
+
+function quickFillSelect(selectId, value, syncId) {
+  const el = document.getElementById(selectId);
+  if (el) {
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (syncId) {
+    syncVariable(syncId, value);
+  }
+}
+
+function toggleBuyerOtherSection(checked) {
+  const container = document.getElementById('buyerOtherFieldsContainer');
+  const btnGroup = document.getElementById('buyerOtherActionButtons');
+  if (container) container.style.display = checked ? '' : 'none';
+  if (btnGroup) btnGroup.style.display = checked ? '' : 'none';
+  if (!checked) {
+    // If unchecked, clear buyer other fields
+    document.getElementById('inputBuyerOtherName').value = '';
+    document.getElementById('inputBuyerOtherAddress').value = '';
+    document.getElementById('inputBuyerOtherTax').value = '';
+    document.getElementById('inputBuyerOtherPhone').value = '';
+    document.getElementById('inputBuyerOtherEmail').value = '';
+    syncVariable('buyerOtherNameDisplay', '');
+    syncVariable('buyerOtherAddressDisplay', '');
+    syncVariable('buyerOtherTaxDisplay', '');
+    syncVariable('buyerOtherPhoneDisplay', '');
+    syncVariable('buyerOtherEmailDisplay', '');
+  }
+}
+
 // Initial Blank Items Array for New Invoice
 let invoiceItems = [
   {
@@ -882,7 +1040,7 @@ function onTrailerChange(val) {
 function copyConsigneeToBuyerOther() {
   const select = document.getElementById("consignerSelect");
   if (!select.value) {
-    alert("Please select a Consignee / Buyer from Section 1 first.");
+    alert("Please select a Consignee / Buyer Master first.");
     return;
   }
   const opt = select.options[select.selectedIndex];
@@ -1217,13 +1375,15 @@ function renderItemsTable() {
   syncVariable("roundedAmountDisplay", sym + " " + rounded.toFixed(2));
   syncVariable("amountInWordsDisplay", words);
 
-  // Update Summary Card
+  // Update Summary Card & Sticky Total
   const sQty = document.getElementById("summaryTotalQty");
   const sAmt = document.getElementById("summaryTotalAmount");
   const sRnd = document.getElementById("summaryRoundedAmount");
+  const stickyAmt = document.getElementById("stickyTotalAmount");
   if (sQty) sQty.textContent = totalQty > 0 ? totalQty.toFixed(3) : "0.000";
   if (sAmt) sAmt.textContent = sym + totalAmt.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   if (sRnd) sRnd.textContent = sym + rounded.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  if (stickyAmt) stickyAmt.textContent = sym + rounded.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
   // Calculate IGST if applicable
   const exRateInput = document.getElementById("inputExchangeRate");
