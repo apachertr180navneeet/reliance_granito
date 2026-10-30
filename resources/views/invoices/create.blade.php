@@ -638,18 +638,12 @@
     width: 100% !important;
   }
 
-  .invoice-badges-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    justify-content: space-between !important;
+  .invoice-badges-table {
     width: 100% !important;
-    gap: 3px !important;
+    table-layout: fixed !important;
   }
 
-  .invoice-badges-row .badge-item {
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
+  .invoice-badges-table .badge-item {
     padding: 2px 1px !important;
   }
 }

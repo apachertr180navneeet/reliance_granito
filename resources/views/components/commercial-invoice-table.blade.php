@@ -457,39 +457,48 @@
         <tr style="border-bottom: 1.5px solid #000;">
           <!-- Logos & Industry Certifications (Left 50%) -->
           <td class="p-1 align-middle" style="width: 50%; border-right: 1.5px solid #000;">
-            <div class="invoice-badges-row text-center" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: stretch !important; justify-content: space-between !important; gap: 3px !important; width: 100% !important;">
-              
-              <!-- FIEO Badge -->
-              <div class="badge-item p-1 border rounded" style="flex: 1 1 0; min-width: 0; border: 1px solid #cbd5e1 !important; border-radius: 4px; padding: 2px 1px !important;">
-                <div style="font-weight: 900; color: #0284c7; font-size: 10px; line-height: 1.1;">&lt;FIEO&gt;</div>
-                <div style="font-size: 7px; line-height: 1; word-break: break-word;">{{ $certifications['rcmc_fieo_no'] ?? ($settings->rcmc_fieo_no ?? 'RCMC/FIEO/11176/2025-2027') }}</div>
-              </div>
+            <table class="invoice-badges-table" style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 3px; text-align: center; margin: 0;">
+              <colgroup>
+                <col style="width: 18%;">
+                <col style="width: 18%;">
+                <col style="width: 28%;">
+                <col style="width: 18%;">
+                <col style="width: 18%;">
+              </colgroup>
+              <tbody>
+                <tr>
+                  <!-- FIEO Badge -->
+                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
+                    <div style="font-weight: 900; color: #0284c7; font-size: 9px; line-height: 1.1;">&lt;FIEO&gt;</div>
+                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;">{{ $certifications['rcmc_fieo_no'] ?? ($settings->rcmc_fieo_no ?? 'RCMC/FIEO/11176/2025-2027') }}</div>
+                  </td>
 
-              <!-- FIGSI Badge -->
-              <div class="badge-item p-1 border rounded" style="flex: 1 1 0; min-width: 0; border: 1px solid #cbd5e1 !important; border-radius: 4px; padding: 2px 1px !important;">
-                <div style="font-weight: 900; color: #b91c1c; font-size: 10px; line-height: 1.1;">FIGSI</div>
-                <div style="font-size: 7px; line-height: 1;">Granite &amp; Stone<br>Industry</div>
-              </div>
+                  <!-- FIGSI Badge -->
+                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
+                    <div style="font-weight: 900; color: #b91c1c; font-size: 9px; line-height: 1.1;">FIGSI</div>
+                    <div style="font-size: 6.5px; line-height: 1.1; color: #1e293b;">Granite &amp; Stone<br>Industry</div>
+                  </td>
 
-              <!-- Two Star Export House -->
-              <div class="badge-item p-1 border rounded" style="flex: 1.3 1 0; min-width: 0; border: 1px solid #cbd5e1 !important; border-radius: 4px; padding: 2px 1px !important;">
-                <div style="font-weight: 900; color: #ea580c; font-size: 9.5px; line-height: 1.1; white-space: nowrap;">&#9733;&#9733; {{ $certifications['export_house_star'] ?? ($settings->export_house_star ?? 'Two Star Export House') }}</div>
-                <div style="font-size: 7px; line-height: 1;">Govt. Recognized<br>Export House</div>
-              </div>
+                  <!-- Two Star Export House -->
+                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
+                    <div style="font-weight: 900; color: #ea580c; font-size: 8px; line-height: 1.15; word-break: break-word;">&#9733;&#9733; {{ $certifications['export_house_star'] ?? ($settings->export_house_star ?? 'Two Star Export House') }}</div>
+                    <div style="font-size: 6.5px; line-height: 1.1; color: #1e293b;">Govt. Recognized<br>Export House</div>
+                  </td>
 
-              <!-- REPC -->
-              <div class="badge-item p-1 border rounded" style="flex: 1 1 0; min-width: 0; border: 1px solid #cbd5e1 !important; border-radius: 4px; padding: 2px 1px !important;">
-                <div style="font-weight: 900; color: #1e3a8a; font-size: 10px; line-height: 1.1;">REPC</div>
-                <div style="font-size: 7px; line-height: 1; word-break: break-word;">{{ $certifications['repc_no'] ?? ($settings->repc_no ?? 'REPC-22-10349') }}</div>
-              </div>
+                  <!-- REPC -->
+                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 9px; line-height: 1.1;">REPC</div>
+                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;">{{ $certifications['repc_no'] ?? ($settings->repc_no ?? 'REPC-22-10349') }}</div>
+                  </td>
 
-              <!-- ISO Certified -->
-              <div class="badge-item p-1 border rounded" style="flex: 1.1 1 0; min-width: 0; border: 1px solid #cbd5e1 !important; border-radius: 4px; padding: 2px 1px !important;">
-                <div style="font-weight: 900; color: #15803d; font-size: 9.5px; line-height: 1.1; white-space: nowrap;">ISO Certified</div>
-                <div style="font-size: 7px; line-height: 1; word-break: break-word;" id="isoCertDisplay">{{ $isoCert }}</div>
-              </div>
-
-            </div>
+                  <!-- ISO Certified -->
+                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
+                    <div style="font-weight: 900; color: #15803d; font-size: 8px; line-height: 1.1; word-break: break-word;">ISO Certified</div>
+                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;" id="isoCertDisplay">{{ $isoCert }}</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </td>
 
           <!-- Authorised Signatory (Right 50%) -->
