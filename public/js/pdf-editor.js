@@ -1646,20 +1646,20 @@ function getRegisteredConsigners() {
       adCode: "6390013",
       forexBank: "ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)",
       registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
-      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
-      region: "Morbi"
+      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Gujarat - 363642, India",
+      region: "Gujarat"
     },
     {
       id: "EXP-002",
-      name: "Reliance Granito (Morbi Plant II)",
+      name: "Reliance Granito (Gujarat Plant II)",
       iec: "ABEFR3842G",
       iecBranch: "1",
       gstin: "24ABEFR3842G1Z2",
       adCode: "6390013",
-      forexBank: "State Bank of India, Morbi Main Branch (A/C: 30894102941)",
+      forexBank: "State Bank of India, Main Commercial Branch (A/C: 30894102941)",
       registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
-      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Morbi - 363642, Gujarat, India",
-      region: "Morbi"
+      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Gujarat - 363642, India",
+      region: "Gujarat"
     },
     {
       id: "EXP-003",
@@ -1668,10 +1668,10 @@ function getRegisteredConsigners() {
       iecBranch: "0",
       gstin: "24AABFR9182K1Z9",
       adCode: "6391104",
-      forexBank: "HDFC Bank Limited, Morbi Branch",
-      registeredAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-      factoryAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-      region: "Morbi"
+      forexBank: "HDFC Bank Limited, Gujarat Branch",
+      registeredAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+      factoryAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+      region: "Gujarat"
     },
     {
       id: "EXP-004",
@@ -1712,7 +1712,7 @@ function initConsignersDropdown() {
       <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="#" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
         <div class="overflow-hidden pe-2">
           <div class="fw-bold text-dark text-truncate" style="max-width:200px;">${escapeHtml(c.name)}</div>
-          <div class="text-muted small" style="font-size:0.7rem;">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Morbi')}</div>
+          <div class="text-muted small" style="font-size:0.7rem;">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Gujarat')}</div>
         </div>
         <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.65rem;">Apply</span>
       </a>
@@ -1742,7 +1742,7 @@ function populateSidebarConsigners() {
   listEl.innerHTML = activeConsigners.map(c => `
     <div class="card border p-2 shadow-xs mb-1 bg-white hover-shadow" style="border-radius:8px; cursor:pointer;" onclick="applyConsignerStamp('${escapeHtml(c.id)}')">
       <div class="d-flex align-items-center justify-content-between mb-1">
-        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.68rem;">${escapeHtml(c.region || 'Morbi')}</span>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.68rem;">${escapeHtml(c.region || 'Gujarat')}</span>
         <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:0.7rem;"><i class="bi bi-patch-plus me-1"></i>Stamp</button>
       </div>
       <div class="fw-bold small text-dark text-truncate" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div>

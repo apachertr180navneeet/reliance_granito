@@ -23,7 +23,7 @@ include_once __DIR__.'/includes/header.php';
             </span>
           </div>
           <h3 class="fw-bold text-dark mb-1">Consigners Master (Consignors / Exporters)</h3>
-          <p class="text-muted small mb-0">Create, update, view and manage verified export entities, IEC registrations, GSTIN, factory works in Morbi & Jodhpur, and authorized AD Bank codes.</p>
+          <p class="text-muted small mb-0">Create, update, view and manage verified export entities, IEC registrations, GSTIN, factory works in Gujarat & Jodhpur, and authorized AD Bank codes.</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -87,7 +87,7 @@ include_once __DIR__.'/includes/header.php';
       <div class="card border-0 shadow-sm" style="border-radius:10px;">
         <div class="card-body p-3">
           <div class="d-flex align-items-center justify-content-between mb-1">
-            <span class="text-muted small fw-semibold">MORBI / GUJARAT</span>
+            <span class="text-muted small fw-semibold">GUJARAT</span>
             <span class="badge bg-warning-subtle text-warning"><i class="bi bi-geo-alt"></i></span>
           </div>
           <h3 class="fw-bold mb-0 text-dark" id="statMorbiPlants">3</h3>
@@ -140,7 +140,7 @@ include_once __DIR__.'/includes/header.php';
         <div class="col-6 col-md-3">
           <select class="form-select form-select-sm" id="filterRegionSelect" onchange="handleConsignerSearch()">
             <option value="ALL">All Manufacturing Locations</option>
-            <option value="Morbi">Morbi Facility (Gujarat)</option>
+            <option value="Gujarat">Gujarat Facility</option>
             <option value="Jodhpur">Jodhpur Facility (Rajasthan)</option>
           </select>
         </div>
@@ -310,8 +310,8 @@ include_once __DIR__.'/includes/header.php';
                 <textarea class="form-control form-control-sm" id="formRegisteredAddress" rows="2" required placeholder="Street address, City, District, State, PIN Code"></textarea>
               </div>
               <div class="col-12">
-                <label class="form-label small fw-semibold">Factory / Manufacturing Works Address (e.g. Morbi Plant)</label>
-                <textarea class="form-control form-control-sm" id="formFactoryAddress" rows="2" placeholder="Factory premises, Highway / GIDC, Morbi - 363642, Gujarat"></textarea>
+                <label class="form-label small fw-semibold">Factory / Manufacturing Works Address</label>
+                <textarea class="form-control form-control-sm" id="formFactoryAddress" rows="2" placeholder="Factory premises, Highway / GIDC, Gujarat - 363642"></textarea>
               </div>
             </div>
           </div>

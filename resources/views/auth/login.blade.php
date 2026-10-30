@@ -28,7 +28,7 @@
                 Export Documentation Management System (EDMS)
             </div>
             <div style="font-size:0.78rem; color:#64748B; margin-top:4px;">
-                Jodhpur Export Head Office & Morbi Ceramic Facility
+                Jodhpur Export Head Office & Facility
             </div>
         </div>
 

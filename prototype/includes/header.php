@@ -33,7 +33,7 @@ if (! isset($pageTitle)) {
           </button>
           <div class="d-none d-md-flex align-items-center gap-2 top-facility-meta">
             <i class="bi bi-building-gear text-primary"></i>
-            <span class="top-facility-title">Jodhpur Export Office & Morbi Ceramic Facility</span>
+            <span class="top-facility-title">Jodhpur Export Office & Facility</span>
           </div>
         </div>
 

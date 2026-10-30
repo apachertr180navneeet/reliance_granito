@@ -21,7 +21,7 @@ const RelianceEDMSSeed = {
       partyType: "Exporter",
       name: "Reliance Granito",
       address: "Sector 23, 23-A-6, Chopasni Housing Board, Opposite Ashok Udhyan Gate No. 2, Jodhpur, Rajasthan - 342008, India",
-      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
+      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Gujarat - 363642, India",
       iec: "ABEFR3842G",
       iecBranch: "0",
       gstin: "08ABEFR3842G1Z5",

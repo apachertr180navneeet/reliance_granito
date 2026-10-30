@@ -6,7 +6,7 @@
 
 const CONSIGNERS_STORAGE_KEY = "reliance_edms_consigners";
 
-// Default Master Seed Data based on Reliance Granito Export Workflow & Morbi Ceramic Cluster
+// Default Master Seed Data based on Reliance Granito Export Workflow & Gujarat Ceramic Cluster
 const DEFAULT_CONSIGNERS_SEED = [
   {
     id: "EXP-001",
@@ -19,8 +19,8 @@ const DEFAULT_CONSIGNERS_SEED = [
     adCode: "6390013",
     forexBank: "ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)",
     registeredAddress: "Sector 23, 23-A-6, Chopasni Housing Board, Opposite Ashok Udhyan Gate No. 2, Jodhpur, Rajasthan - 342008, India",
-    factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
-    region: "Morbi",
+    factoryAddress: "National Highway 8-A, Old Ghuntu Road, Gujarat - 363642, India",
+    region: "Gujarat",
     contactPerson: "Rajesh B. Patel",
     contactPhone: "+91 2822 240890",
     contactEmail: "export@reliancegranito.com",
@@ -29,20 +29,20 @@ const DEFAULT_CONSIGNERS_SEED = [
   },
   {
     id: "EXP-002",
-    name: "Reliance Granito (Morbi Plant II)",
+    name: "Reliance Granito (Gujarat Plant II)",
     entityType: "Manufacturing Facility / Plant",
     iec: "ABEFR3842G",
     iecBranch: "1",
     gstin: "24ABEFR3842G1Z2",
     pan: "ABEFR3842G",
     adCode: "6390013",
-    forexBank: "State Bank of India, Morbi Main Commercial Branch (A/C: 30894102941)",
+    forexBank: "State Bank of India, Main Commercial Branch (A/C: 30894102941)",
     registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
-    factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, 8-A National Highway, Morbi - 363642, Gujarat, India",
-    region: "Morbi",
+    factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, 8-A National Highway, Gujarat - 363642, India",
+    region: "Gujarat",
     contactPerson: "Haresh V. Patel",
     contactPhone: "+91 98252 44101",
-    contactEmail: "morbi.plant2@reliancegranito.com",
+    contactEmail: "plant2@reliancegranito.com",
     status: "Active",
     createdAt: "2026-01-15T10:30:00Z"
   },
@@ -55,10 +55,10 @@ const DEFAULT_CONSIGNERS_SEED = [
     gstin: "24AABFR9182K1Z9",
     pan: "AABFR9182K",
     adCode: "6391104",
-    forexBank: "HDFC Bank Limited, Morbi Branch (A/C: 502000341098)",
-    registeredAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-    factoryAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-    region: "Morbi",
+    forexBank: "HDFC Bank Limited, Gujarat Branch (A/C: 502000341098)",
+    registeredAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+    factoryAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+    region: "Gujarat",
     contactPerson: "Bhavin R. Patel",
     contactPhone: "+91 2822 251140",
     contactEmail: "bhavin@relianceceramics.in",
@@ -134,7 +134,7 @@ function saveConsignersToStorage() {
 function updateConsignersStats() {
   const total = consignersList.length;
   const active = consignersList.filter(c => c.status === "Active").length;
-  const morbi = consignersList.filter(c => (c.region === "Morbi" || (c.factoryAddress && c.factoryAddress.toLowerCase().includes("morbi")))).length;
+  const morbi = consignersList.filter(c => (c.region === "Gujarat" || c.region === "Morbi" || (c.factoryAddress && c.factoryAddress.toLowerCase().includes("gujarat")))).length;
   const jodhpur = consignersList.filter(c => (c.region === "Jodhpur" || (c.registeredAddress && c.registeredAddress.toLowerCase().includes("jodhpur")))).length;
 
   const elTotal = document.getElementById("statTotalConsigners");
@@ -193,9 +193,9 @@ function getFilteredConsigners() {
 
     // Region filter
     if (regionFilter !== "ALL") {
-      const matchMorbi = (item.region === "Morbi" || (item.factoryAddress && item.factoryAddress.toLowerCase().includes("morbi")));
+      const matchMorbi = (item.region === "Gujarat" || item.region === "Morbi" || (item.factoryAddress && item.factoryAddress.toLowerCase().includes("gujarat")));
       const matchJodhpur = (item.region === "Jodhpur" || (item.registeredAddress && item.registeredAddress.toLowerCase().includes("jodhpur")));
-      if (regionFilter === "Morbi" && !matchMorbi) return false;
+      if ((regionFilter === "Gujarat" || regionFilter === "Morbi") && !matchMorbi) return false;
       if (regionFilter === "Jodhpur" && !matchJodhpur) return false;
     }
 
@@ -257,9 +257,9 @@ function renderConsigners() {
   // Render Table
   if (tableBody) {
     tableBody.innerHTML = filtered.map(item => {
-      const isMorbi = (item.region === "Morbi" || (item.factoryAddress && item.factoryAddress.toLowerCase().includes("morbi")));
+      const isMorbi = (item.region === "Gujarat" || item.region === "Morbi" || (item.factoryAddress && item.factoryAddress.toLowerCase().includes("gujarat")));
       const regionBadge = isMorbi 
-        ? `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size:0.7rem;"><i class="bi bi-geo-alt me-1"></i>Morbi Facility</span>`
+        ? `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size:0.7rem;"><i class="bi bi-geo-alt me-1"></i>Gujarat Facility</span>`
         : `<span class="badge bg-info-subtle text-info-emphasis border border-info-subtle" style="font-size:0.7rem;"><i class="bi bi-building me-1"></i>Jodhpur Hub</span>`;
 
       const statusBadge = item.status === "Active"
@@ -478,11 +478,11 @@ function handleConsignerFormSubmit(e) {
   const contactEmail = document.getElementById("formContactEmail").value.trim();
   const status = document.getElementById("formStatus").value;
 
-  // Infer Region (Morbi / Jodhpur)
-  let region = "Morbi";
+  // Infer Region (Gujarat / Jodhpur)
+  let region = "Gujarat";
   const combinedAddr = (factoryAddress + " " + registeredAddress).toLowerCase();
   if (combinedAddr.includes("jodhpur") || combinedAddr.includes("rajasthan")) {
-    if (!combinedAddr.includes("morbi")) {
+    if (!combinedAddr.includes("gujarat") && !combinedAddr.includes("morbi")) {
       region = "Jodhpur";
     }
   }
@@ -575,7 +575,7 @@ function openViewConsignerModal(id) {
             <div>
               <span class="badge ${item.status === 'Active' ? 'bg-success' : 'bg-secondary'} me-1">${escapeHtml(item.status)}</span>
               <span class="badge bg-primary-subtle text-primary border">${escapeHtml(item.entityType || 'Manufacturer Exporter')}</span>
-              <span class="badge bg-info-subtle text-info border">${escapeHtml(item.region || 'Morbi')} Cluster</span>
+              <span class="badge bg-info-subtle text-info border">${escapeHtml(item.region || 'Gujarat')} Cluster</span>
             </div>
             <div class="font-monospace small text-muted">
               Record ID: <strong>${escapeHtml(item.id)}</strong>
@@ -610,7 +610,7 @@ function openViewConsignerModal(id) {
         <div class="col-md-6">
           <div class="card h-100 border-0 bg-light-subtle shadow-sm p-3" style="border-radius:8px;">
             <h6 class="fw-bold text-primary mb-2 small text-uppercase"><i class="bi bi-bank me-1"></i> Authorized Forex Bank</h6>
-            <p class="small text-dark mb-2"><strong>Bank & Account Details:</strong><br>${escapeHtml(item.forexBank || 'ICICI Bank / SBI Jodhpur & Morbi Commercial Branch')}</p>
+            <p class="small text-dark mb-2"><strong>Bank & Account Details:</strong><br>${escapeHtml(item.forexBank || 'ICICI Bank / SBI Jodhpur Commercial Branch')}</p>
             <div class="border-top pt-2 mt-auto small">
               <div class="text-muted">Authorized Signatory:</div>
               <div class="fw-bold text-dark">${escapeHtml(item.contactPerson || 'Rajesh B. Patel')}</div>

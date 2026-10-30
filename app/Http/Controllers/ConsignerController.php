@@ -55,7 +55,7 @@ class ConsignerController extends Controller
         $stats = [
             'total' => Consigner::count(),
             'active' => Consigner::where('status', 'Active')->count(),
-            'morbi' => Consigner::where('region', 'Morbi')->count(),
+            'morbi' => Consigner::whereIn('region', ['Gujarat', 'Morbi'])->count(),
             'jodhpur' => Consigner::where('region', 'Jodhpur')->count(),
         ];
 
@@ -105,7 +105,7 @@ class ConsignerController extends Controller
         // Auto-assign region if not provided
         if (empty($validated['region'])) {
             $address = ($validated['factory_address'] ?? '').' '.$validated['registered_address'];
-            $validated['region'] = stripos($address, 'Morbi') !== false ? 'Morbi' : 'Jodhpur';
+            $validated['region'] = (stripos($address, 'Morbi') !== false || stripos($address, 'Gujarat') !== false) ? 'Gujarat' : 'Jodhpur';
         }
 
         // Generate next code
@@ -272,7 +272,7 @@ class ConsignerController extends Controller
 
         if (empty($validated['region'])) {
             $address = ($validated['factory_address'] ?? '').' '.$validated['registered_address'];
-            $validated['region'] = stripos($address, 'Morbi') !== false ? 'Morbi' : 'Jodhpur';
+            $validated['region'] = (stripos($address, 'Morbi') !== false || stripos($address, 'Gujarat') !== false) ? 'Gujarat' : 'Jodhpur';
         }
 
         $consigner->update($validated);

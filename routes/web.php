@@ -8,6 +8,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\InvoiceSettingController;
 use App\Http\Controllers\PdfEditorController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 // First page: Login Page (or Dashboard if already authenticated)
@@ -65,6 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings', [InvoiceSettingController::class, 'edit'])->name('settings');
         Route::post('/settings', [InvoiceSettingController::class, 'update'])->name('settings.update');
         Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/packing-list', [InvoiceController::class, 'packingList'])->name('packing-list');
         Route::get('/{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
         Route::put('/{invoice}', [InvoiceController::class, 'update'])->name('update');
         Route::match(['delete', 'post'], '/{invoice}/delete', [InvoiceController::class, 'destroy'])->name('delete-alt');
@@ -94,4 +96,20 @@ Route::get('/load-sample.php', function (Request $request) {
     }
 
     return response()->json(['error' => 'Missing file parameter'], 400);
+});
+
+// Web route to execute database migrations
+Route::get('/migrate', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        $output = Artisan::output();
+
+        return response('<pre style="background: #111; color: #10b981; padding: 20px; font-family: monospace; border-radius: 8px;">'.($output ?: 'Nothing to migrate. Database is up to date.').'</pre>');
+    } catch (Throwable $e) {
+        return response('<pre style="background: #111; color: #ef4444; padding: 20px; font-family: monospace; border-radius: 8px;">Migration Error: '.$e->getMessage().'</pre>', 500);
+    }
+})->name('migrate');
+
+Route::get('/run-migrate', function () {
+    return redirect()->route('migrate');
 });

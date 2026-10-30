@@ -131,21 +131,21 @@ class EdmsPrototypeTest extends TestCase
     {
         $user = User::first();
         $payload = [
-            'name' => 'Morbi Export Tiles Unit 5',
+            'name' => 'Gujarat Export Tiles Unit 5',
             'entity_type' => 'Manufacturer Exporter',
             'iec' => 'ABCDE1234F',
             'iec_branch' => '0',
             'gstin' => '24ABCDE1234F1Z0',
-            'registered_address' => 'Plot 101, GIDC Morbi, Gujarat',
-            'factory_address' => 'Plot 101, GIDC Morbi, Gujarat',
-            'region' => 'Morbi',
+            'registered_address' => 'Plot 101, GIDC, Gujarat',
+            'factory_address' => 'Plot 101, GIDC, Gujarat',
+            'region' => 'Gujarat',
             'status' => 'Active',
         ];
 
         $response = $this->actingAs($user)->postJson('/consigners', $payload);
         $response->assertStatus(201);
         $this->assertDatabaseHas('consigners', [
-            'name' => 'Morbi Export Tiles Unit 5',
+            'name' => 'Gujarat Export Tiles Unit 5',
             'iec' => 'ABCDE1234F',
         ]);
     }
@@ -233,7 +233,7 @@ class EdmsPrototypeTest extends TestCase
 
             // Assert common header elements
             $response->assertSee('top-navbar');
-            $response->assertSee('Jodhpur Export Office & Morbi Ceramic Facility', false);
+            $response->assertSee('Jodhpur Export Office & Facility', false);
             $response->assertSee('user-profile-badge');
 
             // Assert common footer elements
@@ -289,17 +289,17 @@ class EdmsPrototypeTest extends TestCase
     {
         $user = User::first();
         $payload = [
-            'name' => 'Royal Granito Morbi Unit 9',
+            'name' => 'Royal Granito Gujarat Unit 9',
             'entity_type' => 'Manufacturer Exporter',
             'iec' => 'ABCDE9999F',
             'iec_branch' => '0',
             'gstin' => '24ABCDE9999F1Z9',
             'pan' => 'ABCDE9999F',
             'ad_code' => '7788990',
-            'forex_bank' => 'State Bank of India, Morbi Branch',
-            'registered_address' => 'Morbi Ceramic Highway, Morbi, Gujarat',
-            'factory_address' => 'Morbi Ceramic Highway, Morbi, Gujarat',
-            'region' => 'Morbi',
+            'forex_bank' => 'State Bank of India, Commercial Branch',
+            'registered_address' => 'Ceramic Highway, Gujarat',
+            'factory_address' => 'Ceramic Highway, Gujarat',
+            'region' => 'Gujarat',
             'contact_person' => 'Bhavesh Patel',
             'contact_phone' => '+91 98250 11223',
             'contact_email' => 'bhavesh@royalgranito.com',
@@ -311,7 +311,7 @@ class EdmsPrototypeTest extends TestCase
         $response->assertRedirect('/consigners');
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('consigners', [
-            'name' => 'Royal Granito Morbi Unit 9',
+            'name' => 'Royal Granito Gujarat Unit 9',
             'iec' => 'ABCDE9999F',
         ]);
     }

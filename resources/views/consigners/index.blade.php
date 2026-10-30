@@ -516,7 +516,7 @@
         <div class="col-6 col-md-3 col-lg-3">
           <select class="form-select toolbar-select" name="region" id="filterRegionSelect" onchange="this.form.submit()">
             <option value="ALL" {{ request('region') === 'ALL' || !request('region') ? 'selected' : '' }}>All Manufacturing Hubs</option>
-            <option value="Morbi" {{ request('region') === 'Morbi' ? 'selected' : '' }}>Morbi Facility (Gujarat)</option>
+            <option value="Gujarat" {{ in_array(request('region'), ['Gujarat', 'Morbi']) ? 'selected' : '' }}>Gujarat Facility</option>
             <option value="Jodhpur" {{ request('region') === 'Jodhpur' ? 'selected' : '' }}>Jodhpur Facility (Rajasthan)</option>
           </select>
         </div>
@@ -565,7 +565,7 @@
         <tbody id="consignersTableBody">
           @forelse($consigners as $c)
             @php
-              $isMorbi = ($c->region === 'Morbi' || (str_contains($c->factory_address ?? '', 'Morbi')));
+              $isGujarat = (in_array($c->region, ['Gujarat', 'Morbi']) || (str_contains(strtolower($c->factory_address ?? ''), 'morbi') || str_contains(strtolower($c->factory_address ?? ''), 'gujarat')));
               $words = preg_split('/\s+/', trim($c->name));
               $initials = count($words) === 1 ? strtoupper(substr($words[0], 0, 2)) : strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
             @endphp
@@ -573,7 +573,7 @@
               <!-- Exporter Name & Details -->
               <td class="ps-4">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="company-avatar-box {{ $isMorbi ? 'morbi' : 'jodhpur' }}">
+                  <div class="company-avatar-box {{ $isGujarat ? 'morbi' : 'jodhpur' }}">
                     {{ $initials }}
                   </div>
                   <div class="overflow-hidden">
@@ -610,8 +610,8 @@
               <!-- Works & Location -->
               <td>
                 <div class="mb-1">
-                  @if($isMorbi)
-                    <span class="hub-badge hub-morbi"><i class="bi bi-geo-alt-fill"></i>Morbi Hub (GJ)</span>
+                  @if($isGujarat)
+                    <span class="hub-badge hub-morbi"><i class="bi bi-geo-alt-fill"></i>Gujarat Hub (GJ)</span>
                   @else
                     <span class="hub-badge hub-jodhpur"><i class="bi bi-building"></i>Jodhpur Hub (RJ)</span>
                   @endif

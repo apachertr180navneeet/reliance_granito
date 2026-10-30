@@ -29,7 +29,7 @@ $pageTitle = 'Reliance Granito | Export Documentation Management System - Sign I
         Export Documentation Management System (EDMS)
       </div>
       <div style="font-size:0.8rem; color:#64748B; margin-top:4px;">
-        Jodhpur Export Head Office & Morbi Ceramic Facility
+        Jodhpur Export Head Office & Facility
       </div>
     </div>
 

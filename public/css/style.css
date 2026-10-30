@@ -157,7 +157,7 @@ a {
   padding: 12px 10px 4px;
 }
 
-.nav-link {
+.sidebar-nav .nav-link {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -170,19 +170,19 @@ a {
   position: relative;
 }
 
-.nav-link:hover {
+.sidebar-nav .nav-link:hover {
   color: #0F172A;
   background-color: #F1F5F9;
 }
 
-.nav-link.active {
+.sidebar-nav .nav-link.active {
   background: linear-gradient(90deg, #EFF6FF 0%, #DBEAFE 100%);
   color: #1D4ED8;
   font-weight: 600;
   border-left: 3px solid #2563EB;
 }
 
-.nav-link svg, .nav-link i {
+.sidebar-nav .nav-link svg, .sidebar-nav .nav-link i {
   font-size: 1.1rem;
   opacity: 0.9;
   width: 20px;
@@ -922,6 +922,58 @@ a {
   color: #2563EB !important;
   background: transparent !important;
   border-bottom: 2px solid #2563EB !important;
+}
+
+/* Notify Party & Segmented Tabs */
+.notify-party-tabs {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  display: flex !important;
+  gap: 4px !important;
+}
+
+.notify-party-tabs .nav-item {
+  flex: 1 1 0 !important;
+  margin: 0 !important;
+}
+
+.notify-party-tabs .nav-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  border-left: none !important;
+  color: #475569 !important;
+  background: transparent !important;
+  background-image: none !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  gap: 0 !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.notify-party-tabs .nav-link:hover {
+  color: #0F172A !important;
+  background-color: #E2E8F0 !important;
+  border-left: none !important;
+}
+
+.notify-party-tabs .nav-link.active {
+  background: #2563EB !important;
+  background-color: #2563EB !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  border-left: none !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3) !important;
 }
 
 /* Modals */

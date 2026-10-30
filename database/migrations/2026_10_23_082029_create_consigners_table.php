@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('forex_bank')->nullable();
             $table->text('registered_address');
             $table->text('factory_address')->nullable();
-            $table->string('region')->default('Morbi');
+            $table->string('region')->default('Gujarat');
             $table->string('contact_person')->nullable();
             $table->string('contact_phone')->nullable();
             $table->string('contact_email')->nullable();

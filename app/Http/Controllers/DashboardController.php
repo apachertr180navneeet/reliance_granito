@@ -26,7 +26,7 @@ class DashboardController extends Controller
         $stats = [
             'total_consigners' => Consigner::count(),
             'active_consigners' => Consigner::where('status', 'Active')->count(),
-            'morbi_plants' => Consigner::where('region', 'Morbi')->count(),
+            'morbi_plants' => Consigner::whereIn('region', ['Gujarat', 'Morbi'])->count(),
             'jodhpur_units' => Consigner::where('region', 'Jodhpur')->count(),
             'total_documents' => Document::count(),
         ];

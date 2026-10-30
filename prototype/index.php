@@ -17,7 +17,7 @@ include_once __DIR__.'/includes/header.php';
         <div>
           <span class="badge bg-warning text-dark fw-bold mb-2 text-uppercase tracking-wider">Active Export Docket</span>
           <h3 class="fw-bold mb-1">Reliance Granito &bull; Export Control Tower</h3>
-          <p class="text-white-50 mb-0">Consignment #1469 &bull; Jodhpur Export Office & Morbi Ceramic Facility &bull; Destination: Haiphong Port, Vietnam</p>
+          <p class="text-white-50 mb-0">Consignment #1469 &bull; Jodhpur Export Office & Facility &bull; Destination: Haiphong Port, Vietnam</p>
         </div>
         <div>
           <a href="pdf-editor.php" class="btn btn-warning fw-bold d-flex align-items-center gap-2 shadow-sm px-4 py-2">
@@ -55,7 +55,7 @@ include_once __DIR__.'/includes/header.php';
             <span class="badge bg-primary-subtle text-primary">CRUD Master</span>
           </div>
           <h5 class="fw-bold mb-1">Consigners Master</h5>
-          <p class="text-muted small mb-3">Manage export consignors, IEC licenses, GSTIN, factory works addresses in Morbi & Jodhpur, and authorized banks.</p>
+          <p class="text-muted small mb-3">Manage export consignors, IEC licenses, GSTIN, factory works addresses, and authorized banks.</p>
           <a href="consigners.php" class="btn btn-primary btn-sm w-100">
             Manage Consigners &rarr;
           </a>

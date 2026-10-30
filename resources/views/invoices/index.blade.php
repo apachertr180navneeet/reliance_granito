@@ -98,11 +98,19 @@
           <tr>
             <!-- Invoice Details -->
             <td class="py-3 px-3">
-              <a href="{{ route('invoices.show', $inv) }}" class="fw-bold text-primary text-decoration-none font-monospace fs-6">
-                {{ $inv->invoice_number }}
-              </a>
+              <div class="d-flex align-items-center gap-1.5 mb-0.5">
+                <a href="{{ route('invoices.show', $inv) }}" class="fw-bold text-primary text-decoration-none font-monospace fs-6">
+                  {{ $inv->invoice_number }}
+                </a>
+                <span class="badge {{ ($inv->invoice_format ?? 'LUT') === 'IGST' ? 'bg-warning text-dark' : 'bg-primary-subtle text-primary' }}" style="font-size: 0.68rem;">
+                  {{ $inv->invoice_format ?? 'LUT' }}
+                </span>
+                <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.68rem;">
+                  {{ $inv->currency ?? 'INR' }}
+                </span>
+              </div>
               <div class="small text-muted mt-0.5">
-                <i class="bi bi-calendar3 me-1"></i>{{ $inv->invoice_date }}
+                <i class="bi bi-calendar3 me-1"></i>{{ $inv->invoice_date }} &bull; <span class="fw-semibold">{{ $inv->delivery_term ?? 'CIF' }}</span>
               </div>
             </td>
 
@@ -140,8 +148,8 @@
 
             <!-- Total Amount -->
             <td class="py-3 px-3 text-end font-monospace">
-              <div class="fw-bold text-dark">₹{{ number_format($inv->rounded_amount, 2) }}</div>
-              <div class="small text-muted" style="font-size: 0.72rem;">Exact: ₹{{ number_format($inv->total_amount, 2) }}</div>
+              <div class="fw-bold text-dark">{{ ($inv->currency ?? 'INR') === 'USD' ? '$' : '₹' }}{{ number_format($inv->rounded_amount, 2) }}</div>
+              <div class="small text-muted" style="font-size: 0.72rem;">Exact: {{ ($inv->currency ?? 'INR') === 'USD' ? '$' : '₹' }}{{ number_format($inv->total_amount, 2) }}</div>
             </td>
 
             <!-- Status -->
@@ -160,6 +168,9 @@
               <div class="d-inline-flex align-items-center gap-1.5">
                 <a href="{{ route('invoices.show', $inv) }}" class="btn btn-sm btn-outline-primary py-1 px-2" title="View & Print Invoice">
                   <i class="bi bi-eye"></i>
+                </a>
+                <a href="{{ route('invoices.packing-list', $inv) }}" class="btn btn-sm btn-outline-info py-1 px-2" title="Commercial Packing List">
+                  <i class="bi bi-box2"></i>
                 </a>
                 <a href="{{ route('invoices.edit', $inv) }}" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Edit Invoice Docket">
                   <i class="bi bi-pencil"></i>

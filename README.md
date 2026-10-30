@@ -1,6 +1,6 @@
 # Reliance Granito - Export Documentation Management System (EDMS)
 
-An enterprise export documentation and compliance system for **Reliance Granito Private Limited** (Morbi Ceramic Manufacturing Facility & Jodhpur Export Office).
+An enterprise export documentation and compliance system for **Reliance Granito Private Limited** (Manufacturing Facility & Jodhpur Export Office).
 
 The system manages the end-to-end export documentation lifecycle, including Customs EDI Shipping Bills, Commercial Invoices, Bills of Lading (B/L), and provides an interactive **Visual PDF Editor & Masker** for compliance, redaction, and particulars amendment.
 
@@ -29,7 +29,7 @@ The system manages the end-to-end export documentation lifecycle, including Cust
     - `● Unsaved Edits (N)`: Amber alert for pending modifications.
     - `✓ All Changes Saved`: Green indicator after successful export.
 - **Consigner Stamping Dropdown**:
-  - Direct 1-click header dropdown to stamp verified export particulars (Reliance Granito Morbi Plant I & II, Reliance Ceramic, Marwar Granite) with IEC, GSTIN, AD Code, and forex bank details.
+  - Direct 1-click header dropdown to stamp verified export particulars (Reliance Granito Plant I & II, Reliance Ceramic, Marwar Granite) with IEC, GSTIN, AD Code, and forex bank details.
   - Generates solid opaque whiteout masks over the exporter particulars area, ensuring seamless compliance and alignment.
 - **Annotation & Transformation Tools**:
   - **Select** (<kbd>V</kbd>): Select, drag, and resize annotations via bottom-right corner handles.

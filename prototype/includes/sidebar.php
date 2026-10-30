@@ -38,7 +38,7 @@ $activeNav = $activeNav ?? 'dashboard';
       <div class="d-flex align-items-center gap-2">
         <div class="status-dot-pulse"></div>
         <div>
-          <div class="facility-status-title">Jodhpur / Morbi Facility</div>
+          <div class="facility-status-title">Jodhpur Export Facility</div>
           <div class="facility-status-sub">IEC: ABEFR3842G Verified</div>
         </div>
       </div>

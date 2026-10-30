@@ -40,6 +40,11 @@
         <span>Edit Invoice</span>
       </a>
 
+      <a href="{{ route('invoices.packing-list', $invoiceModel) }}" class="btn btn-outline-info d-inline-flex align-items-center gap-2 px-3 py-2 fw-semibold">
+        <i class="bi bi-box2"></i>
+        <span>Packing List</span>
+      </a>
+
       <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3.5 py-2 shadow-sm fw-semibold" onclick="window.print()">
         <i class="bi bi-printer-fill"></i>
         <span>Print / Save PDF</span>

@@ -22,7 +22,7 @@
           </span>
         </div>
         <p class="text-muted small mb-0">
-          Register a new corporate export firm, ICEGATE statutory credentials, Morbi/Jodhpur factory works, and Authorized Dealer Forex bank codes.
+          Register a new corporate export firm, ICEGATE statutory credentials, Gujarat/Jodhpur factory works, and Authorized Dealer Forex bank codes.
         </p>
       </div>
 
@@ -192,7 +192,7 @@
             </div>
             <div>
               <div class="form-header-title">Manufacturing Works & Physical Premises</div>
-              <div class="form-header-desc">Morbi Ceramic industrial belt or Jodhpur Granite processing hub</div>
+              <div class="form-header-desc">Gujarat Ceramic industrial belt or Jodhpur Granite processing hub</div>
             </div>
           </div>
           <div class="p-3 p-lg-4">
@@ -213,7 +213,7 @@
                   <span>Factory / Manufacturing Works Address</span>
                   <span class="text-muted fw-normal small">Plant Site</span>
                 </label>
-                <textarea class="form-control form-control-custom @error('factory_address') is-invalid @enderror" id="factory_address" name="factory_address" rows="2" placeholder="Premises Highway / GIDC, Morbi - 363642, Gujarat">{{ old('factory_address') }}</textarea>
+                <textarea class="form-control form-control-custom @error('factory_address') is-invalid @enderror" id="factory_address" name="factory_address" rows="2" placeholder="Premises Highway / GIDC, Gujarat - 363642">{{ old('factory_address') }}</textarea>
                 @error('factory_address')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -224,7 +224,7 @@
                   <span>Primary Manufacturing Region</span>
                 </label>
                 <select class="form-select form-select-custom @error('region') is-invalid @enderror" id="region" name="region" onchange="updateLivePreview()">
-                  <option value="Morbi" {{ old('region') == 'Morbi' ? 'selected' : '' }}>Morbi Ceramic Cluster (Gujarat)</option>
+                  <option value="Gujarat" {{ old('region') == 'Gujarat' ? 'selected' : '' }}>Gujarat Ceramic Cluster</option>
                   <option value="Jodhpur" {{ old('region') == 'Jodhpur' ? 'selected' : '' }}>Jodhpur Granite Hub (Rajasthan)</option>
                 </select>
                 <div class="text-muted small mt-1.5" style="font-size: 0.72rem;">
@@ -330,7 +330,7 @@
                   </div>
                   <div>
                     <span class="badge bg-light text-secondary border font-monospace" style="font-size: 0.68rem;">EXP-NEW</span>
-                    <div class="small text-muted" id="previewRegionTag" style="font-size: 0.72rem;">Morbi Works</div>
+                    <div class="small text-muted" id="previewRegionTag" style="font-size: 0.72rem;">Gujarat Works</div>
                   </div>
                 </div>
                 <div id="previewStatusBadge">
@@ -436,9 +436,9 @@
     // Avatar & region styling
     const avatar = document.getElementById('previewAvatar');
     avatar.textContent = getInitials(name);
-    if (region === 'Morbi') {
+    if (region === 'Gujarat' || region === 'Morbi') {
       avatar.className = 'company-avatar-box morbi';
-      document.getElementById('previewRegionTag').textContent = 'Morbi Works';
+      document.getElementById('previewRegionTag').textContent = 'Gujarat Works';
     } else {
       avatar.className = 'company-avatar-box jodhpur';
       document.getElementById('previewRegionTag').textContent = 'Jodhpur Works';

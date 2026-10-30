@@ -1227,21 +1227,21 @@ function getRegisteredConsigners() {
       adCode: "6390013",
       forexBank: "ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)",
       registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
-      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Morbi - 363642, Gujarat, India",
-      region: "Morbi",
+      factoryAddress: "National Highway 8-A, Old Ghuntu Road, Gujarat - 363642, India",
+      region: "Gujarat",
       status: "Active"
     },
     {
       id: "EXP-002",
-      name: "Reliance Granito (Morbi Plant II)",
+      name: "Reliance Granito (Gujarat Plant II)",
       iec: "ABEFR3842G",
       iecBranch: "1",
       gstin: "24ABEFR3842G1Z2",
       adCode: "6390013",
-      forexBank: "State Bank of India, Morbi Main Branch (A/C: 30894102941)",
+      forexBank: "State Bank of India, Main Commercial Branch (A/C: 30894102941)",
       registeredAddress: "Sector 23, Chopasni Housing Board, Jodhpur, Rajasthan - 342008, India",
-      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Morbi - 363642, Gujarat, India",
-      region: "Morbi",
+      factoryAddress: "Survey No. 142/P, Lakhdhirpur Road, Gujarat - 363642, India",
+      region: "Gujarat",
       status: "Active"
     },
     {
@@ -1251,10 +1251,10 @@ function getRegisteredConsigners() {
       iecBranch: "0",
       gstin: "24AABFR9182K1Z9",
       adCode: "6391104",
-      forexBank: "HDFC Bank Limited, Morbi Branch",
-      registeredAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-      factoryAddress: "GIDC Industrial Estate, Phase II, Morbi - 363641, Gujarat, India",
-      region: "Morbi",
+      forexBank: "HDFC Bank Limited, Gujarat Branch",
+      registeredAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+      factoryAddress: "GIDC Industrial Estate, Phase II, Gujarat - 363641, India",
+      region: "Gujarat",
       status: "Active"
     },
     {
@@ -1301,7 +1301,7 @@ function initConsignersDropdown() {
           <div class="fw-bold text-dark consigner-name-truncate">
             <i class="bi bi-grip-vertical text-muted me-1"></i>${escapeHtml(c.name)}
           </div>
-          <div class="text-muted consigner-meta-text">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Morbi')}</div>
+          <div class="text-muted consigner-meta-text">IEC: ${escapeHtml(c.iec)} • ${escapeHtml(c.region || 'Gujarat')}</div>
         </div>
         <button type="button" class="btn btn-sm btn-primary-subtle text-primary border border-primary-subtle consigner-apply-pill px-2 py-1" onclick="applyConsignerStamp('${escapeHtml(c.id)}'); return false;">
           Apply
