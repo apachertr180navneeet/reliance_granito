@@ -201,9 +201,9 @@
                   <span class="badge bg-light text-primary border" style="font-size: 0.68rem;">Auto-fills details</span>
                 </label>
                 <select class="form-select form-select-sm mb-2" id="consignerSelect" name="consigner_id" onchange="onConsignerChange(this.value)">
-                  <option value="" {{ empty($selectedConsigner) ? 'selected' : '' }}>-- Select Consignee / Buyer Master --</option>
-                  @foreach($consigners as $c)
-                    <option value="{{ $c->id }}" {{ $selectedConsigner && $selectedConsigner->id === $c->id ? 'selected' : '' }}
+                  <option value="" {{ empty($selectedConsignee ?? $selectedConsigner) ? 'selected' : '' }}>-- Select Consignee / Buyer Master --</option>
+                  @foreach($consignees ?? $consigners as $c)
+                    <option value="{{ $c->id }}" {{ ($selectedConsignee ?? $selectedConsigner) && ($selectedConsignee ?? $selectedConsigner)->id === $c->id ? 'selected' : '' }}
                             data-name="{{ $c->name }}"
                             data-address="{{ $c->registered_address ?? $c->factory_address }}"
                             data-tax="{{ $c->gstin ?? $c->pan }}"
@@ -466,8 +466,16 @@
           </div>
           <div class="card-body p-3">
             
-            <input type="hidden" name="container_number" id="inputContainer" value="{{ $invoice['container_number'] ?? '' }}">
-            <input type="hidden" name="trailer_number" id="inputTrailer" value="{{ $invoice['trailer_number'] ?? '' }}">
+            <div class="row g-2 mb-2">
+              <div class="col-7">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Container Number(s)</label>
+                <input type="text" name="container_number" id="inputContainer" class="form-control form-control-sm font-monospace fw-bold text-uppercase" value="{{ $invoice['container_number'] ?? '' }}" oninput="onContainerNumberInput(this.value)" placeholder="e.g. TCLU7789571, MEDU1234567">
+              </div>
+              <div class="col-5">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Trailer / Vehicle No</label>
+                <input type="text" name="trailer_number" id="inputTrailer" class="form-control form-control-sm font-monospace text-uppercase" value="{{ $invoice['trailer_number'] ?? '' }}" oninput="syncVariable('trailerNoDisplay', this.value)" placeholder="e.g. TN02BB9434">
+              </div>
+            </div>
 
             <div class="row g-2 mb-2">
               <div class="col-7">
@@ -557,6 +565,66 @@
               <div class="d-flex align-items-center justify-content-between">
                 <span class="small fw-semibold text-muted">Rounded to (<span class="currency-code">USD</span>):</span>
                 <span class="fw-black font-monospace text-success fs-6" id="summaryRoundedAmount">$0.00</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 6. Manufactured / Supplied By & Export Schemes -->
+        <div class="card border-0 shadow-sm mb-3 form-section-card" id="sec-schemes" style="border-radius: 12px; border: 1px solid #E2E8F0;">
+          <div class="card-header bg-white py-2.5 px-3 d-flex align-items-center justify-content-between border-bottom">
+            <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">6</span>
+              <i class="bi bi-file-earmark-check text-primary"></i>
+              <span>Manufactured / Supplied By &amp; Export Schemes</span>
+            </div>
+            <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Statutory Particulars</span>
+          </div>
+          <div class="card-body p-3">
+            
+            <div class="row g-2 mb-2">
+              <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Manufactured / Supplied By (Party)</label>
+                <input type="text" name="supplied_by_name" id="inputSuppliedByName" class="form-control form-control-sm text-uppercase" value="{{ $invoice['supplied_by_name'] ?? 'RELIANCE GRANITO' }}" oninput="syncVariable('suppliedByNameDisplay', this.value)" placeholder="e.g. RELIANCE GRANITO">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">GST Number</label>
+                <input type="text" name="supplied_by_gstin" id="inputSuppliedByGstin" class="form-control form-control-sm font-monospace text-uppercase" value="{{ $invoice['supplied_by_gstin'] ?? ($exporter['gstin'] ?? '') }}" oninput="syncVariable('suppliedByGstinDisplay', this.value)" placeholder="e.g. 08ABEFR3842G1Z5">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Supplier Inv No</label>
+                <input type="text" name="supplied_by_invoice_no" id="inputSuppliedByInvoiceNo" class="form-control form-control-sm font-monospace" value="{{ $invoice['supplied_by_invoice_no'] ?? '' }}" oninput="syncVariable('suppliedByInvoiceNoDisplay', this.value)" placeholder="e.g. RG-26-001">
+              </div>
+            </div>
+
+            <div class="row g-2 mb-2.5">
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">CGST Amount</label>
+                <input type="text" name="supplied_by_cgst" id="inputSuppliedByCgst" class="form-control form-control-sm font-monospace" value="{{ $invoice['supplied_by_cgst'] ?? '0.00' }}" oninput="syncVariable('suppliedByCgstDisplay', this.value)" placeholder="0.00">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">SGST Amount</label>
+                <input type="text" name="supplied_by_sgst" id="inputSuppliedBySgst" class="form-control form-control-sm font-monospace" value="{{ $invoice['supplied_by_sgst'] ?? '0.00' }}" oninput="syncVariable('suppliedBySgstDisplay', this.value)" placeholder="0.00">
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">IGST Amount</label>
+                <input type="text" name="supplied_by_igst" id="inputSuppliedByIgst" class="form-control form-control-sm font-monospace" value="{{ $invoice['supplied_by_igst'] ?? '0.00' }}" oninput="syncVariable('suppliedByIgstDisplay', this.value)" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Drawback Scheme Details</label>
+                <input type="text" name="drawback_details" id="inputDrawbackDetails" class="form-control form-control-sm" value="{{ $invoice['drawback_details'] ?? 'DUTY DRAWBACK UNDER SEC 75' }}" oninput="syncVariable('drawbackDetailsDisplay', this.value)" placeholder="e.g. DUTY DRAWBACK UNDER SEC 75">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Under EPCG Scheme Details</label>
+                <input type="text" name="epcg_details" id="inputEpcgDetails" class="form-control form-control-sm" value="{{ $invoice['epcg_details'] ?? 'EPCG SCHEME' }}" oninput="syncVariable('epcgDetailsDisplay', this.value)" placeholder="e.g. EPCG SCHEME NO. 0530009842">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted mb-0.5">Scheme Party Name</label>
+                <input type="text" name="scheme_party_name" id="inputSchemePartyName" class="form-control form-control-sm text-uppercase" value="{{ $invoice['scheme_party_name'] ?? 'RELIANCE GRANITO' }}" oninput="syncVariable('schemePartyNameDisplay', this.value)" placeholder="e.g. RELIANCE GRANITO">
               </div>
             </div>
 
@@ -1121,7 +1189,7 @@ function renderNotifyPartiesDisplay() {
   const list = document.getElementById("notifyPartiesList");
   if (!row || !list) return;
 
-  const active = notifyParties.filter(p => p.name || p.address);
+  const active = notifyParties.filter(p => (p.name || '').trim());
   if (active.length === 0) {
     row.style.display = "none";
     return;
@@ -1129,16 +1197,79 @@ function renderNotifyPartiesDisplay() {
 
   row.style.display = "";
   list.innerHTML = notifyParties.map((p, idx) => {
-    if (!p.name && !p.address) return "";
+    if (!p.name || !p.name.trim()) return "";
     return `
-      <div class="col-md-6 col-12 mb-0.5">
-        <strong>Notify Party ${idx + 1}:</strong> <span class="fw-bold">${escapeHtml(p.name)}</span>
-        ${p.address ? ' &bull; <span>ADD: ' + escapeHtml(p.address) + '</span>' : ''}
-        ${p.tax ? ' &bull; <span>TAX: ' + escapeHtml(p.tax) + '</span>' : ''}
-        ${p.phone ? ' &bull; <span>TEL: ' + escapeHtml(p.phone) + '</span>' : ''}
+      <div class="notify-party-entry">
+        <strong>Notify Party ${idx + 1}:</strong> <span class="fw-bold text-uppercase">${escapeHtml(p.name)}</span>
       </div>
     `;
   }).join("");
+}
+
+function onPresetDescriptionSelect(idx, val) {
+  if (!val) return;
+  const hsnMap = {
+    'Polished Granite Slabs': '68022390',
+    'Granite': '68022390',
+    'Porcelain Glazed Tiles': '69072100',
+    'Tiles': '69072100',
+    'Marble Tiles': '68022190',
+    'Marble': '68022190'
+  };
+
+  const chosenHsn = hsnMap[val] || '';
+  invoiceItems[idx].description = val.toUpperCase();
+  if (chosenHsn) {
+    invoiceItems[idx].hsn_code = chosenHsn;
+  }
+
+  const descField = document.getElementById(`item-desc-${idx}`);
+  if (descField) descField.value = val.toUpperCase();
+
+  const hsnField = document.getElementById(`item-hsn-${idx}`);
+  if (hsnField && chosenHsn) hsnField.value = chosenHsn;
+
+  recalculateTotals();
+}
+
+function onContainerNumberInput(val) {
+  syncVariable('containerNoDisplay', val);
+  if (invoiceItems.length > 0 && !invoiceItems[0].container_no) {
+    invoiceItems[0].container_no = val;
+  }
+}
+
+function autoSumWeights() {
+  let totalNet = 0;
+  let totalGross = 0;
+  let hasNet = false;
+  let hasGross = false;
+
+  invoiceItems.forEach(it => {
+    if (it.net_weight && parseFloat(it.net_weight) > 0) {
+      totalNet += parseFloat(it.net_weight);
+      hasNet = true;
+    }
+    if (it.gross_weight && parseFloat(it.gross_weight) > 0) {
+      totalGross += parseFloat(it.gross_weight);
+      hasGross = true;
+    }
+  });
+
+  if (hasNet) {
+    const netInput = document.getElementById('inputNetWeight');
+    if (netInput) {
+      netInput.value = totalNet.toFixed(2);
+      syncVariable('netWeightDisplay', totalNet.toFixed(0) + ' KGS');
+    }
+  }
+  if (hasGross) {
+    const grossInput = document.getElementById('inputGrossWeight');
+    if (grossInput) {
+      grossInput.value = totalGross.toFixed(2);
+      syncVariable('grossWeightDisplay', totalGross.toFixed(0) + ' KGS');
+    }
+  }
 }
 
 // Convert numbers like 16425.27 -> words in INR or USD
@@ -1218,22 +1349,38 @@ function renderItemsForm() {
       </div>
 
       <div class="row g-2 mb-2">
-        <div class="col-7">
+        <div class="col-4">
           <label class="form-label small fw-semibold text-muted mb-0.5">Marks &amp; Pkgs</label>
           <input type="text" class="form-control form-control-sm font-monospace" placeholder="e.g. 20 FCL ( 1 )" value="${escapeHtml(item.marks_numbers || '')}" oninput="updateItemField(${idx}, 'marks_numbers', this.value, false)">
         </div>
-        <div class="col-5">
+        <div class="col-4">
+          <label class="form-label small fw-semibold text-muted mb-0.5">No. of Pkgs / Pieces</label>
+          <input type="number" min="0" class="form-control form-control-sm font-monospace fw-bold" placeholder="e.g. 150" value="${item.packages || ''}" oninput="updateItemField(${idx}, 'packages', this.value, false)">
+        </div>
+        <div class="col-4">
           <label class="form-label small fw-semibold text-muted mb-0.5">HSN Code</label>
-          <input type="text" class="form-control form-control-sm font-monospace" placeholder="e.g. 68022390" value="${escapeHtml(item.hsn_code || '')}" oninput="updateItemField(${idx}, 'hsn_code', this.value, false)">
+          <input type="text" id="item-hsn-${idx}" class="form-control form-control-sm font-monospace" placeholder="e.g. 68022390" value="${escapeHtml(item.hsn_code || '')}" oninput="updateItemField(${idx}, 'hsn_code', this.value, false)">
         </div>
       </div>
 
+      <!-- Description of Goods with Auto HSN Dropdown -->
       <div class="mb-2">
-        <label class="form-label small fw-semibold text-muted mb-0.5">Description of Goods</label>
-        <textarea class="form-control form-control-sm" rows="2" placeholder="e.g. NATURAL POLISHED GRANITE SLABS..." oninput="updateItemField(${idx}, 'description', this.value, false)">${escapeHtml(item.description || '')}</textarea>
+        <div class="d-flex align-items-center justify-content-between mb-0.5">
+          <label class="form-label small fw-semibold text-muted mb-0">Description of Goods</label>
+          <div class="d-flex align-items-center gap-1">
+            <span class="text-muted small" style="font-size: 0.72rem;">Presets:</span>
+            <select class="form-select form-select-sm py-0 px-1" style="font-size: 0.75rem; width: auto;" onchange="onPresetDescriptionSelect(${idx}, this.value)">
+              <option value="">Quick Select Goods &amp; HSN...</option>
+              <option value="Polished Granite Slabs">Polished Granite Slabs (68022390)</option>
+              <option value="Porcelain Glazed Tiles">Porcelain Glazed Tiles (69072100)</option>
+              <option value="Marble Tiles">Marble Tiles (68022190)</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="item-desc-${idx}" class="form-control form-control-sm" rows="2" placeholder="e.g. POLISHED GRANITE SLABS..." oninput="updateItemField(${idx}, 'description', this.value, false)">${escapeHtml(item.description || '')}</textarea>
       </div>
 
-      <div class="row g-2">
+      <div class="row g-2 mb-2">
         <div class="col-4">
           <label class="form-label small fw-semibold text-muted mb-0.5">Quantity (SQM)</label>
           <input type="number" step="0.001" class="form-control form-control-sm font-monospace fw-bold" placeholder="0.000" id="item-qty-${idx}" value="${item.quantity !== '' && item.quantity !== undefined ? item.quantity : ''}" oninput="updateItemField(${idx}, 'quantity', this.value, true)">
@@ -1245,6 +1392,18 @@ function renderItemsForm() {
         <div class="col-4">
           <label class="form-label small fw-semibold text-muted mb-0.5">Amount</label>
           <input type="text" readonly id="item-amt-${idx}" class="form-control form-control-sm font-monospace bg-light fw-bold text-primary" value="${item.amount > 0 ? (currentCurrency === 'USD' ? '$' : '₹') + Number(item.amount).toFixed(2) : (currentCurrency === 'USD' ? '$0.00' : '₹0.00')}">
+        </div>
+      </div>
+
+      <!-- Container Weights (Per Item/Container) -->
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-muted mb-0.5">Item Net Weight (KG)</label>
+          <input type="number" step="0.01" class="form-control form-control-sm font-monospace" placeholder="Net Wt" value="${item.net_weight || ''}" oninput="updateItemField(${idx}, 'net_weight', this.value, false)">
+        </div>
+        <div class="col-6">
+          <label class="form-label small fw-semibold text-muted mb-0.5">Item Gross Weight (KG)</label>
+          <input type="number" step="0.01" class="form-control form-control-sm font-monospace" placeholder="Gross Wt" value="${item.gross_weight || ''}" oninput="updateItemField(${idx}, 'gross_weight', this.value, false)">
         </div>
       </div>
     </div>
@@ -1265,19 +1424,35 @@ function updateItemField(idx, field, value, isNumeric) {
     }
   } else {
     invoiceItems[idx][field] = value;
-    if (idx === 0) {
-      if (field === 'container_no' && document.getElementById('inputContainer')) {
-        document.getElementById('inputContainer').value = value;
-      }
-      if (field === 'trailer_no' && document.getElementById('inputTrailer')) {
-        document.getElementById('inputTrailer').value = value;
-      }
-    }
     if (field === 'container_no') {
-      autoSyncContainersCount();
+      syncContainersFromItems();
+    }
+    if (field === 'trailer_no' && idx === 0) {
+      const tInput = document.getElementById('inputTrailer');
+      if (tInput) tInput.value = value;
+      syncVariable('trailerNoDisplay', value);
+    }
+    if (field === 'net_weight' || field === 'gross_weight') {
+      autoSumWeights();
     }
   }
   recalculateTotals();
+}
+
+function syncContainersFromItems() {
+  const allContainers = Array.from(new Set(invoiceItems.map(it => (it.container_no || '').trim()).filter(Boolean)));
+  const containerStr = allContainers.join(', ');
+  if (allContainers.length > 0) {
+    const cInput = document.getElementById('inputContainer');
+    if (cInput) cInput.value = containerStr;
+    syncVariable('containerNoDisplay', containerStr);
+
+    const noInput = document.getElementById('inputNoOfContainers');
+    if (noInput && (!noInput.value || noInput.value == '1')) {
+      noInput.value = allContainers.length;
+      onNoOfContainersChange(allContainers.length);
+    }
+  }
 }
 
 function addNewItem() {
@@ -1288,15 +1463,18 @@ function addNewItem() {
     marks_numbers: "",
     container_no: "",
     trailer_no: "",
+    packages: "",
     description: "",
     hsn_code: prevItem.hsn_code || "",
     quantity: "",
     rate: prevItem.rate || "",
+    net_weight: "",
+    gross_weight: "",
     amount: 0
   });
 
   renderItemsForm();
-  autoSyncContainersCount();
+  syncContainersFromItems();
   recalculateTotals();
 }
 
@@ -1307,7 +1485,7 @@ function removeItem(idx) {
   }
   invoiceItems.splice(idx, 1);
   renderItemsForm();
-  autoSyncContainersCount();
+  syncContainersFromItems();
   recalculateTotals();
 }
 
@@ -1393,11 +1571,15 @@ function renderItemsTable() {
 
   let taxableValInr = currentCurrency === 'USD' ? Number((totalAmt * exRate).toFixed(2)) : totalAmt;
   let igstAmtInr = currentFormat === 'IGST' ? Number((taxableValInr * (igstRate / 100)).toFixed(2)) : 0;
+  let totalInrWithIgst = Number((taxableValInr + igstAmtInr).toFixed(2));
+  let inrWords = totalInrWithIgst > 0 ? helperInrWords(Math.round(totalInrWithIgst)) + " RUPEES ONLY" : "";
 
   syncVariable("displayExchangeRate", exRate.toFixed(2));
   syncVariable("displayTaxableValue", taxableValInr.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
   syncVariable("displayIgstRate", igstRate.toFixed(0));
   syncVariable("displayIgstAmount", "₹ " + igstAmtInr.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+  syncVariable("displayTotalInrWithIgst", "₹ " + totalInrWithIgst.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+  syncVariable("inrWordsDisplay", inrWords);
 
   syncVariable("fxSummaryTaxableVal", "₹ " + taxableValInr.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
   syncVariable("fxSummaryIgstVal", "₹ " + igstAmtInr.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -1421,11 +1603,16 @@ function prepareInvoiceSubmission() {
   const rounded = Math.round(totalAmt);
   const words = totalAmt > 0 ? convertNumberToWords(currentCurrency === 'INR' ? rounded : totalAmt, currentCurrency) : '';
 
-  if (invoiceItems.length > 0) {
-    const cEl = document.getElementById("inputContainer");
-    const tEl = document.getElementById("inputTrailer");
-    if (cEl) cEl.value = invoiceItems[0].container_no || "";
-    if (tEl) tEl.value = invoiceItems[0].trailer_no || "";
+  const allContainers = Array.from(new Set(invoiceItems.map(it => (it.container_no || '').trim()).filter(Boolean)));
+  const cEl = document.getElementById("inputContainer");
+  if (cEl && allContainers.length > 0) {
+    cEl.value = allContainers.join(', ');
+  }
+
+  const allTrailers = Array.from(new Set(invoiceItems.map(it => (it.trailer_no || '').trim()).filter(Boolean)));
+  const tEl = document.getElementById("inputTrailer");
+  if (tEl && allTrailers.length > 0) {
+    tEl.value = allTrailers.join(', ');
   }
 
   document.getElementById("hiddenItemsJson").value = JSON.stringify(invoiceItems);

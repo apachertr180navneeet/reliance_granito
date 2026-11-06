@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DocumentController extends Controller
 {
@@ -40,7 +40,7 @@ class DocumentController extends Controller
     /**
      * Stream a PDF document inline with strict path traversal protection.
      */
-    public function stream(string $filename): BinaryFileResponse
+    public function stream(string $filename): Response
     {
         // 1. Strip any directory traversal sequences
         $safeFilename = basename($filename);
@@ -62,12 +62,22 @@ class DocumentController extends Controller
             abort(404, 'Document not found or inaccessible.');
         }
 
-        return response()->file($targetPath, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$safeFilename.'"',
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-            'Pragma' => 'public',
-            'X-Content-Type-Options' => 'nosniff',
-        ]);
+        try {
+            return response()->file($targetPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$safeFilename.'"',
+                'Cache-Control' => 'private, max-age=0, must-revalidate',
+                'Pragma' => 'public',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        } catch (\Throwable $e) {
+            return response(file_get_contents($targetPath), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$safeFilename.'"',
+                'Cache-Control' => 'private, max-age=0, must-revalidate',
+                'Pragma' => 'public',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
     }
 }

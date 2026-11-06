@@ -45,12 +45,12 @@
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="text-muted small fw-semibold">PARTY DIRECTORY</span>
-                        <span class="badge bg-primary-subtle text-primary">{{ $stats['total_consigners'] ?? 4 }} Registered</span>
+                        <span class="badge bg-primary-subtle text-primary">{{ $stats['total_consignees'] ?? ($stats['total_consigners'] ?? 4) }} Registered</span>
                     </div>
-                    <h5 class="fw-bold mb-1">Consigners Master</h5>
-                    <p class="text-muted small mb-3">Manage export consignors, IEC licenses, GSTIN, factory works addresses, and authorized banks.</p>
-                    <a href="{{ route('consigners.index') }}" class="btn btn-primary btn-sm w-100">
-                        Manage Consigners &rarr;
+                    <h5 class="fw-bold mb-1">Consignee Master</h5>
+                    <p class="text-muted small mb-3">Manage export consignees, IEC licenses, GSTIN, factory works addresses, and authorized banks.</p>
+                    <a href="{{ route('consignees.index') }}" class="btn btn-primary btn-sm w-100">
+                        Manage Consignees &rarr;
                     </a>
                 </div>
             </div>

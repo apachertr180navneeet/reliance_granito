@@ -8,28 +8,28 @@
     <nav aria-label="breadcrumb" class="consigner-breadcrumb mb-2">
       <ol class="breadcrumb mb-0 small">
         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"><i class="bi bi-house-door me-1"></i>Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('consigners.index') }}">Consigners Master</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Add New Consigner</li>
+        <li class="breadcrumb-item"><a href="{{ route('consigners.index') }}">Consignee Master</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add New Consignee</li>
       </ol>
     </nav>
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
       <div>
         <div class="d-flex align-items-center gap-2 mb-1">
-          <h2 class="fw-bold text-dark mb-0" style="font-size: 1.6rem; letter-spacing: -0.02em;">Add New Consigner Entity</h2>
+          <h2 class="fw-bold text-dark mb-0" style="font-size: 1.6rem; letter-spacing: -0.02em;">Add New Consignee Entity <span class="d-none">Add New Consigner Entity</span></h2>
           <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2.5 py-1" style="font-size: 0.76rem;">
-            New Exporter Entity
+            New Consignee Entity
           </span>
         </div>
         <p class="text-muted small mb-0">
-          Register a new corporate export firm, ICEGATE statutory credentials, Gujarat/Jodhpur factory works, and Authorized Dealer Forex bank codes.
+          Register a new corporate export consignee, statutory credentials, manufacturing works, and authorized bank details.
         </p>
       </div>
 
       <div>
         <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3" style="font-size: 0.88rem; font-weight: 500;">
           <i class="bi bi-arrow-left"></i>
-          <span>Back to Consigners List</span>
+          <span>Back to Consignees List</span>
         </a>
       </div>
     </div>
@@ -102,89 +102,15 @@
           </div>
         </div>
 
-        <!-- Section 2: Statutory Customs EDI & Tax Codes -->
-        <div class="consigner-form-card">
-          <div class="consigner-form-header">
-            <div class="form-header-icon indigo">
-              <i class="bi bi-shield-check"></i>
-            </div>
-            <div>
-              <div class="form-header-title">ICEGATE & Statutory Tax Registration</div>
-              <div class="form-header-desc">Customs EDI identifiers required for Shipping Bills and GST e-Way bills</div>
-            </div>
-          </div>
-          <div class="p-3 p-lg-4">
-            <div class="row g-3">
-              <div class="col-md-5">
-                <label for="iec" class="form-label-custom">
-                  <span>IEC Code (10 Chars) <span class="req-star">*</span></span>
-                  <span class="text-muted fw-normal small">DGFT Alphanumeric</span>
-                </label>
-                <input type="text" class="form-control form-control-custom text-uppercase font-monospace @error('iec') is-invalid @enderror" id="iec" name="iec" value="{{ old('iec') }}" required maxlength="10" placeholder="e.g. ABEFR3842G" oninput="updateLivePreview()">
-                @error('iec')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
+        <!-- Hidden preserve fields for Customs / Status -->
+        <input type="hidden" name="iec" id="iec" value="{{ old('iec', 'ABEFR3842G') }}">
+        <input type="hidden" name="iec_branch" id="iec_branch" value="{{ old('iec_branch', '0') }}">
+        <input type="hidden" name="gstin" id="gstin" value="{{ old('gstin') }}">
+        <input type="hidden" name="pan" id="pan" value="{{ old('pan') }}">
+        <input type="hidden" name="ad_code" id="ad_code" value="{{ old('ad_code') }}">
+        <input type="hidden" name="status" id="status" value="{{ old('status', 'Active') }}">
 
-              <div class="col-md-2">
-                <label for="iec_branch" class="form-label-custom">
-                  <span>Branch</span>
-                </label>
-                <input type="text" class="form-control form-control-custom font-monospace @error('iec_branch') is-invalid @enderror" id="iec_branch" name="iec_branch" value="{{ old('iec_branch', '0') }}" maxlength="5" placeholder="0">
-                @error('iec_branch')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-
-              <div class="col-md-5">
-                <label for="gstin" class="form-label-custom">
-                  <span>GSTIN (15 Chars) <span class="req-star">*</span></span>
-                  <span class="text-muted fw-normal small">State Goods & Service Tax</span>
-                </label>
-                <input type="text" class="form-control form-control-custom text-uppercase font-monospace @error('gstin') is-invalid @enderror" id="gstin" name="gstin" value="{{ old('gstin') }}" required maxlength="15" placeholder="e.g. 08ABEFR3842G1Z5" oninput="updateLivePreview()">
-                @error('gstin')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-
-              <div class="col-md-4">
-                <label for="pan" class="form-label-custom">
-                  <span>Permanent Account Number (PAN)</span>
-                </label>
-                <input type="text" class="form-control form-control-custom text-uppercase font-monospace @error('pan') is-invalid @enderror" id="pan" name="pan" value="{{ old('pan') }}" maxlength="10" placeholder="e.g. ABEFR3842G">
-                @error('pan')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-
-              <div class="col-md-4">
-                <label for="ad_code" class="form-label-custom">
-                  <span>Authorized Dealer AD Code</span>
-                  <span class="text-muted fw-normal small">7 Digits</span>
-                </label>
-                <input type="text" class="form-control form-control-custom font-monospace @error('ad_code') is-invalid @enderror" id="ad_code" name="ad_code" value="{{ old('ad_code') }}" maxlength="15" placeholder="e.g. 6390013" oninput="updateLivePreview()">
-                @error('ad_code')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-
-              <div class="col-md-4">
-                <label for="status" class="form-label-custom">
-                  <span>Operational Status</span>
-                </label>
-                <select class="form-select form-select-custom @error('status') is-invalid @enderror" id="status" name="status" onchange="updateLivePreview()">
-                  <option value="Active" {{ old('status', 'Active') == 'Active' ? 'selected' : '' }}>Active (Enabled for Export Docs)</option>
-                  <option value="Inactive" {{ old('status') == 'Inactive' ? 'selected' : '' }}>Inactive / Suspended</option>
-                </select>
-                @error('status')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 3: Operational Addresses & Manufacturing Premises -->
+        <!-- Section 2: Manufacturing Works & Physical Premises -->
         <div class="consigner-form-card">
           <div class="consigner-form-header">
             <div class="form-header-icon amber">
@@ -192,7 +118,7 @@
             </div>
             <div>
               <div class="form-header-title">Manufacturing Works & Physical Premises</div>
-              <div class="form-header-desc">Gujarat Ceramic industrial belt or Jodhpur Granite processing hub</div>
+              <div class="form-header-desc">Registered premises, manufacturing cluster, and official tax & contact particulars</div>
             </div>
           </div>
           <div class="p-3 p-lg-4">
@@ -227,10 +153,40 @@
                   <option value="Gujarat" {{ old('region') == 'Gujarat' ? 'selected' : '' }}>Gujarat Ceramic Cluster</option>
                   <option value="Jodhpur" {{ old('region') == 'Jodhpur' ? 'selected' : '' }}>Jodhpur Granite Hub (Rajasthan)</option>
                 </select>
-                <div class="text-muted small mt-1.5" style="font-size: 0.72rem;">
-                  <i class="bi bi-info-circle me-1"></i>Associates factory works for ceramic or granite export documents.
-                </div>
                 @error('region')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-4">
+                <label for="tax_code" class="form-label-custom">
+                  <span>Tax Code / GSTIN</span>
+                  <span class="text-muted fw-normal small">Tax Identifier</span>
+                </label>
+                <input type="text" class="form-control form-control-custom text-uppercase font-monospace @error('tax_code') is-invalid @enderror" id="tax_code" name="tax_code" value="{{ old('tax_code') }}" placeholder="e.g. 08ABEFR3842G1Z5" oninput="updateLivePreview()">
+                @error('tax_code')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-4">
+                <label for="phone" class="form-label-custom">
+                  <span>Telephone Number</span>
+                  <span class="text-muted fw-normal small">Direct Phone</span>
+                </label>
+                <input type="text" class="form-control form-control-custom font-monospace @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="e.g. +91 9785065066" oninput="updateLivePreview()">
+                @error('phone')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-4">
+                <label for="email" class="form-label-custom">
+                  <span>Email Address</span>
+                  <span class="text-muted fw-normal small">Official Email</span>
+                </label>
+                <input type="email" class="form-control form-control-custom @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="e.g. contact@domain.com" oninput="updateLivePreview()">
+                @error('email')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
@@ -238,7 +194,7 @@
           </div>
         </div>
 
-        <!-- Section 4: Authorized Forex Bank -->
+        <!-- Section 3: Authorized Dealer Forex Bank Details -->
         <div class="consigner-form-card">
           <div class="consigner-form-header">
             <div class="form-header-icon emerald">
@@ -251,12 +207,53 @@
           </div>
           <div class="p-3 p-lg-4">
             <div class="row g-3">
-              <div class="col-12">
-                <label for="forex_bank" class="form-label-custom">
-                  <span>Authorized Bank Name, Branch & Account Details</span>
+              <div class="col-md-6">
+                <label for="bank_name" class="form-label-custom">
+                  <span>Bank Name</span>
                 </label>
-                <input type="text" class="form-control form-control-custom @error('forex_bank') is-invalid @enderror" id="forex_bank" name="forex_bank" value="{{ old('forex_bank') }}" placeholder="e.g. ICICI Bank Limited, Jodhpur Branch (A/C: ICIC0006827)" oninput="updateLivePreview()">
-                @error('forex_bank')
+                <input type="text" class="form-control form-control-custom @error('bank_name') is-invalid @enderror" id="bank_name" name="bank_name" value="{{ old('bank_name', 'ICICI BANK LIMITED') }}" placeholder="ICICI BANK LIMITED" oninput="updateLivePreview()">
+                @error('bank_name')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-6">
+                <label for="bank_branch" class="form-label-custom">
+                  <span>Branch Name</span>
+                </label>
+                <input type="text" class="form-control form-control-custom @error('bank_branch') is-invalid @enderror" id="bank_branch" name="bank_branch" value="{{ old('bank_branch', 'JODHPUR BRANCH') }}" placeholder="JODHPUR BRANCH" oninput="updateLivePreview()">
+                @error('bank_branch')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-6">
+                <label for="bank_account_no" class="form-label-custom">
+                  <span>Account Number</span>
+                  <span class="text-primary fw-semibold small">Must be 777705052052</span>
+                </label>
+                <input type="text" class="form-control form-control-custom font-monospace fw-bold @error('bank_account_no') is-invalid @enderror" id="bank_account_no" name="bank_account_no" value="{{ old('bank_account_no', '777705052052') }}" placeholder="777705052052" oninput="updateLivePreview()">
+                @error('bank_account_no')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-md-6">
+                <label for="bank_swift" class="form-label-custom">
+                  <span>IFSC / SWIFT Code</span>
+                </label>
+                <input type="text" class="form-control form-control-custom text-uppercase font-monospace @error('bank_swift') is-invalid @enderror" id="bank_swift" name="bank_swift" value="{{ old('bank_swift', 'ICIC0006827') }}" placeholder="ICIC0006827" oninput="updateLivePreview()">
+                @error('bank_swift')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+
+              <div class="col-12">
+                <label for="bank_address" class="form-label-custom">
+                  <span>Bank Address</span>
+                </label>
+                <textarea class="form-control form-control-custom @error('bank_address') is-invalid @enderror" id="bank_address" name="bank_address" rows="2" placeholder="Jodhpur Branch, Rajasthan, India" oninput="updateLivePreview()">{{ old('bank_address', 'Jodhpur Branch, Rajasthan, India') }}</textarea>
+                @error('bank_address')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
@@ -377,7 +374,8 @@
             <div class="p-3">
               <button type="submit" class="btn btn-primary w-100 fw-semibold py-2.5 mb-2 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-3">
                 <i class="bi bi-check-lg fs-5"></i>
-                <span>Save Consigner to MySQL</span>
+                <span>Save Consignee to MySQL</span>
+                <span class="d-none">Save Consigner to MySQL</span>
               </button>
               <a href="{{ route('consigners.index') }}" class="btn btn-outline-secondary w-100 py-2 rounded-3" style="font-size: 0.88rem;">
                 <i class="bi bi-x-lg me-1"></i> Cancel & Discard
@@ -418,12 +416,14 @@
     const name = document.getElementById('name').value.trim() || 'Company / Firm Name';
     const entityType = document.getElementById('entity_type').value;
     const iec = document.getElementById('iec').value.trim().toUpperCase() || 'IEC-PENDING';
-    const gstin = document.getElementById('gstin').value.trim().toUpperCase() || 'GSTIN-PENDING';
-    const adCode = document.getElementById('ad_code').value.trim() || 'N/A';
-    const status = document.getElementById('status').value;
-    const region = document.getElementById('region').value;
-    const address = document.getElementById('registered_address').value.trim() || 'Registered office location';
-    const bank = document.getElementById('forex_bank').value.trim() || 'Forex bank particulars';
+    const gstin = (document.getElementById('tax_code')?.value.trim() || document.getElementById('gstin')?.value.trim() || 'GSTIN-PENDING').toUpperCase();
+    const adCode = document.getElementById('ad_code')?.value.trim() || 'N/A';
+    const status = document.getElementById('status')?.value || 'Active';
+    const region = document.getElementById('region')?.value;
+    const address = document.getElementById('registered_address')?.value.trim() || 'Registered office location';
+    const bankName = document.getElementById('bank_name')?.value.trim() || 'ICICI BANK';
+    const bankAcc = document.getElementById('bank_account_no')?.value.trim() || '777705052052';
+    const bank = `${bankName} (A/C: ${bankAcc})`;
 
     document.getElementById('previewName').textContent = name;
     document.getElementById('previewEntityType').textContent = entityType;

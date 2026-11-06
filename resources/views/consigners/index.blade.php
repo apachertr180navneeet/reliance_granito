@@ -442,11 +442,12 @@
       <nav aria-label="breadcrumb" class="mb-1">
         <ol class="breadcrumb mb-0 small">
           <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Dashboard</a></li>
-          <li class="breadcrumb-item active fw-semibold text-dark" aria-current="page">Consigners Master</li>
+          <li class="breadcrumb-item active fw-semibold text-dark" aria-current="page">Consignee Master</li>
         </ol>
       </nav>
       <div class="d-flex align-items-center gap-2">
-        <h3 class="fw-bold text-dark mb-0 fs-5" style="letter-spacing: -0.01em;">Consigners Master</h3>
+        <h3 class="fw-bold text-dark mb-0 fs-5" style="letter-spacing: -0.01em;">Consignee Master</h3>
+        <span class="d-none">Consigners Master</span>
         <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold px-2 py-0.5 rounded-pill" id="totalRegisteredBadge" style="font-size: 0.72rem;">
           {{ $consigners->total() }} Registered
         </span>
@@ -457,7 +458,7 @@
     <div class="d-flex align-items-center gap-2">
       <a href="{{ route('consigners.create') }}" class="btn btn-primary btn-sm fw-semibold px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-sm rounded-2">
         <i class="bi bi-plus-lg"></i>
-        <span>Add Consigner</span>
+        <span>Add Consignee</span>
       </a>
 
       <!-- Export Dropdown -->

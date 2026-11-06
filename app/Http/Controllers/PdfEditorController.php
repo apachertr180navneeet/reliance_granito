@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Consigner;
+use App\Models\Consignee;
 use App\Models\Document;
 use App\Models\PdfEdit;
 use Illuminate\Http\JsonResponse;
@@ -21,9 +21,10 @@ class PdfEditorController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
-        $consigners = Consigner::where('status', 'Active')
+        $consignees = Consignee::where('status', 'Active')
             ->orderBy('id', 'asc')
             ->get();
+        $consigners = $consignees;
 
         $selectedDocName = $request->query('doc');
         $selectedDoc = $selectedDocName
@@ -32,6 +33,7 @@ class PdfEditorController extends Controller
 
         return view('pdf-editor', [
             'documents' => $documents,
+            'consignees' => $consignees,
             'consigners' => $consigners,
             'selectedDoc' => $selectedDoc,
         ]);

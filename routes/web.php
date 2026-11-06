@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConsigneeController;
 use App\Http\Controllers\ConsignerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
@@ -30,7 +31,28 @@ Route::middleware('auth')->group(function () {
     // Main Control Tower Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Consigners Master CRUD
+    // Consignee Master CRUD
+    Route::prefix('consignees')->name('consignees.')->group(function () {
+        Route::get('/', [ConsigneeController::class, 'index'])->name('index');
+        Route::get('/create', [ConsigneeController::class, 'create'])->name('create');
+        Route::post('/', [ConsigneeController::class, 'store'])->name('store');
+        Route::get('/export', [ConsigneeController::class, 'export'])->name('export');
+        Route::post('/reset-demo', [ConsigneeController::class, 'resetDemo'])->name('reset-demo');
+        Route::get('/{id}', [ConsigneeController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ConsigneeController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ConsigneeController::class, 'update'])->name('update');
+        Route::match(['patch', 'post'], '/{id}/status', [ConsigneeController::class, 'toggleStatus'])->name('toggle-status');
+        Route::match(['delete', 'post'], '/{id}/delete', [ConsigneeController::class, 'destroy'])->name('delete-action');
+        Route::match(['delete', 'post'], '/{id}', function (Request $request, string|int $id) {
+            if ($request->input('_method') === 'PUT' || $request->input('_method') === 'PATCH') {
+                return app(ConsigneeController::class)->update($request, $id);
+            }
+
+            return app(ConsigneeController::class)->destroy($request, $id);
+        })->name('destroy');
+    });
+
+    // Consigners Master CRUD (backward-compatible alias)
     Route::prefix('consigners')->name('consigners.')->group(function () {
         Route::get('/', [ConsignerController::class, 'index'])->name('index');
         Route::get('/create', [ConsignerController::class, 'create'])->name('create');

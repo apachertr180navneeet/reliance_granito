@@ -66,7 +66,7 @@ class InvoiceSetting extends Model
             'lut_rule' => 'UNDER LUT NO - 06/LUT RULE 96A/2026-2027 UNDER GST/DIV E/JODHPUR Via ARN NO. AD080226010208C',
             'bank_name' => 'ICICI BANK LIMITED',
             'bank_branch' => 'JODHPUR BRANCH',
-            'bank_account_no' => '777705022062',
+            'bank_account_no' => '777705052052',
             'bank_swift_code' => 'ICICINBBCTS',
             'bank_ad_code' => '6390013',
             'bank_address' => '14/67, Chopasni Housing Board, JODHPUR - 342003, RAJASTHAN (INDIA)',
@@ -89,5 +89,17 @@ class InvoiceSetting extends Model
             'signatory_name' => 'Ditin',
             'signatory_title' => 'Partner / Manager',
         ]);
+    }
+
+    /**
+     * Get bank account number, ensuring updated 777705052052 is returned.
+     */
+    public function getBankAccountNoAttribute(?string $value): string
+    {
+        if (! empty($value) && $value !== '777705022062') {
+            return $value;
+        }
+
+        return '777705052052';
     }
 }

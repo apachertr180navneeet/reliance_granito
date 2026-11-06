@@ -1,6 +1,7 @@
 @props([
   'exporter' => [],
   'invoice' => [],
+  'consignee' => null,
   'consigner' => null,
   'buyerOther' => [],
   'items' => [],
@@ -15,6 +16,7 @@
 ])
 
 @php
+  $consigner = $consignee ?? $consigner;
   $format = strtoupper($invoice['invoice_format'] ?? 'LUT');
   $isIgst = ($format === 'IGST');
   $term = strtoupper($invoice['delivery_term'] ?? 'CIF');
@@ -29,6 +31,29 @@
   $isoCert = $invoice['iso_certification'] ?? '';
   $lutRule = $invoice['lut_no'] ?? '';
   $notifyParties = is_array($invoice['notify_parties'] ?? null) ? $invoice['notify_parties'] : [];
+
+  // Multi-container aggregation
+  $containerList = [];
+  if (!empty($invoice['containers_json']) && is_array($invoice['containers_json'])) {
+      foreach ($invoice['containers_json'] as $c) {
+          if (!empty($c['container_no'])) $containerList[] = trim($c['container_no']);
+      }
+  }
+  if (!empty($invoice['container_number'])) {
+      foreach (explode(',', $invoice['container_number']) as $cn) {
+          $cnTrim = trim($cn);
+          if (!empty($cnTrim)) $containerList[] = $cnTrim;
+      }
+  }
+  if (!empty($items)) {
+      foreach ($items as $it) {
+          if (!empty($it['container_no'])) {
+              $cnTrim = trim($it['container_no']);
+              if (!empty($cnTrim)) $containerList[] = $cnTrim;
+          }
+      }
+  }
+  $containerDisplayStr = !empty($containerList) ? implode(', ', array_unique($containerList)) : ($invoice['container_number'] ?? '');
 
   $rawPaymentTerms = $invoice['payment_terms'] ?? '';
   if ($isIgst && (empty($rawPaymentTerms) || $rawPaymentTerms === '100% AGAINST SCAN B/L COPY' || $rawPaymentTerms === ($term . ' - 100% AGAINST SCAN B/L COPY'))) {
@@ -132,7 +157,7 @@
               <tr>
                 <td class="p-1" style="border-right: 1px solid #000; width: 50%;">
                   <div class="fw-bold text-uppercase" style="font-size: 9px;">CONTAINER NO.</div>
-                  <div class="fw-bold font-monospace" id="containerNoDisplay">{{ $invoice['container_number'] ?? '' }}</div>
+                  <div class="fw-bold font-monospace" id="containerNoDisplay">{{ $containerDisplayStr }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold text-uppercase" style="font-size: 9px;">BUYER'S P/O NO</div>
@@ -196,26 +221,31 @@
           </td>
         </tr>
 
-        <!-- Optional Notify Parties Section -->
-        @if(!empty($notifyParties))
-        <tr style="border-bottom: 1.5px solid #000; font-size: 10px;" id="notifyPartiesDisplayRow">
+        <!-- Notify Parties Section (Names Only) -->
+        @php
+          $hasNotify = false;
+          if (!empty($notifyParties) && is_array($notifyParties)) {
+              foreach ($notifyParties as $np) {
+                  if (!empty($np['name'])) { $hasNotify = true; break; }
+              }
+          }
+        @endphp
+        <tr style="border-bottom: 1.5px solid #000; font-size: 10px; {{ $hasNotify ? '' : 'display: none;' }}" id="notifyPartiesDisplayRow">
           <td colspan="2" class="p-2" style="background: #fafafa;">
             <div class="text-decoration-underline fw-bold mb-1" style="font-size: 10px;">Notify Party / Parties:</div>
-            <div class="row g-2" id="notifyPartiesList">
-              @foreach($notifyParties as $nIdx => $np)
-                @if(!empty($np['name']) || !empty($np['address']))
-                  <div class="col-md-6 col-12 mb-0.5">
-                    <strong>Notify Party {{ $nIdx + 1 }}:</strong> <span class="fw-bold">{{ $np['name'] ?? '' }}</span>
-                    @if(!empty($np['address'])) &bull; <span>ADD: {{ $np['address'] }}</span> @endif
-                    @if(!empty($np['tax'])) &bull; <span>TAX: {{ $np['tax'] }}</span> @endif
-                    @if(!empty($np['phone'])) &bull; <span>TEL: {{ $np['phone'] }}</span> @endif
-                  </div>
-                @endif
-              @endforeach
+            <div class="d-flex flex-wrap gap-3" id="notifyPartiesList">
+              @if(!empty($notifyParties) && is_array($notifyParties))
+                @foreach($notifyParties as $nIdx => $np)
+                  @if(!empty($np['name']))
+                    <div class="notify-party-entry">
+                      <strong>Notify Party {{ $nIdx + 1 }}:</strong> <span class="fw-bold text-uppercase">{{ $np['name'] }}</span>
+                    </div>
+                  @endif
+                @endforeach
+              @endif
             </div>
           </td>
         </tr>
-        @endif
 
         <!-- Row 3: Pre-Carriage & Origin / Destination -->
         <tr style="border-bottom: 1px solid #000; font-size: 10px;">
@@ -389,18 +419,61 @@
             <div><strong>Taxable Value (INR):</strong> ₹ <span id="displayTaxableValue">{{ number_format($invoice['taxable_value_inr'] ?? 0, 2) }}</span></div>
           </td>
           <td colspan="2" class="p-1.5 text-end fw-bold" style="border-right: 1px solid #000;">
-            Integrated Tax / IGST (<span id="displayIgstRate">{{ number_format($invoice['igst_rate'] ?? 18, 0) }}</span>%):
+            Integrated Tax / IGST (<span id="displayIgstRate">{{ number_format($invoice['igst_rate'] ?? 18, 0) }}</span>%):<br>
+            <span class="text-primary fw-black">TOTAL INCL. IGST (INR):</span>
           </td>
           <td class="p-1.5 text-end fw-bold font-monospace" id="displayIgstAmount">
-            ₹ {{ number_format($invoice['igst_amount_inr'] ?? 0, 2) }}
+            ₹ {{ number_format($invoice['igst_amount_inr'] ?? 0, 2) }}<br>
+            <span class="text-primary fw-black" id="displayTotalInrWithIgst">₹ {{ number_format(($invoice['taxable_value_inr'] ?? 0) + ($invoice['igst_amount_inr'] ?? 0), 2) }}</span>
           </td>
         </tr>
 
         <!-- Amount In Words Row -->
-        <tr style="border-bottom: 1.5px solid #000; font-size: 10px;">
-          <td colspan="7" class="py-1 px-2 fw-bold" style="line-height: 1.35; background: #fff;">
-            <span>Amount In Words (<span class="currency-code">{{ $currCode }}</span>):</span>
-            <span class="fw-bold text-uppercase ms-1" id="amountInWordsDisplay" style="font-weight: 800; letter-spacing: 0.02em;">{{ $amountInWords ?? '' }}</span>
+        <tr style="border-bottom: 1px solid #000; font-size: 10px;">
+          <td colspan="7" class="px-2 py-1 fw-bold" style="line-height: 1.35; background: #fff;">
+            <div>
+              <span>Amount In Words (<span class="currency-code">{{ $currCode }}</span>):</span>
+              <span class="fw-bold text-uppercase ms-1" id="amountInWordsDisplay" style="font-weight: 800; letter-spacing: 0.02em;">{{ $amountInWords ?? '' }}</span>
+            </div>
+            @if($isIgst)
+              @php
+                $calcService = new \App\Services\InvoiceCalculationService();
+                $inrTot = round(($invoice['taxable_value_inr'] ?? 0) + ($invoice['igst_amount_inr'] ?? 0));
+                $inrWords = $inrTot > 0 ? $calcService->convertInrToWords($inrTot) : '';
+              @endphp
+              <div id="inrWordsContainer" style="font-size: 9.5px; margin-top: 1px; color: #1e3a8a;">
+                <strong>Amount In Words (INR Total):</strong>
+                <span class="fw-bold text-uppercase ms-1" id="inrWordsDisplay">{{ $inrWords }}</span>
+              </div>
+            @endif
+          </td>
+        </tr>
+
+        <!-- Manufactured / Supplied By & Export Schemes Rows -->
+        <tr style="border-bottom: 1px solid #000; font-size: 9px;" id="suppliedBySectionRow">
+          <td colspan="7" class="px-2 py-1" style="background: #fafafa;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div>
+                <strong>MANUFACTURED / SUPPLIED BY :</strong>
+                <span class="fw-bold text-uppercase" id="suppliedByNameDisplay">{{ $invoice['supplied_by_name'] ?? ($consigner?->name ?? 'RELIANCE GRANITO') }}</span>
+                &nbsp;|&nbsp; <strong>GSTIN :</strong> <span class="font-monospace fw-bold" id="suppliedByGstinDisplay">{{ $invoice['supplied_by_gstin'] ?? ($exporter['gstin'] ?? '') }}</span>
+                &nbsp;|&nbsp; <strong>INV NO :</strong> <span class="font-monospace fw-bold" id="suppliedByInvoiceNoDisplay">{{ $invoice['supplied_by_invoice_no'] ?? ($invoice['invoice_number'] ?? '') }}</span>
+              </div>
+              <div class="d-flex gap-2 font-monospace">
+                <span><strong>CGST:</strong> <span id="suppliedByCgstDisplay">{{ $invoice['supplied_by_cgst'] ?? '0.00' }}</span></span>
+                <span><strong>SGST:</strong> <span id="suppliedBySgstDisplay">{{ $invoice['supplied_by_sgst'] ?? '0.00' }}</span></span>
+                <span><strong>IGST:</strong> <span id="suppliedByIgstDisplay">{{ $invoice['supplied_by_igst'] ?? ($isIgst ? number_format($invoice['igst_amount_inr'] ?? 0, 2) : '0.00') }}</span></span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr style="border-bottom: 1.5px solid #000; font-size: 9px;" id="schemesSectionRow">
+          <td colspan="7" class="px-2 py-1" style="background: #fff;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <div><strong>DRAWBACK SCHEME :</strong> <span id="drawbackDetailsDisplay">{{ $invoice['drawback_details'] ?? 'DUTY DRAWBACK UNDER SEC 75' }}</span></div>
+              <div><strong>UNDER EPCG SCHEME :</strong> <span id="epcgDetailsDisplay">{{ $invoice['epcg_details'] ?? 'EPCG SCHEME' }}</span></div>
+              <div><strong>PARTY NAME :</strong> <span class="fw-bold text-uppercase" id="schemePartyNameDisplay">{{ $invoice['scheme_party_name'] ?? ($exporter['name'] ?? 'RELIANCE GRANITO') }}</span></div>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -421,7 +494,7 @@
               BANK DETAILS : {{ $bank['name'] ?? 'ICICI BANK LIMITED' }}
             </div>
             <div style="font-size: 9.5px; line-height: 1.4;">
-              <strong>A/C NO :</strong> <span class="font-monospace fw-bold">{{ $bank['account_no'] ?? '777705022062' }}</span> &nbsp;
+              <strong>A/C NO :</strong> <span class="font-monospace fw-bold">{{ $bank['account_no'] ?? '777705052052' }}</span> &nbsp;
               <strong>SWIFT CODE :</strong> <span class="font-monospace fw-bold">{{ $bank['swift_code'] ?? 'ICICINBBCTS' }}</span><br>
               <strong>A.D CODE :</strong> <span class="font-monospace fw-bold">{{ $consigner?->ad_code ?? ($bank['ad_code'] ?? '6390013') }}</span><br>
               <strong>BANK ADDRESS :</strong> {{ $bank['address'] ?? '14/67, Chopasni Housing Board, JODHPUR - 342003, RAJASTHAN (INDIA)' }}

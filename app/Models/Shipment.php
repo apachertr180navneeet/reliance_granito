@@ -13,6 +13,7 @@ class Shipment extends Model
 
     protected $fillable = [
         'shipment_number',
+        'consignee_id',
         'consigner_id',
         'buyer_name',
         'buyer_address',
@@ -32,9 +33,24 @@ class Shipment extends Model
         'review_status',
     ];
 
+    public function consignee(): BelongsTo
+    {
+        return $this->belongsTo(Consignee::class, 'consigner_id');
+    }
+
     public function consigner(): BelongsTo
     {
         return $this->belongsTo(Consigner::class);
+    }
+
+    public function getConsigneeIdAttribute(): ?int
+    {
+        return $this->attributes['consigner_id'] ?? null;
+    }
+
+    public function setConsigneeIdAttribute(?int $value): void
+    {
+        $this->attributes['consigner_id'] = $value;
     }
 
     public function documents(): HasMany

@@ -21,7 +21,7 @@
         </span>
       </div>
       <p class="text-muted small mb-0 mt-1">
-        Consignee: <strong class="text-dark">{{ $invoice['consignee_name'] ?? $invoiceModel->consigner_name }}</strong> &bull; Container: <strong class="text-dark font-monospace">{{ $invoiceModel->container_number }}</strong> &bull; Total Packages: <strong class="text-dark">{{ $invoiceModel->total_packages ?: count($items) }}</strong>
+        Consignee: <strong class="text-dark">{{ $invoice['consignee_name'] ?? ($invoiceModel->consignee_name ?: $invoiceModel->consigner_name) }}</strong> &bull; Container: <strong class="text-dark font-monospace">{{ $invoiceModel->container_number }}</strong> &bull; Total Packages: <strong class="text-dark">{{ $invoiceModel->total_packages ?: count($items) }}</strong>
       </p>
     </div>
 

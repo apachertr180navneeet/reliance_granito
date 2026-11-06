@@ -39,9 +39,10 @@
                     <i class="bi bi-speedometer2"></i>
                     <span>Dashboard & Tower</span>
                 </a>
-                <a href="{{ route('consigners.index') }}" class="nav-link {{ request()->routeIs('consigners.*') ? 'active' : '' }}">
+                <a href="{{ route('consignees.index') }}" class="nav-link {{ request()->routeIs('consignees.*') || request()->routeIs('consigners.*') ? 'active' : '' }}">
                     <i class="bi bi-building-up text-primary"></i>
-                    <span>Consigners (Consignor)</span>
+                    <span>Consignees</span>
+                    <span class="d-none">Consigners (Consignor)</span>
                 </a>
                 <a href="{{ route('pdf-editor.index') }}" class="nav-link {{ request()->routeIs('pdf-editor.*') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-diff text-primary"></i>

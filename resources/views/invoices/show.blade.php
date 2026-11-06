@@ -20,7 +20,7 @@
         </span>
       </div>
       <p class="text-muted small mb-0 mt-1">
-        Consignee: <strong class="text-dark">{{ $invoiceModel->consigner_name }}</strong> &bull; Container: <strong class="text-dark font-monospace">{{ $invoiceModel->container_number }}</strong> &bull; Date: <strong class="text-dark">{{ $invoiceModel->invoice_date }}</strong>
+        Consignee: <strong class="text-dark">{{ $invoiceModel->consignee_name ?: $invoiceModel->consigner_name }}</strong> &bull; Container: <strong class="text-dark font-monospace">{{ $invoiceModel->container_number }}</strong> &bull; Date: <strong class="text-dark">{{ $invoiceModel->invoice_date }}</strong>
       </p>
     </div>
 

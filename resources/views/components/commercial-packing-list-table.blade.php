@@ -1,6 +1,7 @@
 @props([
   'exporter' => [],
   'invoice' => [],
+  'consignee' => null,
   'consigner' => null,
   'buyerOther' => [],
   'items' => [],
@@ -12,19 +13,40 @@
 ])
 
 @php
+  $consigner = $consignee ?? $consigner;
   $format = strtoupper($invoice['invoice_format'] ?? 'LUT');
   $term = strtoupper($invoice['delivery_term'] ?? 'CIF');
   $curr = strtoupper($invoice['currency'] ?? 'USD');
   $consigneeMode = $invoice['consignee_mode'] ?? 'consigner';
   $isToOrder = ($consigneeMode === 'to_the_order' || strtoupper($invoice['consignee_name'] ?? '') === 'TO THE ORDER');
   $noOfContainers = !empty($invoice['no_of_containers']) ? (int)$invoice['no_of_containers'] : '';
-  $grossWt = $invoice['gross_weight'] ?? '';
-  $netWt = $invoice['net_weight'] ?? '';
-  $isoCert = $invoice['iso_certification'] ?? '';
-  $notifyParties = is_array($invoice['notify_parties'] ?? null) ? $invoice['notify_parties'] : [];
-  $pkgType = $invoice['package_type'] ?? 'Wooden Bundles / Pallets';
+  $grossWt = $invoice['gross_weight'] ?? 0;
+  $netWt = $invoice['net_weight'] ?? 0;
 
-  // Compute total pieces/packages and item-level weights if not specifically overridden
+  // Aggregate multi-container display string for the header
+  $containerList = [];
+  if (!empty($invoice['containers_json']) && is_array($invoice['containers_json'])) {
+      foreach ($invoice['containers_json'] as $c) {
+          if (!empty($c['container_no'])) $containerList[] = trim($c['container_no']);
+      }
+  }
+  if (!empty($invoice['container_number'])) {
+      foreach (explode(',', $invoice['container_number']) as $cn) {
+          $cnTrim = trim($cn);
+          if (!empty($cnTrim)) $containerList[] = $cnTrim;
+      }
+  }
+  if (!empty($items)) {
+      foreach ($items as $it) {
+          if (!empty($it['container_no'])) {
+              $cnTrim = trim($it['container_no']);
+              if (!empty($cnTrim)) $containerList[] = $cnTrim;
+          }
+      }
+  }
+  $containerDisplayStr = !empty($containerList) ? implode(', ', array_unique($containerList)) : ($invoice['container_number'] ?? '-');
+
+  // Compute total pieces/packages and item-level weights
   $totalPackages = 0;
   $totalQty = 0.0;
   $computedNetWt = 0.0;
@@ -49,10 +71,10 @@
       // Item proportional weight or manual weight
       $itemNet = isset($it['net_weight']) && (float)$it['net_weight'] > 0 
           ? (float)$it['net_weight'] 
-          : ($itemCount > 0 && is_numeric($netWt) ? round(((float)$netWt / $itemCount), 2) : 0);
+          : ($itemCount > 0 && is_numeric($netWt) && (float)$netWt > 0 ? round(((float)$netWt / $itemCount), 2) : 0);
       $itemGross = isset($it['gross_weight']) && (float)$it['gross_weight'] > 0 
           ? (float)$it['gross_weight'] 
-          : ($itemCount > 0 && is_numeric($grossWt) ? round(((float)$grossWt / $itemCount), 2) : 0);
+          : ($itemCount > 0 && is_numeric($grossWt) && (float)$grossWt > 0 ? round(((float)$grossWt / $itemCount), 2) : 0);
 
       $computedNetWt += $itemNet;
       $computedGrossWt += $itemGross;
@@ -70,12 +92,12 @@
       ];
   }
 
-  // Fallback to top-level if computed is 0
   if ($totalPackages === 0 && !empty($invoice['total_packages'])) {
       $totalPackages = (int)$invoice['total_packages'];
   }
-  $finalGross = $grossWt > 0 ? $grossWt : $computedGrossWt;
-  $finalNet = $netWt > 0 ? $netWt : $computedNetWt;
+  $finalGross = (float)$grossWt > 0 ? (float)$grossWt : $computedGrossWt;
+  $finalNet = (float)$netWt > 0 ? (float)$netWt : $computedNetWt;
+  $finalTotalQty = (float)$totalQuantity > 0 ? (float)$totalQuantity : $totalQty;
 @endphp
 
 <div class="commercial-packing-list-sheet bg-white p-3 p-md-4 shadow-sm border" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #000; max-width: 960px; margin: 0 auto; background: #fff;">
@@ -100,7 +122,7 @@
             COMMERCIAL PACKING LIST
           </div>
           <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #111;">
-            EXPORT CONSIGNMENT DETAILS &amp; CONTAINER SPECIFICATIONS
+            CONSIGNMENT CONTAINER &amp; GOODS SPECIFICATIONS
           </div>
         </div>
 
@@ -109,7 +131,7 @@
       </div>
     </div>
 
-    <!-- Upper Metadata Block: Clean 50% / 50% Split -->
+    <!-- Upper Metadata Block: Exporter (50%) & Consignment Meta (50%) -->
     <table class="w-100" style="border-collapse: collapse; table-layout: fixed; font-size: 10px; line-height: 1.35; width: 100%;">
       <colgroup>
         <col style="width: 50%;">
@@ -158,15 +180,10 @@
                   <strong>GSTIN :</strong> <span class="font-monospace fw-bold">{{ $exporter['gstin'] ?? '-' }}</span>
                 </td>
               </tr>
-              <tr style="border-bottom: 1px solid #000;">
-                <td colspan="2" class="p-1" style="font-size: 9px;">
-                  <strong>Document Type :</strong> <span class="fw-semibold">COMMERCIAL PACKING LIST &amp; SPECIFICATIONS</span>
-                </td>
-              </tr>
               <tr>
                 <td class="p-1" style="border-right: 1px solid #000; width: 50%;">
                   <div class="fw-bold text-uppercase" style="font-size: 9px;">CONTAINER NO.</div>
-                  <div class="fw-bold font-monospace">{{ $invoice['container_number'] ?? '-' }}</div>
+                  <div class="fw-bold font-monospace">{{ $containerDisplayStr }}</div>
                 </td>
                 <td class="p-1" style="width: 50%;">
                   <div class="fw-bold text-uppercase" style="font-size: 9px;">BUYER'S P/O NO</div>
@@ -229,140 +246,46 @@
             </div>
           </td>
         </tr>
-
-        <!-- Optional Notify Parties Section -->
-        @if(!empty($notifyParties))
-        <tr style="border-bottom: 1.5px solid #000; font-size: 10px;">
-          <td colspan="2" class="p-2" style="background: #fafafa;">
-            <div class="text-decoration-underline fw-bold mb-1" style="font-size: 10px;">Notify Party / Parties:</div>
-            <div class="row g-2">
-              @foreach($notifyParties as $nIdx => $np)
-                @if(!empty($np['name']) || !empty($np['address']))
-                  <div class="col-md-6 col-12 mb-0.5">
-                    <strong>Notify Party {{ $nIdx + 1 }}:</strong> <span class="fw-bold">{{ $np['name'] ?? '' }}</span>
-                    @if(!empty($np['address'])) &bull; <span>ADD: {{ $np['address'] }}</span> @endif
-                    @if(!empty($np['tax'])) &bull; <span>TAX: {{ $np['tax'] }}</span> @endif
-                    @if(!empty($np['phone'])) &bull; <span>TEL: {{ $np['phone'] }}</span> @endif
-                  </div>
-                @endif
-              @endforeach
-            </div>
-          </td>
-        </tr>
-        @endif
-
-        <!-- Row 3: Pre-Carriage & Origin / Destination -->
-        <tr style="border-bottom: 1px solid #000; font-size: 10px;">
-          <!-- Left: Pre-Carriage (50% total: 25% / 25%) -->
-          <td class="p-0 align-top" style="width: 50%; border-right: 1.5px solid #000;">
-            <table class="w-100" style="border-collapse: collapse; table-layout: fixed;">
-              <tr>
-                <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
-                  <div class="fw-bold" style="font-size: 9px;">Pre-Carriage by</div>
-                  <div class="fw-semibold">{{ $invoice['pre_carriage_by'] ?? '' }}</div>
-                </td>
-                <td class="p-1" style="width: 50%;">
-                  <div class="fw-bold" style="font-size: 9px;">Place of Receipt by Pre-Carrier</div>
-                  <div class="fw-semibold">{{ $invoice['place_of_receipt'] ?? '' }}</div>
-                </td>
-              </tr>
-            </table>
-          </td>
-
-          <!-- Right: Country of Origin & Destination (50% total: 25% / 25%) -->
-          <td class="p-0 align-top" style="width: 50%;">
-            <table class="w-100" style="border-collapse: collapse; table-layout: fixed;">
-              <tr>
-                <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
-                  <div class="fw-bold" style="font-size: 9px;">Country of Origin of goods</div>
-                  <div class="fw-semibold">{{ $invoice['country_of_origin'] ?? '' }}</div>
-                </td>
-                <td class="p-1" style="width: 50%;">
-                  <div class="fw-bold" style="font-size: 9px;">Country of Final Destination</div>
-                  <div class="fw-semibold">{{ $invoice['country_of_destination'] ?? '' }}</div>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- Row 4: Vessel / Port & Container Particulars -->
-        <tr style="border-bottom: 2px solid #000; font-size: 10px;">
-          <!-- Left: Vessel & Ports (50% total) -->
-          <td class="p-0 align-top" style="width: 50%; border-right: 1.5px solid #000;">
-            <table class="w-100" style="border-collapse: collapse; table-layout: fixed;">
-              <tr style="border-bottom: 1px solid #000;">
-                <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
-                  <div class="fw-bold" style="font-size: 9px;">Vessel / Flight No.</div>
-                  <div class="fw-semibold">{{ $invoice['vessel_flight_no'] ?? '' }}</div>
-                </td>
-                <td class="p-1" style="width: 50%;">
-                  <div class="fw-bold" style="font-size: 9px;">Port of Loading</div>
-                  <div class="fw-semibold">{{ $invoice['port_of_loading'] ?? '' }}</div>
-                </td>
-              </tr>
-              <tr>
-                <td class="p-1" style="width: 50%; border-right: 1px solid #000;">
-                  <div class="fw-bold" style="font-size: 9px;">Port of Discharge</div>
-                  <div class="fw-semibold">{{ $invoice['port_of_discharge'] ?? '' }}</div>
-                </td>
-                <td class="p-1" style="width: 50%;">
-                  <div class="fw-bold" style="font-size: 9px;">Final Destination</div>
-                  <div class="fw-semibold">{{ $invoice['final_destination'] ?? '' }}</div>
-                </td>
-              </tr>
-            </table>
-          </td>
-
-          <!-- Right: Container Particulars (50% total) -->
-          <td class="p-2 align-middle text-center" style="width: 50%; background: #fafafa;">
-            <div class="fw-bold mb-1" style="font-size: 10px;">Container Particulars</div>
-            <div class="fw-bold text-dark font-monospace" style="font-size: 11px;">
-              {{ !empty($noOfContainers) ? $noOfContainers . ' × ' : '' }}{{ $invoice['container_type'] ?? '' }}
-            </div>
-            <div class="small text-muted font-monospace mt-0.5">
-              Trailer: {{ $invoice['trailer_number'] ?? '-' }}
-            </div>
-          </td>
-        </tr>
       </tbody>
     </table>
 
     <!-- Packing List Table Column Headers & Item Rows -->
     <table class="table-packing-items w-100" style="border-collapse: collapse; table-layout: fixed; font-size: 10.5px; width: 100%;">
       <colgroup>
+        <col style="width: 9%;">
+        <col style="width: 13%;">
+        <col style="width: 11%;">
+        <col style="width: 27%;">
+        <col style="width: 9%;">
         <col style="width: 10%;">
-        <col style="width: 14%;">
-        <col style="width: 32%;">
         <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 12%;">
-        <col style="width: 12%;">
+        <col style="width: 11%;">
       </colgroup>
       <thead>
         <tr style="border-bottom: 1.5px solid #000; background: #f1f5f9; text-align: center; font-size: 10px; font-weight: bold;">
-          <th class="p-1" style="width: 10%; border-right: 1px solid #000;">Marks & Nos</th>
-          <th class="p-1" style="width: 14%; border-right: 1px solid #000;">Container No. / Trailer</th>
-          <th class="p-1" style="width: 32%; border-right: 1px solid #000;">Description of Goods</th>
-          <th class="p-1" style="width: 10%; border-right: 1px solid #000;">HSN Code</th>
-          <th class="p-1" style="width: 10%; border-right: 1px solid #000;">No. of Pkgs / Pieces</th>
-          <th class="p-1" style="width: 12%; border-right: 1px solid #000;">Quantity<br>(SQM.)</th>
-          <th class="p-1" style="width: 12%;">Weights (KGS)<br>Net / Gross</th>
+          <th class="p-1" style="border-right: 1px solid #000;">Marks &amp; Nos</th>
+          <th class="p-1" style="border-right: 1px solid #000;">Container No.</th>
+          <th class="p-1" style="border-right: 1px solid #000;">Trailer No.</th>
+          <th class="p-1" style="border-right: 1px solid #000;">Description of Goods</th>
+          <th class="p-1" style="border-right: 1px solid #000;">HSN Code</th>
+          <th class="p-1" style="border-right: 1px solid #000;">No. of Pkgs / Pieces</th>
+          <th class="p-1" style="border-right: 1px solid #000;">Quantity<br>(SQM.)</th>
+          <th class="p-1">Weights (KGS)<br>Net / Gross</th>
         </tr>
       </thead>
 
       <!-- Packing List Item Rows -->
       <tbody>
         @forelse($packingRows as $r)
-        <tr style="border-bottom: 1px solid #000; font-size: 10.5px;">
+        <tr style="border-bottom: 1px solid #000; font-size: 10px;">
           <td class="p-1.5 text-center align-top font-monospace" style="border-right: 1px solid #000;">
             <div class="fw-bold">{{ $r['marks_numbers'] }}</div>
           </td>
           <td class="p-1.5 text-center align-top font-monospace" style="border-right: 1px solid #000;">
             <div class="fw-bold">{{ $r['container_no'] }}</div>
-            @if(!empty($r['trailer_no']))
-              <div class="small text-muted">{{ $r['trailer_no'] }}</div>
-            @endif
+          </td>
+          <td class="p-1.5 text-center align-top font-monospace" style="border-right: 1px solid #000;">
+            <div>{{ $r['trailer_no'] ?: '-' }}</div>
           </td>
           <td class="p-1.5 align-top" style="border-right: 1px solid #000;">
             <div class="fw-bold text-uppercase">{!! nl2br(e($r['description'])) !!}</div>
@@ -383,23 +306,22 @@
         </tr>
         @empty
         <tr>
-          <td colspan="7" class="p-3 text-center text-muted">No items recorded in this packing list.</td>
+          <td colspan="8" class="p-3 text-center text-muted">No items recorded in this packing list.</td>
         </tr>
         @endforelse
       </tbody>
 
-      <!-- Totals & Sub-Sections Tbody -->
+      <!-- Totals Summary Row -->
       <tbody>
-        <!-- Origin & Subtotal Row -->
         <tr style="border-bottom: 1.5px solid #000; font-size: 11px; background: #fafafa;">
-          <td colspan="4" class="p-1.5 fw-bold" style="border-right: 1px solid #000;">
-            TOTAL SHIPMENT SUMMARY
+          <td colspan="5" class="p-1.5 fw-bold text-end" style="border-right: 1px solid #000;">
+            TOTAL CONSIGNMENT SUMMARY:
           </td>
           <td class="p-1.5 text-center fw-bold font-monospace" style="border-right: 1px solid #000;">
             {{ $totalPackages > 0 ? $totalPackages . ' PKGS' : '-' }}
           </td>
           <td class="p-1.5 text-end fw-black font-monospace" style="border-right: 1px solid #000;">
-            {{ number_format($totalQuantity > 0 ? $totalQuantity : $totalQty, 3) }} SQM
+            {{ number_format($finalTotalQty, 3) }} SQM
           </td>
           <td class="p-1.5 text-end font-monospace fw-bold">
             <div>N: {{ number_format($finalNet, 0, '.', '') }} KG</div>
@@ -409,106 +331,30 @@
       </tbody>
     </table>
 
-    <!-- Lower Specifications & Authorised Signatory Block: Clean 50% / 50% Split -->
+    <!-- Bottom Declaration & Authorised Signatory Block: Clean 50% / 50% Split -->
     <table class="w-100" style="border-collapse: collapse; table-layout: fixed; font-size: 10px; width: 100%;">
       <colgroup>
         <col style="width: 50%;">
         <col style="width: 50%;">
       </colgroup>
       <tbody>
-        <!-- Consignment Specs & Certified Weights Breakdown -->
         <tr style="border-bottom: 1.5px solid #000;">
-          <!-- Left: Consignment Specs (50%) -->
-          <td class="p-2 align-top" style="width: 50%; border-right: 1.5px solid #000;">
-            <div class="fw-bold mb-1">CONSIGNMENT SPECIFICATIONS:</div>
-            <div><strong>Total Containers:</strong> {{ !empty($noOfContainers) ? $noOfContainers . ' × ' : '' }}{{ $invoice['container_type'] ?? '' }}</div>
-            <div><strong>Primary Container No:</strong> <span class="font-monospace fw-bold">{{ $invoice['container_number'] ?? '-' }}</span></div>
-            <div><strong>Trailer / Vehicle:</strong> <span class="font-monospace fw-bold">{{ $invoice['trailer_number'] ?? '-' }}</span></div>
-            <div><strong>Port of Loading:</strong> {{ $invoice['port_of_loading'] ?? '' }}</div>
-            <div><strong>Port of Discharge:</strong> {{ $invoice['port_of_discharge'] ?? '' }}</div>
-          </td>
-
-          <!-- Right: Certified Weights Breakdown (50%) -->
-          <td class="p-2 align-middle font-monospace" style="width: 50%; background: #fafafa;">
-            <div class="fw-bold mb-1.5 text-uppercase" style="font-size: 10.5px; border-bottom: 1px solid #ddd; padding-bottom: 2px;">
-              Certified Weights Breakdown
-            </div>
-            <div class="d-flex justify-content-between mb-1">
-              <span>TOTAL NET WEIGHT (N.WT):</span>
-              <span class="fw-black fs-7">{{ number_format($finalNet, 0, '.', '') }} KGS</span>
-            </div>
-            <div class="d-flex justify-content-between mb-1">
-              <span>TOTAL GROSS WEIGHT (G.WT):</span>
-              <span class="fw-black fs-7 text-primary">{{ number_format($finalGross, 0, '.', '') }} KGS</span>
-            </div>
-            <div class="d-flex justify-content-between text-muted small">
-              <span>TOTAL ESTIMATED TARE:</span>
-              <span>{{ number_format(max(0, $finalGross - $finalNet), 0, '.', '') }} KGS</span>
+          <!-- Left: Declaration (50%) -->
+          <td class="p-3 align-top" style="width: 50%; border-right: 1.5px solid #000; background: #fff;">
+            <div class="fw-bold text-decoration-underline mb-1">Declaration</div>
+            <div style="font-size: 9.5px; line-height: 1.5; color: #222;">
+              We declare that this Commercial Packing List shows the actual quantity, packages, weights, and specifications of the goods described and all particulars given are true and correct as per E.&amp; O.E.
             </div>
           </td>
-        </tr>
 
-        <!-- Badges, Recognition & Authorised Signatory Block -->
-        <tr style="border-bottom: 1.5px solid #000;">
-          <!-- Logos & Industry Certifications (Left 50%) -->
-          <td class="p-1 align-middle" style="width: 50%; border-right: 1.5px solid #000;">
-            <table class="invoice-badges-table" style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 3px; text-align: center; margin: 0;">
-              <colgroup>
-                <col style="width: 18%;">
-                <col style="width: 18%;">
-                <col style="width: 28%;">
-                <col style="width: 18%;">
-                <col style="width: 18%;">
-              </colgroup>
-              <tbody>
-                <tr>
-                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
-                    <div style="font-weight: 900; color: #0284c7; font-size: 9px; line-height: 1.1;">&lt;FIEO&gt;</div>
-                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;">{{ $certifications['rcmc_fieo_no'] ?? ($settings->rcmc_fieo_no ?? 'RCMC/FIEO/11176/2025-2027') }}</div>
-                  </td>
-
-                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
-                    <div style="font-weight: 900; color: #b91c1c; font-size: 9px; line-height: 1.1;">FIGSI</div>
-                    <div style="font-size: 6.5px; line-height: 1.1; color: #1e293b;">Granite &amp; Stone<br>Industry</div>
-                  </td>
-
-                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
-                    <div style="font-weight: 900; color: #ea580c; font-size: 8px; line-height: 1.15; word-break: break-word;">&#9733;&#9733; {{ $certifications['export_house_star'] ?? ($settings->export_house_star ?? 'Two Star Export House') }}</div>
-                    <div style="font-size: 6.5px; line-height: 1.1; color: #1e293b;">Govt. Recognized<br>Export House</div>
-                  </td>
-
-                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
-                    <div style="font-weight: 900; color: #1e3a8a; font-size: 9px; line-height: 1.1;">REPC</div>
-                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;">{{ $certifications['repc_no'] ?? ($settings->repc_no ?? 'REPC-22-10349') }}</div>
-                  </td>
-
-                  <td class="badge-item" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 1px; vertical-align: middle; background: #fff;">
-                    <div style="font-weight: 900; color: #15803d; font-size: 8px; line-height: 1.1; word-break: break-word;">ISO Certified</div>
-                    <div style="font-size: 6.5px; line-height: 1.1; word-break: break-word; color: #1e293b;">{{ $isoCert }}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-
-          <!-- Authorised Signatory (Right 50%) -->
-          <td class="p-2 text-center align-bottom" style="width: 50%; height: 110px;">
+          <!-- Right: Authorised Signatory (50%) -->
+          <td class="p-3 text-center align-bottom" style="width: 50%; height: 110px; background: #fff;">
             <div class="fw-bold mb-1" style="font-size: 11px;">For : {{ $certifications['signatory_company'] ?? ($exporter['name'] ?? 'RELIANCE GRANITO') }}</div>
             
-            <div style="height: 50px;"></div>
+            <div style="height: 45px;"></div>
             
-            <div class="fw-bold" style="font-size: 9.5px; border-top: 1px dotted #333; padding-top: 3px;">
+            <div class="fw-bold" style="font-size: 9.5px; border-top: 1px dotted #333; padding-top: 3px; display: inline-block; min-width: 200px;">
               {{ $certifications['signatory_title'] ?? ($settings->signatory_title ?? 'Partner / Manager') }}
-            </div>
-          </td>
-        </tr>
-
-        <!-- Declaration Row (100% width) -->
-        <tr>
-          <td colspan="2" class="p-2" style="font-size: 9.5px; background: #fff;">
-            <div class="fw-bold text-center text-decoration-underline mb-0.5">Declaration</div>
-            <div class="text-center">
-              We declare that this packing list shows the actual quantity, weights, and particulars of the goods described and all details given are true and best as per E.&amp; O.E.
             </div>
           </td>
         </tr>

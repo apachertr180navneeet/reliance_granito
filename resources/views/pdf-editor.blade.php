@@ -107,20 +107,20 @@
           </button>
         </div>
 
-        <!-- Consigner Stamping Menu (MySQL Backed) -->
+        <!-- Consignee Stamping Menu (MySQL Backed) -->
         <div class="dropdown">
-          <button class="btn btn-consigner-picker dropdown-toggle" data-bs-toggle="dropdown" id="btnConsignerDropdown" title="Stamp Registered Consigner Particulars from MySQL">
+          <button class="btn btn-consigner-picker dropdown-toggle" data-bs-toggle="dropdown" id="btnConsignerDropdown" title="Stamp Registered Consignee Particulars from MySQL">
             <i class="bi bi-building-up text-primary"></i>
-            <span>Consigner</span>
+            <span>Consignee</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-start consigner-menu-popover shadow-lg" id="consignerDropdownMenu">
             <li>
               <div class="dropdown-header text-uppercase d-flex align-items-center justify-content-between">
-                <span>Stamp Consigner (MySQL)</span>
+                <span>Stamp Consignee (MySQL)</span>
                 <span class="badge consigner-hint-pill">Drag & Drop or Click</span>
               </div>
             </li>
-            @forelse($consigners as $c)
+            @forelse($consignees ?? $consigners as $c)
             <li>
               <div class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between consigner-item-link"
                    draggable="true"
@@ -141,12 +141,12 @@
               </div>
             </li>
             @empty
-            <li><span class="dropdown-item small text-muted">No active consigners found.</span></li>
+            <li><span class="dropdown-item small text-muted">No active consignees found.</span></li>
             @endforelse
             <li><hr class="dropdown-divider"></li>
             <li>
-              <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="{{ route('consigners.index') }}">
-                <i class="bi bi-gear"></i> Manage Consigners Directory &rarr;
+              <a class="dropdown-item d-flex align-items-center gap-2 text-primary fw-semibold py-2 px-3" href="{{ route('consignees.index') }}">
+                <i class="bi bi-gear"></i> Manage Consignees Directory &rarr;
               </a>
             </li>
           </ul>

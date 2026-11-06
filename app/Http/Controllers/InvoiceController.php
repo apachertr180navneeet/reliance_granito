@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consignee;
 use App\Models\Consigner;
 use App\Models\Invoice;
 use App\Models\InvoiceSetting;
@@ -50,11 +51,13 @@ class InvoiceController extends Controller
     public function create(Request $request): View
     {
         $settings = InvoiceSetting::getSettings();
-        $consigners = Consigner::orderBy('name', 'asc')->get();
+        $consignees = Consignee::orderBy('name', 'asc')->get();
+        $consigners = $consignees;
 
-        // Target consigner from query param or null (blank)
-        $consignerId = $request->query('consigner_id');
-        $selectedConsigner = $consignerId ? $consigners->firstWhere('id', $consignerId) : null;
+        // Target consignee from query param or null (blank)
+        $consignerId = $request->query('consignee_id') ?? $request->query('consigner_id');
+        $selectedConsignee = $consignerId ? $consignees->firstWhere('id', $consignerId) : null;
+        $selectedConsigner = $selectedConsignee;
 
         // Standard Exporter Particulars from Settings
         $exporter = $this->buildExporterData($settings);
@@ -154,6 +157,8 @@ class InvoiceController extends Controller
         $certifications = $this->buildCertificationsData($settings);
 
         return view('invoices.create', compact(
+            'consignees',
+            'selectedConsignee',
             'consigners',
             'selectedConsigner',
             'exporter',
@@ -185,7 +190,8 @@ class InvoiceController extends Controller
             'exchange_rate' => ['nullable', 'numeric', 'min:0'],
             'igst_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
-            'consignee_mode' => ['required', 'in:consigner,to_the_order'],
+            'consignee_mode' => ['required', 'in:consigner,consignee,to_the_order'],
+            'consignee_id' => ['nullable', 'exists:consigners,id'],
             'consigner_id' => ['nullable', 'exists:consigners,id'],
             'consignee_name' => ['nullable', 'string', 'max:255'],
             'consignee_address' => ['nullable', 'string'],
@@ -224,11 +230,23 @@ class InvoiceController extends Controller
             'final_destination' => ['nullable', 'string', 'max:100'],
             'payment_terms' => ['nullable', 'string', 'max:255'],
             'items_json' => ['nullable', 'string'],
+            'supplied_by_name' => ['nullable', 'string', 'max:255'],
+            'supplied_by_gstin' => ['nullable', 'string', 'max:50'],
+            'supplied_by_invoice_no' => ['nullable', 'string', 'max:100'],
+            'supplied_by_cgst' => ['nullable', 'string', 'max:50'],
+            'supplied_by_sgst' => ['nullable', 'string', 'max:50'],
+            'supplied_by_igst' => ['nullable', 'string', 'max:50'],
+            'drawback_details' => ['nullable', 'string', 'max:255'],
+            'epcg_details' => ['nullable', 'string', 'max:255'],
+            'scheme_party_name' => ['nullable', 'string', 'max:255'],
+            'containers_json' => ['nullable', 'string'],
+            'packing_list_details' => ['nullable', 'string'],
         ]);
 
+        $targetConsigneeId = $validated['consignee_id'] ?? ($validated['consigner_id'] ?? null);
         $consigner = null;
-        if ($validated['consignee_mode'] === 'consigner' && ! empty($validated['consigner_id'])) {
-            $consigner = Consigner::find($validated['consigner_id']);
+        if (in_array($validated['consignee_mode'], ['consigner', 'consignee']) && ! empty($targetConsigneeId)) {
+            $consigner = Consignee::find($targetConsigneeId);
         }
 
         // Parse items JSON and calculate totals via centralized service
@@ -243,6 +261,19 @@ class InvoiceController extends Controller
             $notifyParties = [];
         }
 
+        $containersData = ! empty($validated['containers_json']) ? json_decode($validated['containers_json'], true) : [];
+        if (! is_array($containersData)) {
+            $containersData = [];
+        }
+
+        // Primary container number is either explicitly provided or taken from first item
+        $containerNumberStr = ! empty($validated['container_number']) ? $validated['container_number'] : ($items[0]['container_no'] ?? '');
+
+        // If items don't have container_no set but container_number was provided, fill first item
+        if (count($items) > 0 && empty($items[0]['container_no']) && ! empty($containerNumberStr)) {
+            $items[0]['container_no'] = $containerNumberStr;
+        }
+
         $calc = $this->calculationService->calculateTotals(
             $items,
             $validated['invoice_format'],
@@ -255,7 +286,7 @@ class InvoiceController extends Controller
             ? 'TO THE ORDER'
             : (($validated['consignee_name'] ?? '') ?: ($consigner?->name ?? ''));
 
-        $invoice = DB::transaction(function () use ($validated, $consigner, $consigneeName, $items, $notifyParties, $calc) {
+        $invoice = DB::transaction(function () use ($validated, $consigner, $consigneeName, $items, $notifyParties, $calc, $containerNumberStr, $containersData) {
             return Invoice::create([
                 'invoice_number' => $validated['invoice_number'],
                 'invoice_date' => $validated['invoice_date'],
@@ -284,10 +315,10 @@ class InvoiceController extends Controller
 
                 'notify_parties' => $notifyParties,
 
-                'container_number' => ! empty($validated['container_number']) ? $validated['container_number'] : ($items[0]['container_no'] ?? ''),
+                'container_number' => $containerNumberStr,
                 'trailer_number' => ! empty($validated['trailer_number']) ? $validated['trailer_number'] : ($items[0]['trailer_no'] ?? ''),
                 'container_type' => $validated['container_type'] ?? null,
-                'no_of_containers' => !empty($validated['no_of_containers']) ? (int) $validated['no_of_containers'] : (count($items) > 0 ? count($items) : null),
+                'no_of_containers' => ! empty($validated['no_of_containers']) ? (int) $validated['no_of_containers'] : (count($items) > 0 ? count($items) : null),
                 'gross_weight' => isset($validated['gross_weight']) && $validated['gross_weight'] !== '' ? (float) $validated['gross_weight'] : null,
                 'net_weight' => isset($validated['net_weight']) && $validated['net_weight'] !== '' ? (float) $validated['net_weight'] : null,
                 'total_packages' => (int) ($validated['total_packages'] ?? 0),
@@ -295,6 +326,17 @@ class InvoiceController extends Controller
                 'region' => $validated['region'] ?? ($consigner?->region ?: 'Gujarat'),
                 'lut_no' => $validated['lut_no'] ?? null,
                 'iso_certification' => $validated['iso_certification'] ?? null,
+
+                'supplied_by_name' => $validated['supplied_by_name'] ?? null,
+                'supplied_by_gstin' => $validated['supplied_by_gstin'] ?? null,
+                'supplied_by_invoice_no' => $validated['supplied_by_invoice_no'] ?? null,
+                'supplied_by_cgst' => $validated['supplied_by_cgst'] ?? null,
+                'supplied_by_sgst' => $validated['supplied_by_sgst'] ?? null,
+                'supplied_by_igst' => $validated['supplied_by_igst'] ?? null,
+                'drawback_details' => $validated['drawback_details'] ?? null,
+                'epcg_details' => $validated['epcg_details'] ?? null,
+                'scheme_party_name' => $validated['scheme_party_name'] ?? null,
+                'containers_json' => ! empty($containersData) ? $containersData : null,
 
                 'buyer_po' => $validated['buyer_po'] ?? '',
                 'buyer_other' => [
@@ -335,7 +377,8 @@ class InvoiceController extends Controller
     {
         $settings = InvoiceSetting::getSettings();
         $exporter = $this->buildExporterData($settings);
-        $consigner = $invoice->consigner ?? ($invoice->consigner_id ? Consigner::find($invoice->consigner_id) : null);
+        $consignee = $invoice->consignee ?? ($invoice->consigner ?? ($invoice->consigner_id ? Consignee::find($invoice->consigner_id) : null));
+        $consigner = $consignee;
 
         $invoiceData = array_merge([
             'invoice_number' => $invoice->invoice_number,
@@ -373,6 +416,16 @@ class InvoiceController extends Controller
             'iso_certification' => $invoice->iso_certification ?: '',
             'origin_clause' => $settings->origin_clause ?: 'GOODS ARE OF INDIAN ORIGIN',
             'declaration' => $settings->declaration,
+            'supplied_by_name' => $invoice->supplied_by_name,
+            'supplied_by_gstin' => $invoice->supplied_by_gstin,
+            'supplied_by_invoice_no' => $invoice->supplied_by_invoice_no,
+            'supplied_by_cgst' => $invoice->supplied_by_cgst,
+            'supplied_by_sgst' => $invoice->supplied_by_sgst,
+            'supplied_by_igst' => $invoice->supplied_by_igst,
+            'drawback_details' => $invoice->drawback_details,
+            'epcg_details' => $invoice->epcg_details,
+            'scheme_party_name' => $invoice->scheme_party_name,
+            'containers_json' => $invoice->containers_json,
         ], $invoice->shipping_logistics ?? []);
 
         $items = $invoice->items ?? [];
@@ -394,6 +447,7 @@ class InvoiceController extends Controller
         return view('invoices.show', [
             'invoiceModel' => $invoice,
             'invoice' => $invoiceData,
+            'consignee' => $consignee,
             'consigner' => $consigner,
             'exporter' => $exporter,
             'buyerOther' => $buyerOther,
@@ -414,11 +468,13 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice): View
     {
         $settings = InvoiceSetting::getSettings();
-        $consigners = Consigner::orderBy('name', 'asc')->get();
+        $consignees = Consignee::orderBy('name', 'asc')->get();
+        $consigners = $consignees;
 
         // If consignee_mode is to_the_order, do not default to first consigner
         $isToOrder = ($invoice->consignee_mode === 'to_the_order' || strtoupper($invoice->consignee_name ?? '') === 'TO THE ORDER');
-        $selectedConsigner = $isToOrder ? null : ($invoice->consigner ?? ($invoice->consigner_id ? Consigner::find($invoice->consigner_id) : null));
+        $selectedConsignee = $isToOrder ? null : ($invoice->consignee ?? ($invoice->consigner ?? ($invoice->consigner_id ? Consignee::find($invoice->consigner_id) : null)));
+        $selectedConsigner = $selectedConsignee;
 
         $exporter = $this->buildExporterData($settings);
 
@@ -463,6 +519,16 @@ class InvoiceController extends Controller
             'iso_certification' => $invoice->iso_certification ?: '',
             'origin_clause' => $settings->origin_clause ?: 'GOODS ARE OF INDIAN ORIGIN',
             'declaration' => $settings->declaration,
+            'supplied_by_name' => $invoice->supplied_by_name,
+            'supplied_by_gstin' => $invoice->supplied_by_gstin,
+            'supplied_by_invoice_no' => $invoice->supplied_by_invoice_no,
+            'supplied_by_cgst' => $invoice->supplied_by_cgst,
+            'supplied_by_sgst' => $invoice->supplied_by_sgst,
+            'supplied_by_igst' => $invoice->supplied_by_igst,
+            'drawback_details' => $invoice->drawback_details,
+            'epcg_details' => $invoice->epcg_details,
+            'scheme_party_name' => $invoice->scheme_party_name,
+            'containers_json' => $invoice->containers_json,
         ], $invoice->shipping_logistics ?? []);
 
         $items = $invoice->items ?? [];
@@ -484,6 +550,8 @@ class InvoiceController extends Controller
         return view('invoices.edit', [
             'invoiceModel' => $invoice,
             'invoice' => $invoiceData,
+            'consignees' => $consignees,
+            'selectedConsignee' => $selectedConsignee,
             'consigners' => $consigners,
             'selectedConsigner' => $selectedConsigner,
             'exporter' => $exporter,
@@ -514,7 +582,8 @@ class InvoiceController extends Controller
             'exchange_rate' => ['nullable', 'numeric', 'min:0'],
             'igst_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
-            'consignee_mode' => ['required', 'in:consigner,to_the_order'],
+            'consignee_mode' => ['required', 'in:consigner,consignee,to_the_order'],
+            'consignee_id' => ['nullable', 'exists:consigners,id'],
             'consigner_id' => ['nullable', 'exists:consigners,id'],
             'consignee_name' => ['nullable', 'string', 'max:255'],
             'consignee_address' => ['nullable', 'string'],
@@ -553,12 +622,24 @@ class InvoiceController extends Controller
             'final_destination' => ['nullable', 'string', 'max:100'],
             'payment_terms' => ['nullable', 'string', 'max:255'],
             'items_json' => ['nullable', 'string'],
+            'supplied_by_name' => ['nullable', 'string', 'max:255'],
+            'supplied_by_gstin' => ['nullable', 'string', 'max:50'],
+            'supplied_by_invoice_no' => ['nullable', 'string', 'max:100'],
+            'supplied_by_cgst' => ['nullable', 'string', 'max:50'],
+            'supplied_by_sgst' => ['nullable', 'string', 'max:50'],
+            'supplied_by_igst' => ['nullable', 'string', 'max:50'],
+            'drawback_details' => ['nullable', 'string', 'max:255'],
+            'epcg_details' => ['nullable', 'string', 'max:255'],
+            'scheme_party_name' => ['nullable', 'string', 'max:255'],
+            'containers_json' => ['nullable', 'string'],
+            'packing_list_details' => ['nullable', 'string'],
             'status' => ['nullable', 'string'],
         ]);
 
+        $targetConsigneeId = $validated['consignee_id'] ?? ($validated['consigner_id'] ?? null);
         $consigner = null;
-        if ($validated['consignee_mode'] === 'consigner' && ! empty($validated['consigner_id'])) {
-            $consigner = Consigner::find($validated['consigner_id']);
+        if (in_array($validated['consignee_mode'], ['consigner', 'consignee']) && ! empty($targetConsigneeId)) {
+            $consigner = Consignee::find($targetConsigneeId);
         }
 
         $items = ! empty($validated['items_json']) ? json_decode($validated['items_json'], true) : $invoice->items;
@@ -569,6 +650,19 @@ class InvoiceController extends Controller
         $notifyParties = ! empty($validated['notify_parties_json']) ? json_decode($validated['notify_parties_json'], true) : ($invoice->notify_parties ?? []);
         if (! is_array($notifyParties)) {
             $notifyParties = [];
+        }
+
+        $containersData = ! empty($validated['containers_json']) ? json_decode($validated['containers_json'], true) : ($invoice->containers_json ?? []);
+        if (! is_array($containersData)) {
+            $containersData = [];
+        }
+
+        // Primary container number is either explicitly provided or taken from first item
+        $containerNumberStr = ! empty($validated['container_number']) ? $validated['container_number'] : ($items[0]['container_no'] ?? $invoice->container_number);
+
+        // If items don't have container_no set but container_number was provided, fill first item
+        if (count($items) > 0 && empty($items[0]['container_no']) && ! empty($containerNumberStr)) {
+            $items[0]['container_no'] = $containerNumberStr;
         }
 
         $calc = $this->calculationService->calculateTotals(
@@ -583,7 +677,7 @@ class InvoiceController extends Controller
             ? 'TO THE ORDER'
             : (($validated['consignee_name'] ?? '') ?: ($consigner?->name ?? $invoice->consignee_name));
 
-        DB::transaction(function () use ($invoice, $validated, $consigner, $consigneeName, $items, $notifyParties, $calc) {
+        DB::transaction(function () use ($invoice, $validated, $consigner, $consigneeName, $items, $notifyParties, $calc, $containerNumberStr, $containersData) {
             $invoice->update([
                 'invoice_number' => $validated['invoice_number'],
                 'invoice_date' => $validated['invoice_date'],
@@ -612,10 +706,10 @@ class InvoiceController extends Controller
 
                 'notify_parties' => $notifyParties,
 
-                'container_number' => ! empty($validated['container_number']) ? $validated['container_number'] : ($items[0]['container_no'] ?? $invoice->container_number),
+                'container_number' => $containerNumberStr,
                 'trailer_number' => ! empty($validated['trailer_number']) ? $validated['trailer_number'] : ($items[0]['trailer_no'] ?? $invoice->trailer_number),
                 'container_type' => $validated['container_type'] ?? $invoice->container_type,
-                'no_of_containers' => !empty($validated['no_of_containers']) ? (int) $validated['no_of_containers'] : $invoice->no_of_containers,
+                'no_of_containers' => ! empty($validated['no_of_containers']) ? (int) $validated['no_of_containers'] : $invoice->no_of_containers,
                 'gross_weight' => isset($validated['gross_weight']) && $validated['gross_weight'] !== '' ? (float) $validated['gross_weight'] : $invoice->gross_weight,
                 'net_weight' => isset($validated['net_weight']) && $validated['net_weight'] !== '' ? (float) $validated['net_weight'] : $invoice->net_weight,
                 'total_packages' => (int) ($validated['total_packages'] ?? $invoice->total_packages ?? 0),
@@ -623,6 +717,17 @@ class InvoiceController extends Controller
                 'region' => $validated['region'] ?? $invoice->region,
                 'lut_no' => $validated['lut_no'] ?? $invoice->lut_no,
                 'iso_certification' => $validated['iso_certification'] ?? $invoice->iso_certification,
+
+                'supplied_by_name' => $validated['supplied_by_name'] ?? $invoice->supplied_by_name,
+                'supplied_by_gstin' => $validated['supplied_by_gstin'] ?? $invoice->supplied_by_gstin,
+                'supplied_by_invoice_no' => $validated['supplied_by_invoice_no'] ?? $invoice->supplied_by_invoice_no,
+                'supplied_by_cgst' => $validated['supplied_by_cgst'] ?? $invoice->supplied_by_cgst,
+                'supplied_by_sgst' => $validated['supplied_by_sgst'] ?? $invoice->supplied_by_sgst,
+                'supplied_by_igst' => $validated['supplied_by_igst'] ?? $invoice->supplied_by_igst,
+                'drawback_details' => $validated['drawback_details'] ?? $invoice->drawback_details,
+                'epcg_details' => $validated['epcg_details'] ?? $invoice->epcg_details,
+                'scheme_party_name' => $validated['scheme_party_name'] ?? $invoice->scheme_party_name,
+                'containers_json' => ! empty($containersData) ? $containersData : $invoice->containers_json,
 
                 'buyer_po' => $validated['buyer_po'] ?? $invoice->buyer_po,
                 'buyer_other' => [
@@ -663,7 +768,8 @@ class InvoiceController extends Controller
     {
         $settings = InvoiceSetting::getSettings();
         $exporter = $this->buildExporterData($settings);
-        $consigner = $invoice->consigner ?? ($invoice->consigner_id ? Consigner::find($invoice->consigner_id) : null);
+        $consignee = $invoice->consignee ?? ($invoice->consigner ?? ($invoice->consigner_id ? Consignee::find($invoice->consigner_id) : null));
+        $consigner = $consignee;
 
         $invoiceData = array_merge([
             'invoice_number' => $invoice->invoice_number,
@@ -695,6 +801,7 @@ class InvoiceController extends Controller
             'buyer_po' => $invoice->buyer_po,
             'lut_no' => $invoice->lut_no ?: '',
             'iso_certification' => $invoice->iso_certification ?: '',
+            'containers_json' => $invoice->containers_json,
         ], $invoice->shipping_logistics ?? []);
 
         $items = $invoice->items ?? [];
@@ -712,6 +819,7 @@ class InvoiceController extends Controller
         return view('invoices.packing-list', [
             'invoiceModel' => $invoice,
             'invoice' => $invoiceData,
+            'consignee' => $consignee,
             'consigner' => $consigner,
             'exporter' => $exporter,
             'buyerOther' => $buyerOther,
@@ -754,15 +862,15 @@ class InvoiceController extends Controller
         ];
     }
 
-    private function buildBankData(InvoiceSetting $settings, ?Consigner $consigner): array
+    private function buildBankData(InvoiceSetting $settings, Consignee|Consigner|null $consigner = null): array
     {
         return [
-            'name' => $settings->bank_name,
-            'branch' => $settings->bank_branch,
-            'account_no' => $settings->bank_account_no,
-            'swift_code' => $settings->bank_swift_code,
+            'name' => $consigner?->bank_name ?: $settings->bank_name,
+            'branch' => $consigner?->bank_branch ?: $settings->bank_branch,
+            'account_no' => $consigner?->bank_account_no ?: ($settings->bank_account_no ?: '777705052052'),
+            'swift_code' => $consigner?->bank_swift ?: $settings->bank_swift_code,
             'ad_code' => $consigner?->ad_code ?: $settings->bank_ad_code,
-            'address' => $settings->bank_address,
+            'address' => $consigner?->bank_address ?: $settings->bank_address,
         ];
     }
 

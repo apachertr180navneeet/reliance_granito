@@ -116,17 +116,17 @@
 
             <!-- Consignee -->
             <td class="py-3 px-3" style="max-width: 260px;">
-              <div class="fw-semibold text-dark text-truncate" title="{{ $inv->consigner_name }}">
-                {{ $inv->consigner_name ?? 'Consignee Not Assigned' }}
+              <div class="fw-semibold text-dark text-truncate" title="{{ $inv->consignee_name ?: $inv->consigner_name }}">
+                {{ $inv->consignee_name ?: ($inv->consigner_name ?? 'Consignee Not Assigned') }}
               </div>
-              @if(!empty($inv->buyer_other['name']) && $inv->buyer_other['name'] !== $inv->consigner_name)
+              @if(!empty($inv->buyer_other['name']) && $inv->buyer_other['name'] !== ($inv->consignee_name ?: $inv->consigner_name))
                 <div class="small text-muted text-truncate" title="Other Buyer">
                   <span class="badge bg-light text-secondary border py-0 px-1 me-1">Buyer:</span>{{ $inv->buyer_other['name'] }}
                 </div>
               @endif
-              @if($inv->consigner)
+              @if($inv->consignee ?? $inv->consigner)
                 <span class="badge bg-light text-primary border font-monospace mt-1" style="font-size: 0.72rem;">
-                  IEC: {{ $inv->consigner->iec }}
+                  IEC: {{ ($inv->consignee ?? $inv->consigner)->iec }}
                 </span>
               @endif
             </td>

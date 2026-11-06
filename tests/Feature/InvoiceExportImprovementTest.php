@@ -696,4 +696,197 @@ class InvoiceExportImprovementTest extends TestCase
         $response->assertSee('marks_numbers: ""', false);
         $response->assertSee('hsn_code: ""', false);
     }
+
+    /**
+     * Test N — Consigner Master: Entity classification, Manufacturing premises (tax code, phone, email),
+     * Customs section removal, and Forex Bank details (Account 777705052052).
+     */
+    public function test_n_consigner_master_improvements(): void
+    {
+        // 1. Edit view checks
+        $editResponse = $this->actingAs($this->user)->get(route('consigners.edit', $this->consigner));
+        $editResponse->assertStatus(200);
+        $editResponse->assertSee('Manufacturer Exporter');
+        $editResponse->assertSee('name="tax_code"', false);
+        $editResponse->assertSee('name="phone"', false);
+        $editResponse->assertSee('name="email"', false);
+        $editResponse->assertSee('777705052052');
+        $editResponse->assertSee('name="contact_person"', false);
+        $editResponse->assertSee('name="contact_phone"', false);
+        $editResponse->assertSee('name="contact_email"', false);
+        // Ensure old Customs & Export Registration section title is absent
+        $editResponse->assertDontSee('ICEGATE & Statutory Tax Registration');
+
+        // 2. Update consigner with all new fields
+        $updateData = [
+            'name' => 'RELIANCE GRANITO WORKS PRIVATE LIMITED',
+            'legal_name' => 'RELIANCE GRANITO WORKS PRIVATE LIMITED',
+            'entity_type' => 'Manufacturer Exporter',
+            'registered_address' => 'Plot 42, GIDC Phase II, Morbi, Gujarat - 363642',
+            'factory_address' => 'National Highway 8A, Morbi, Gujarat - 363642',
+            'region' => 'Gujarat',
+            'tax_code' => '24AAACR1234F1Z9',
+            'phone' => '+91 9785065066',
+            'email' => 'export@reliancegranito.com',
+            'bank_name' => 'ICICI BANK LIMITED',
+            'bank_branch' => 'JODHPUR BRANCH',
+            'bank_account_no' => '777705052052',
+            'bank_swift' => 'ICICINBBCTS',
+            'bank_address' => 'Jodhpur Branch, Rajasthan, India',
+            'contact_person' => 'Rajesh B. Patel',
+            'contact_phone' => '+91 98252 14690',
+            'contact_email' => 'rajesh@reliancegranito.com',
+            'iec' => 'ABEFR3842G',
+            'iec_branch' => '0',
+            'gstin' => '24AAACR1234F1Z9',
+            'pan' => 'AAACR1234F',
+            'ad_code' => '6390013',
+            'status' => 'Active',
+        ];
+
+        $putResponse = $this->actingAs($this->user)->put(route('consigners.update', $this->consigner), $updateData);
+        $putResponse->assertSessionHasNoErrors();
+        $putResponse->assertRedirect(route('consigners.index'));
+
+        $this->consigner->refresh();
+        $this->assertEquals('777705052052', $this->consigner->bank_account_no);
+        $this->assertEquals('24AAACR1234F1Z9', $this->consigner->tax_code);
+        $this->assertEquals('+91 9785065066', $this->consigner->phone);
+        $this->assertEquals('export@reliancegranito.com', $this->consigner->email);
+        $this->assertEquals('Manufacturer Exporter', $this->consigner->entity_type);
+    }
+
+    /**
+     * Test O — Commercial Invoice & Packing List EDMS improvements:
+     * - Multi-containers, Goods description presets and HSN codes
+     * - Supplied by section (Party Name, GSTIN, Inv No, CGST, SGST, IGST)
+     * - Drawback & EPCG scheme details
+     * - Bank Account Number 777705052052
+     * - Packing list clean redesign (unnecessary logistics and badges removed)
+     */
+    public function test_o_commercial_invoice_and_packing_list_edms_improvements(): void
+    {
+        $items = [
+            [
+                'item_no' => 1,
+                'marks_numbers' => '20 FCL ( 1 )',
+                'container_no' => 'TCLU7789571',
+                'trailer_no' => 'TN02BB9434',
+                'description' => 'POLISHED GRANITE SLABS',
+                'hsn_code' => '68022390',
+                'packages' => 120,
+                'quantity' => 300.000,
+                'rate' => 35.000,
+                'amount' => 10500.00,
+                'net_weight' => 14000,
+                'gross_weight' => 14500,
+            ],
+            [
+                'item_no' => 2,
+                'marks_numbers' => '20 FCL ( 2 )',
+                'container_no' => 'MSKU9988776',
+                'trailer_no' => 'GJ03AB1234',
+                'description' => 'PORCELAIN GLAZED TILES',
+                'hsn_code' => '69072100',
+                'packages' => 80,
+                'quantity' => 200.000,
+                'rate' => 25.000,
+                'amount' => 5000.00,
+                'net_weight' => 11500,
+                'gross_weight' => 12000,
+            ],
+        ];
+
+        $notifyParties = [
+            ['name' => 'ALPHA GLOBAL LOGISTICS LTD'],
+            ['name' => 'VIETNAM FREIGHT FORWARDERS JSC'],
+        ];
+
+        $postData = [
+            'invoice_number' => 'RG-EDMS-2026-001',
+            'invoice_date' => '04.11.2026',
+            'invoice_format' => 'IGST',
+            'delivery_term' => 'CIF',
+            'currency' => 'USD',
+            'exchange_rate' => 94.20,
+            'igst_rate' => 18.00,
+            'consignee_mode' => 'consigner',
+            'consigner_id' => $this->consigner->id,
+            'buyer_name' => 'ORIENTAL IMPORT & TRADING CORP',
+            'buyer_address' => 'District 5, Ho Chi Minh City, Vietnam',
+            'buyer_tax' => 'VN-TAX-987654',
+            'buyer_phone' => '+84 28 3822 5500',
+            'buyer_email' => 'contact@orientalimport.vn',
+            'notify_parties_json' => json_encode($notifyParties),
+            'container_number' => 'TCLU7789571',
+            'trailer_number' => 'TN02BB9434',
+            'items_json' => json_encode($items),
+            'supplied_by_name' => 'RELIANCE GRANITO CERAMICS',
+            'supplied_by_gstin' => '24AAACR1234F1Z9',
+            'supplied_by_invoice_no' => 'SUP-26-009',
+            'supplied_by_cgst' => '0.00',
+            'supplied_by_sgst' => '0.00',
+            'supplied_by_igst' => '263000.00',
+            'drawback_details' => 'DUTY DRAWBACK UNDER SECTION 75',
+            'epcg_details' => 'EPCG SCHEME NO. 0530009842',
+            'scheme_party_name' => 'RELIANCE GRANITO',
+            'gross_weight' => 26500,
+            'net_weight' => 25500,
+        ];
+
+        $response = $this->actingAs($this->user)->post(route('invoices.store'), $postData);
+        $response->assertSessionHasNoErrors();
+        $invoice = Invoice::where('invoice_number', 'RG-EDMS-2026-001')->firstOrFail();
+
+        // 1. Verify Commercial Invoice view
+        $showResponse = $this->actingAs($this->user)->get(route('invoices.show', $invoice));
+        $showResponse->assertStatus(200);
+
+        // Multiple containers
+        $showResponse->assertSee('TCLU7789571');
+        $showResponse->assertSee('MSKU9988776');
+
+        // Buyer details
+        $showResponse->assertSee('ORIENTAL IMPORT &amp; TRADING CORP', false);
+        $showResponse->assertSee('District 5, Ho Chi Minh City, Vietnam');
+        $showResponse->assertSee('VN-TAX-987654');
+
+        // Notify Party (Names only, no address/tax/phone)
+        $showResponse->assertSee('ALPHA GLOBAL LOGISTICS LTD');
+        $showResponse->assertSee('VIETNAM FREIGHT FORWARDERS JSC');
+
+        // Description of Goods & HSN Codes
+        $showResponse->assertSee('POLISHED GRANITE SLABS');
+        $showResponse->assertSee('68022390');
+        $showResponse->assertSee('PORCELAIN GLAZED TILES');
+        $showResponse->assertSee('69072100');
+
+        // Supplied by section
+        $showResponse->assertSee('RELIANCE GRANITO CERAMICS');
+        $showResponse->assertSee('SUP-26-009');
+        $showResponse->assertSee('DUTY DRAWBACK UNDER SECTION 75');
+        $showResponse->assertSee('EPCG SCHEME NO. 0530009842');
+
+        // Bank account number 777705052052
+        $showResponse->assertSee('777705052052');
+        $showResponse->assertDontSee('777705022062');
+
+        // 2. Verify Commercial Packing List view
+        $pkgResponse = $this->actingAs($this->user)->get(route('invoices.packing-list', $invoice));
+        $pkgResponse->assertStatus(200);
+
+        // Packages / Pieces count & Container weights
+        $pkgResponse->assertSee('120');
+        $pkgResponse->assertSee('80');
+        $pkgResponse->assertSee('200 PKGS');
+        $pkgResponse->assertSee('500.000 SQM');
+        $pkgResponse->assertSee('25500 KG');
+        $pkgResponse->assertSee('26500 KG');
+
+        // Clean layout checks: removed sections
+        $pkgResponse->assertDontSee('COMMERCIAL PACKING LIST &amp; SPECIFICATIONS', false);
+        $pkgResponse->assertDontSee('CONSIGNMENT SPECIFICATIONS:');
+        $pkgResponse->assertDontSee('Certified Weights Breakdown');
+        $pkgResponse->assertDontSee('Two Star Export House');
+    }
 }

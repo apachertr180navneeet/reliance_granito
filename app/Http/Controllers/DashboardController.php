@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Consigner;
+use App\Models\Consignee;
 use App\Models\Document;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
-        $activeShipment = Shipment::with('consigner')
+        $activeShipment = Shipment::with(['consignee', 'consigner'])
             ->where('shipment_number', 'SHP-1469')
             ->first() ?? Shipment::first();
 
@@ -23,11 +23,18 @@ class DashboardController extends Controller
             ->orderBy('id', 'asc')
             ->get();
 
+        $totalConsignees = Consignee::count();
+        $activeConsignees = Consignee::where('status', 'Active')->count();
+        $morbiPlants = Consignee::whereIn('region', ['Gujarat', 'Morbi'])->count();
+        $jodhpurUnits = Consignee::where('region', 'Jodhpur')->count();
+
         $stats = [
-            'total_consigners' => Consigner::count(),
-            'active_consigners' => Consigner::where('status', 'Active')->count(),
-            'morbi_plants' => Consigner::whereIn('region', ['Gujarat', 'Morbi'])->count(),
-            'jodhpur_units' => Consigner::where('region', 'Jodhpur')->count(),
+            'total_consignees' => $totalConsignees,
+            'active_consignees' => $activeConsignees,
+            'total_consigners' => $totalConsignees,
+            'active_consigners' => $activeConsignees,
+            'morbi_plants' => $morbiPlants,
+            'jodhpur_units' => $jodhpurUnits,
             'total_documents' => Document::count(),
         ];
 
